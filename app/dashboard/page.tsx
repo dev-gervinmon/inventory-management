@@ -8,16 +8,17 @@ export default async function DashboardPage() {
   const user = await getCurrentUser();
   const userId = user.id;
 
-  const [totalProducts, lowStock, allProducts] = await Promise.all([
+  const [totalProducts, allProducts] = await Promise.all([
     prisma.product.count({ where: { userId } }),
 
-    // under construction level stock threshold is 5
-    prisma.product.count({
-      where: { userId, lowStockAt: { not: null }, quantity: { lte: 5 } },
-    }),
     prisma.product.findMany({
       where: { userId },
-      select: { price: true, quantity: true, createdAt: true },
+      select: {
+        price: true,
+        quantity: true,
+        lowStockAt: true,
+        createdAt: true,
+      },
     }),
   ]);
 
@@ -28,7 +29,10 @@ export default async function DashboardPage() {
 
   const inStockCount = allProducts.filter((p) => Number(p.quantity) > 5).length;
   const lowStockCount = allProducts.filter(
-    (p) => Number(p.quantity) <= 5 && Number(p.quantity) >= 1
+    (p) =>
+      p.lowStockAt !== null &&
+      Number(p.quantity) <= Number(p.lowStockAt) &&
+      Number(p.quantity) >= 1
   ).length;
   const outOfStockCount = allProducts.filter(
     (p) => Number(p.quantity) === 0
@@ -40,10 +44,6 @@ export default async function DashboardPage() {
     totalProducts > 0 ? Math.round((lowStockCount / totalProducts) * 100) : 0;
   const outOfStockPercentage =
     totalProducts > 0 ? Math.round((outOfStockCount / totalProducts) * 100) : 0;
-
-  console.log((inStockCount / totalProducts) * 100);
-  console.log(Math.round(inStockCount / totalProducts));
-  console.log(totalProducts);
 
   const now = new Date();
   const weeklyProductsData = [];
@@ -136,11 +136,13 @@ export default async function DashboardPage() {
               {/** Total Products */}
               <div className="text-center">
                 <div className="text-3xl font-bold text-gray-900">
-                  {lowStock}
+                  {lowStockCount}
                 </div>
                 <div className="text-small text-gray-600">Low Stock</div>
                 <div className="flex items-center justify-center mt-1">
-                  <span className="text-xs text-green-600">+{lowStock}</span>
+                  <span className="text-xs text-green-600">
+                    +{lowStockCount}
+                  </span>
                   <TrendingUp className="w-3 h-3 text-green-600 ml-1" />
                 </div>
               </div>

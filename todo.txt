@@ -1,4 +1,4 @@
--- Fix logic with fixed low stock @dashboard/page.tsx
+Fixed -- Fix logic with fixed low stock @dashboard/page.tsx
 -- Update default page @page.tsx
 -- Modify table to be cards with images instead
 -- Add categories
