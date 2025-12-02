@@ -1,6 +1,9 @@
+"use server";
+
 import Link from "next/link";
 
-export default function ProductForm({
+export default async function ProductForm({
+  id,
   name = "",
   price = null,
   quantity = null,
@@ -9,6 +12,7 @@ export default function ProductForm({
   btnAction = "Add",
   formAction,
 }: {
+  id?: string;
   name?: string | null;
   price?: number | null;
   quantity?: number | null;
@@ -21,6 +25,7 @@ export default function ProductForm({
     <div className="max-w-2xl">
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <form action={formAction} className="space-y-6">
+          {id && <input type="hidden" name="id" value={id} />}
           <div>
             <label
               htmlFor="name"
