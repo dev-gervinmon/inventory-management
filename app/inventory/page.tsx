@@ -3,6 +3,7 @@ import SideBar from "@/components/sidebar";
 import { deleteProduct } from "@/lib/actions/products";
 import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import Link from "next/link";
 
 export default async function InventoryPage({
   searchParams,
@@ -116,6 +117,14 @@ export default async function InventoryPage({
                     </td>
 
                     <td className="px-6 py-4 text-sm font-medium text-gray-500">
+                      <Link
+                        href={`inventory/${product.id}/edit-product`}
+                        key={key}
+                      >
+                        <span className="text-sm text-orange-600 hover:text-orange-900">
+                          Edit
+                        </span>
+                      </Link>
                       <form
                         action={async (formData: FormData) => {
                           "use server";
