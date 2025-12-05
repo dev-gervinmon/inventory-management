@@ -3,6 +3,9 @@ import { StackProvider, StackTheme } from "@stackframe/stack";
 import { stackClientApp } from "../stack/client";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { extractRouterConfig } from "uploadthing/server";
+import { ourFileRouter } from "./api/uploadthing/core";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,9 +31,12 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      ><StackProvider app={stackClientApp}><StackTheme>
-        {children}
-      </StackTheme></StackProvider></body>
+      >
+        <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
+        <StackProvider app={stackClientApp}>
+          <StackTheme>{children}</StackTheme>
+        </StackProvider>
+      </body>
     </html>
   );
 }
