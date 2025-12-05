@@ -51,6 +51,7 @@ export default async function EditProductPage({
           quantity={product.quantity}
           sku={product.sku}
           lowStockAt={product.lowStockAt}
+          image={product.imageUrl}
           btnAction="Edit"
           formAction={editProduct}
         />

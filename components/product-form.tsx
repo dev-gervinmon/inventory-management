@@ -1,6 +1,7 @@
 "use server";
 
 import Link from "next/link";
+import ImageUploadField from "./image-upload-field";
 
 export default async function ProductForm({
   id,
@@ -9,6 +10,7 @@ export default async function ProductForm({
   quantity = null,
   sku = null,
   lowStockAt = null,
+  image = null,
   btnAction = "Add",
   formAction,
 }: {
@@ -18,6 +20,7 @@ export default async function ProductForm({
   quantity?: number | null;
   sku?: string | null;
   lowStockAt?: number | null;
+  image?: string | null;
   btnAction?: string;
   formAction: (formData: FormData) => void | Promise<void>;
 }) {
@@ -118,6 +121,8 @@ export default async function ProductForm({
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-transparent"
             />
           </div>
+
+          <ImageUploadField defaultUrl={image || ""} />
 
           <div className="flex gap-5">
             <button
