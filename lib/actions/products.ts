@@ -11,6 +11,7 @@ const ProductSchema = z.object({
   quantity: z.coerce.number().int().min(0, "Quantity must be non-negative"),
   sku: z.string().optional(),
   lowStockAt: z.coerce.number().int().min(0).optional(),
+  imageUrl: z.string().optional(),
 });
 
 function parseProductData(formData: FormData) {
@@ -20,6 +21,7 @@ function parseProductData(formData: FormData) {
     quantity: formData.get("quantity"),
     sku: formData.get("sku") || undefined,
     lowStockAt: formData.get("lowStockAt") || undefined,
+    imageUrl: formData.get("image") || undefined,
   });
 
   if (!parsed.success) {
@@ -59,6 +61,10 @@ export async function createProduct(formData: FormData) {
       data: { ...data, userId: user.id },
     });
   } catch (error) {
+    console.error("Create product error:", error);
+    if (error instanceof Error) {
+      throw new Error(`Failed to create product: ${error.message}`);
+    }
     throw new Error("Failed to create product.");
   }
   redirect("/inventory");
@@ -90,10 +96,7 @@ export async function editProduct(formData: FormData) {
       data,
     });
   } catch (error) {
-    if (
-      error instanceof Error &&
-      error.message.includes("Unique constraint")
-    ) {
+    if (error instanceof Error && error.message.includes("Unique constraint")) {
       throw new Error("SKU already exists");
     }
     throw new Error("Failed to update product.");
