@@ -1,9 +1,9 @@
 import Pagination from "@/components/pagination";
+import ProductCard from "@/components/product-card";
 import SideBar from "@/components/sidebar";
-import { deleteProduct } from "@/lib/actions/products";
 import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import Link from "next/link";
+import { serializeProduct } from "../src/utils/product";
 
 export default async function InventoryPage({
   searchParams,
@@ -24,7 +24,7 @@ export default async function InventoryPage({
     ...(q ? { name: { contains: q, mode: "insensitive" as const } } : {}),
   };
 
-  const [totalCount, items] = await Promise.all([
+  const [totalCount, itemsRaw] = await Promise.all([
     prisma.product.count({ where }),
     prisma.product.findMany({
       where,
@@ -33,6 +33,8 @@ export default async function InventoryPage({
       take: pageSize,
     }),
   ]);
+
+  const items = itemsRaw.map(serializeProduct);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
@@ -68,79 +70,15 @@ export default async function InventoryPage({
             </form>
           </div>
 
-          {/** Products Table */}
-          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    SKU
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Price
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Quantity
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Low Stock At
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
+          {/** Product Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {items.length === 0 && (
+              <p className="text-gray-500 text-sm">No products found.</p>
+            )}
 
-              <tbody className="bg-white divide-y divide-gray-200">
-                {items.map((product, key) => (
-                  <tr key={key} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-500">
-                      {product.name}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-500">
-                      {product.sku || "-"}
-                    </td>
-
-                    <td className="px-6 py-4 text-sm font-medium text-gray-500">
-                      ₱{Number(product.price).toFixed(2)}
-                    </td>
-
-                    <td className="px-6 py-4 text-sm font-medium text-gray-500">
-                      {product.quantity}
-                    </td>
-
-                    <td className="px-6 py-4 text-sm font-medium text-gray-500">
-                      {product.lowStockAt || "-"}
-                    </td>
-
-                    <td className="px-6 py-4 text-sm font-medium text-gray-500">
-                      <Link
-                        href={`inventory/${product.id}/edit-product`}
-                        key={key}
-                      >
-                        <span className="text-sm text-orange-600 hover:text-orange-900">
-                          Edit
-                        </span>
-                      </Link>
-                      <form
-                        action={async (formData: FormData) => {
-                          "use server";
-                          await deleteProduct(formData);
-                        }}
-                      >
-                        <input type="hidden" name="id" value={product.id} />
-                        <button className="text-red-600 hover:text-red-900">
-                          Delete
-                        </button>
-                      </form>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {items.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
           </div>
 
           {totalPages > 1 && (
