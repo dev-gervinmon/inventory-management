@@ -31,24 +31,26 @@ function parseProductData(formData: FormData) {
   return parsed.data;
 }
 
-export async function deleteProduct(formData: FormData) {
+export async function deleteProduct(id: string) {
   const user = await getCurrentUser();
-  const id = String(formData.get("id") || "");
 
   if (!id) {
     throw new Error("Product ID is required");
   }
 
   try {
-    const deleted = await prisma.product.deleteMany({
+    const result = await prisma.product.deleteMany({
       where: { id, userId: user.id },
     });
 
-    if (deleted.count === 0) {
+    if (result.count === 0) {
       throw new Error("Product not found or unauthorized");
     }
+
+    return { success: true };
   } catch (error) {
-    throw new Error("Failed to delete product.");
+    console.error("Delete error:", error);
+    throw new Error("Failed to delete product");
   }
 }
 
