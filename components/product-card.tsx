@@ -56,6 +56,25 @@ export default function ProductCard({
 
       {/* Content */}
       <div className="p-4 space-y-3">
+        {/* Categories */}
+        {product.categories && product.categories.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {product.categories.slice(0, 2).map((category) => (
+              <span
+                key={category.id}
+                className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full font-medium"
+              >
+                {category.name}
+              </span>
+            ))}
+            {product.categories.length > 2 && (
+              <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full font-medium">
+                +{product.categories.length - 2}
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Name + SKU */}
         <div>
           <h3 className="text-lg font-semibold text-gray-900">
