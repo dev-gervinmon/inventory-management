@@ -31,6 +31,11 @@ function parseProductData(formData: FormData) {
   return parsed.data;
 }
 
+function getCategoryIds(formData: FormData): string[] {
+  const categoryIds = formData.getAll("categoryIds");
+  return categoryIds.filter((id) => typeof id === "string") as string[];
+}
+
 export async function deleteProduct(id: string) {
   const user = await getCurrentUser();
 
@@ -57,10 +62,17 @@ export async function deleteProduct(id: string) {
 export async function createProduct(formData: FormData) {
   const user = await getCurrentUser();
   const data = parseProductData(formData);
+  const categoryIds = getCategoryIds(formData);
 
   try {
     await prisma.product.create({
-      data: { ...data, userId: user.id },
+      data: {
+        ...data,
+        userId: user.id,
+        categories: {
+          connect: categoryIds.map((id) => ({ id })),
+        },
+      },
     });
   } catch (error) {
     console.error("Create product error:", error);
@@ -91,11 +103,17 @@ export async function editProduct(formData: FormData) {
   }
 
   const data = parseProductData(formData);
+  const categoryIds = getCategoryIds(formData);
 
   try {
     await prisma.product.update({
       where: { id },
-      data,
+      data: {
+        ...data,
+        categories: {
+          set: categoryIds.map((id) => ({ id })),
+        },
+      },
     });
   } catch (error) {
     if (error instanceof Error && error.message.includes("Unique constraint")) {
