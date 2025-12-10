@@ -1,4 +1,4 @@
-import { Product } from "@/app/generated/prisma/client";
+import { Product, Category } from "@/app/generated/prisma/client";
 
 export interface SerializedProduct {
   id: string;
@@ -9,16 +9,20 @@ export interface SerializedProduct {
   quantity: number;
   lowStockAt: number | null;
   imageUrl: string | null;
+  categories?: { id: string; name: string }[];
   createdAt: string;
   updatedAt: string;
 }
 
-export function serializeProduct(product: Product): SerializedProduct {
+export function serializeProduct(
+  product: Product & { categories?: Category[] }
+): SerializedProduct {
   return {
     ...product,
     price: Number(product.price),
     quantity: Number(product.quantity),
     lowStockAt: product.lowStockAt ? Number(product.lowStockAt) : null,
+    categories: product.categories?.map((c) => ({ id: c.id, name: c.name })),
     createdAt: product.createdAt.toISOString(),
     updatedAt: product.updatedAt.toISOString(),
   };
