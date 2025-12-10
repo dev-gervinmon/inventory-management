@@ -77,6 +77,9 @@ export default async function DashboardPage() {
     where: { userId },
     orderBy: { createdAt: "desc" },
     take: 5,
+    include: {
+      categories: true,
+    },
   });
 
   return (

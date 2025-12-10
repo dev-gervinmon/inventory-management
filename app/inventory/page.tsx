@@ -31,6 +31,9 @@ export default async function InventoryPage({
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * pageSize,
       take: pageSize,
+      include: {
+        categories: true,
+      },
     }),
   ]);
 
