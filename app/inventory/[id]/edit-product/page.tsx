@@ -17,6 +17,9 @@ export default async function EditProductPage({
 
   const product = await prisma.product.findUnique({
     where: { id },
+    include: {
+      categories: true,
+    },
   });
 
   if (!product) {
@@ -52,6 +55,7 @@ export default async function EditProductPage({
           sku={product.sku}
           lowStockAt={product.lowStockAt}
           image={product.imageUrl}
+          categoryIds={product.categories.map((c) => c.id)}
           btnAction="Edit"
           formAction={editProduct}
         />
