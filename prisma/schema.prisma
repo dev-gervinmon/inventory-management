@@ -22,10 +22,20 @@ model Product {
   quantity Int @default(0)
   lowStockAt Int?
   imageUrl String?
+  categories Category[] @relation("Categories")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([userId, name])
   @@index([createdAt])
+}
+
+model Category {
+  id String @id @default(cuid())
+  name String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Product[] @relation("Categories")
 }
