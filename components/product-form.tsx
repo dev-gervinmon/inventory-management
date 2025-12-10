@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import ImageUploadField from "./image-upload-field";
+import prisma from "@/lib/prisma";
 
 export default async function ProductForm({
   id,
@@ -11,6 +12,7 @@ export default async function ProductForm({
   sku = null,
   lowStockAt = null,
   image = null,
+  categoryIds = [],
   btnAction = "Add",
   formAction,
 }: {
@@ -21,9 +23,13 @@ export default async function ProductForm({
   sku?: string | null;
   lowStockAt?: number | null;
   image?: string | null;
+  categoryIds?: string[];
   btnAction?: string;
   formAction: (formData: FormData) => void | Promise<void>;
 }) {
+  const categories = await prisma.category.findMany({
+    orderBy: { name: "asc" },
+  });
   return (
     <div className="max-w-2xl">
       <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -123,6 +129,44 @@ export default async function ProductForm({
           </div>
 
           <ImageUploadField defaultUrl={image || ""} />
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Categories (optional)
+            </label>
+            <div className="border border-gray-300 rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto">
+              {categories.length === 0 ? (
+                <p className="text-sm text-gray-500">
+                  No categories available.{" "}
+                  <Link
+                    href="/categories/new"
+                    className="text-purple-600 hover:text-purple-700"
+                  >
+                    Create one
+                  </Link>
+                </p>
+              ) : (
+                categories.map((category) => (
+                  <div key={category.id} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id={`category-${category.id}`}
+                      name="categoryIds"
+                      value={category.id}
+                      defaultChecked={categoryIds.includes(category.id)}
+                      className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                    />
+                    <label
+                      htmlFor={`category-${category.id}`}
+                      className="ml-2 text-sm text-gray-700"
+                    >
+                      {category.name}
+                    </label>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
 
           <div className="flex gap-5">
             <button
