@@ -6,4 +6,6 @@ Implemented -- Add categories
 -- Find a way to get product info (product api)
 -- Make live market feature (include revenue, modify product stocks, etc.)
 -- Add possibility of having multiple stores (diff store, diff inventory)
+-- Add field validations on forms (saving with existing SKU causes error)
+-- Cleanup for image upload
 -- Deploy
