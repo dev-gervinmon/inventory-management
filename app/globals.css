@@ -214,25 +214,6 @@ body {
   width: 100%;
 }
 
-.bg-noise {
-  position: relative;
-}
-
-.bg-noise::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: url("/noise.png");
-  background-repeat: repeat;
-  opacity: 0.06; /* only noise gets opacity */
-  pointer-events: none;
-  z-index: -1;
-}
-
-body.bg-noise {
-  position: relative;
-}
-
 html.dark body {
   background-color: black;
 }
