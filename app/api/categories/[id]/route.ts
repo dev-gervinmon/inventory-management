@@ -1,45 +1,39 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { withApiHandler } from "@/lib/api/handler";
+import { parseCategoryDataJSON } from "@/lib/schemas/categories";
+import {
+  apiRequireCategoryExists,
+  apiRequireId,
+} from "@/lib/validators/categories";
 
-export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const { id } = await params;
+export const PUT = withApiHandler(
+  async (req: Request, context?: { params: { id: string } }) => {
+    const params = await context!.params;
+    const id = apiRequireId(params);
+
     const body = await req.json();
-    const { name } = body;
+    const parsed = parseCategoryDataJSON(body);
+
+    await apiRequireCategoryExists(id);
 
     const category = await prisma.category.update({
       where: { id },
-      data: { name },
+      data: parsed,
     });
 
     return NextResponse.json(category);
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to update category" },
-      { status: 500 }
-    );
   }
-}
+);
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const { id } = params;
+export const DELETE = withApiHandler(
+  async (req: Request, context?: { params: { id: string } }) => {
+    const params = await context!.params;
+    const id = apiRequireId(params);
 
-    await prisma.category.delete({
-      where: { id },
-    });
+    await apiRequireCategoryExists(id);
 
+    await prisma.category.delete({ where: { id } });
     return NextResponse.json({ success: true });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to delete category" },
-      { status: 500 }
-    );
   }
-}
+);
