@@ -23,6 +23,7 @@ model Product {
   lowStockAt Int?
   imageUrl String?
   categories Category[] @relation("Categories")
+  subcategories Subcategory[] @relation("ProductSubcategories")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -38,4 +39,19 @@ model Category {
   updatedAt DateTime @updatedAt
 
   products Product[] @relation("Categories")
+  subcategories Subcategory[]
+}
+
+model Subcategory {
+  id String @id @default(cuid())
+  name String
+  categoryId String
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  products Product[] @relation("ProductSubcategories")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, categoryId])
 }
