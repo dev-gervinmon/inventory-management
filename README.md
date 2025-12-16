@@ -1,36 +1,154 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Inventory Management System
 
-## Getting Started
+A modern, full‑stack inventory management system built with **Next.js App Router**, **TypeScript**, **Prisma**, and **PostgreSQL**.  
+Designed as a growing **SaaS-style application**, focusing on clean UX, scalability, and real-world inventory workflows.
 
-First, run the development server:
+---
+
+## ✨ Features
+
+### Core Inventory
+
+- Product CRUD (Create, Read, Update, Delete)
+- Product images with UploadThing
+- Stock quantity tracking
+- Low-stock threshold alerts
+- Pagination & search
+
+### Organization
+
+- Categories
+- Subcategories
+- SKU support
+- Price management
+
+### UI / UX
+
+- Card-based inventory view
+- Image previews
+- Responsive layout
+- Dark mode support
+- Modern landing page
+
+### Authentication
+
+- User-based inventory isolation
+- Secure server actions
+
+---
+
+## 🧱 Tech Stack
+
+- **Frontend**: Next.js 14 (App Router), React, Tailwind CSS
+- **Backend**: Next.js API Routes & Server Actions
+- **Database**: PostgreSQL
+- **ORM**: Prisma
+- **Auth**: Stack Auth
+- **File Uploads**: UploadThing
+- **Language**: TypeScript
+
+---
+
+## 📁 Project Structure
+
+```
+app/
+ ├─ api/              # API routes
+ ├─ inventory/        # Inventory pages
+ ├─ components/       # Reusable UI components
+ ├─ theme-provider.tsx
+ └─ page.tsx          # Landing page
+
+lib/
+ ├─ actions/          # Server actions
+ ├─ prisma.ts
+ └─ auth.ts
+
+prisma/
+ └─ schema.prisma
+
+src/
+ └─ utils/            # Helpers & serializers
+```
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/dev-gervinmon/inventory-management.git
+cd inventory-management
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Environment variables
+
+Create a `.env` file:
+
+```env
+DATABASE_URL=postgresql://...
+UPLOADTHING_SECRET=...
+UPLOADTHING_APP_ID=...
+```
+
+### 4. Prisma setup
+
+```bash
+npx prisma migrate dev
+npx prisma generate
+```
+
+### 5. Run the app
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🗺️ Roadmap
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Planned features (see `todo.txt` for full list):
 
-## Learn More
+- ✅ Categories & Subcategories
+- ⏳ Bulk product import (CSV)
+- ⏳ Inventory history & audit logs
+- ⏳ Role-based access (Admin / Staff)
+- ⏳ Analytics dashboard
+- ⏳ Multi-warehouse support
+- ⏳ Public API & webhooks
+- ⏳ Subscription & billing (SaaS)
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🧠 Design Philosophy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Server-first** with minimal client JS
+- **Clear data ownership per user**
+- **Scalable schema**
+- **Readable code over clever code**
+- **UX before features**
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📜 License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT License.
+
+---
+
+## 👤 Author
+
+**Gervin Mon**  
+GitHub: https://github.com/dev-gervinmon
+
+---
+
+If you find this project useful, feel free to ⭐ the repo!
