@@ -35,14 +35,3 @@ export async function apiRequireCategoryExists(id: string) {
     return notFound("Category not found");
   }
 }
-
-export async function apiRequireSubcategoryExists(id: string) {
-  const exists = await prisma.subcategory.findUnique({
-    where: { id },
-    select: { id: true },
-  });
-
-  if (!exists) {
-    return notFound("Subcategory not found");
-  }
-}

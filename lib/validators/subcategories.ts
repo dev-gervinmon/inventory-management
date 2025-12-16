@@ -1,6 +1,14 @@
 import { jsonError, notFound } from "../errors/http";
 import prisma from "../prisma";
 
+export function actionRequireId(formData: FormData) {
+  const id = String(formData.get("id") || "").trim();
+  if (!id) {
+    throw new Error("Subcategory ID is required");
+  }
+  return id;
+}
+
 export function apiValidateSubcategoryInput(body: {
   name?: string;
   categoryId?: string;
@@ -34,4 +42,15 @@ export function apiRequireId(params: { id?: string }) {
     throw new Error("Subcategory ID is required");
   }
   return id;
+}
+
+export async function apiRequireSubcategoryExists(id: string) {
+  const exists = await prisma.subcategory.findUnique({
+    where: { id },
+    select: { id: true },
+  });
+
+  if (!exists) {
+    return notFound("Subcategory not found");
+  }
 }
