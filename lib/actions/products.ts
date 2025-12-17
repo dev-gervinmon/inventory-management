@@ -5,6 +5,9 @@ import { getCurrentUser } from "../auth";
 import prisma from "../prisma";
 import { parseProductData } from "../schemas/products";
 import { logActivity } from "./activities";
+import { formatPrice } from "../utils/products";
+
+const INVENTORY_PATH = "/inventory";
 
 /**
  * Extract IDs from FormData for a given key
@@ -14,6 +17,47 @@ function extractIdsFromFormData(formData: FormData, key: string): string[] {
   return ids.filter((id) => typeof id === "string") as string[];
 }
 
+/**
+ * Track product field changes and flatten for storage
+ */
+function trackFieldChanges(
+  oldData: Record<string, unknown>,
+  newData: Record<string, unknown>
+): Record<string, { old: string | number; new: string | number }> {
+  const changes: Record<
+    string,
+    { old: string | number; new: string | number }
+  > = {};
+
+  for (const key of Object.keys(oldData)) {
+    if (oldData[key] !== newData[key]) {
+      changes[key] = {
+        old: String(oldData[key]),
+        new: String(newData[key]),
+      };
+    }
+  }
+
+  return changes;
+}
+
+/**
+ * Flatten changes into single-level record for database storage
+ */
+function flattenChanges(
+  changes: Record<string, { old: string | number; new: string | number }>
+): Record<string, string | number | boolean> {
+  const flattened: Record<string, string | number | boolean> = {};
+  for (const [key, value] of Object.entries(changes)) {
+    flattened[`${key}_old`] = value.old;
+    flattened[`${key}_new`] = value.new;
+  }
+  return flattened;
+}
+
+/**
+ * Delete a product
+ */
 export async function deleteProduct(id: string) {
   const user = await getCurrentUser();
 
@@ -52,6 +96,9 @@ export async function deleteProduct(id: string) {
   }
 }
 
+/**
+ * Create a new product
+ */
 export async function createProduct(formData: FormData) {
   const user = await getCurrentUser();
   const data = parseProductData(formData);
@@ -76,7 +123,9 @@ export async function createProduct(formData: FormData) {
       type: "PRODUCT_ADDED",
       productId: createdProduct.id,
       productName: createdProduct.name,
-      message: `Added new product "${createdProduct.name}" (₱${createdProduct.price})`,
+      message: `Added new product "${createdProduct.name}" (${formatPrice(
+        createdProduct.price.toNumber()
+      )})`,
       details: {
         sku: createdProduct.sku || "",
         price: createdProduct.price.toNumber(),
@@ -90,9 +139,12 @@ export async function createProduct(formData: FormData) {
     }
     throw new Error("Failed to create product.");
   }
-  redirect("/inventory");
+  redirect(INVENTORY_PATH);
 }
 
+/**
+ * Update an existing product
+ */
 export async function editProduct(formData: FormData) {
   const user = await getCurrentUser();
   const id = String(formData.get("id") || "");
@@ -109,7 +161,6 @@ export async function editProduct(formData: FormData) {
       name: true,
       price: true,
       quantity: true,
-      sku: true,
     },
   });
 
@@ -135,33 +186,23 @@ export async function editProduct(formData: FormData) {
       },
     });
 
-    // Track which fields changed
-    const changes: Record<string, { old: string | number; new: string | number }> = {};
-
-    if (oldProduct.name !== updatedProduct.name) {
-      changes.name = { old: oldProduct.name, new: updatedProduct.name };
-    }
-    if (oldProduct.price !== updatedProduct.price) {
-      changes.price = {
-        old: oldProduct.price.toNumber(),
-        new: updatedProduct.price.toNumber(),
-      };
-    }
-    if (oldProduct.quantity !== updatedProduct.quantity) {
-      changes.quantity = {
-        old: oldProduct.quantity,
-        new: updatedProduct.quantity,
-      };
-    }
+    // Track field changes
+    const changes = trackFieldChanges(
+      {
+        name: oldProduct.name,
+        price: oldProduct.price.toNumber(),
+        quantity: oldProduct.quantity,
+      },
+      {
+        name: updatedProduct.name,
+        price: updatedProduct.price.toNumber(),
+        quantity: updatedProduct.quantity,
+      }
+    );
 
     // Only log if something actually changed
     if (Object.keys(changes).length > 0) {
-      // Flatten changes for database storage
-      const flattenedChanges: Record<string, string | number | boolean> = {};
-      for (const [key, value] of Object.entries(changes)) {
-        flattenedChanges[`${key}_old`] = value.old;
-        flattenedChanges[`${key}_new`] = value.new;
-      }
+      const flattenedChanges = flattenChanges(changes);
 
       // Prioritize which type of change to log (stock > price > other)
       if (changes.quantity) {
@@ -177,7 +218,9 @@ export async function editProduct(formData: FormData) {
           type: "PRICE_UPDATED",
           productId: id,
           productName: updatedProduct.name,
-          message: `Updated price for "${updatedProduct.name}": ₱${oldProduct.price} → ₱${updatedProduct.price}`,
+          message: `Updated price for "${updatedProduct.name}": ${formatPrice(
+            oldProduct.price.toNumber()
+          )} → ${formatPrice(updatedProduct.price.toNumber())}`,
           details: flattenedChanges,
         });
       } else {
@@ -197,5 +240,5 @@ export async function editProduct(formData: FormData) {
     throw new Error("Failed to update product.");
   }
 
-  redirect("/inventory");
+  redirect(INVENTORY_PATH);
 }

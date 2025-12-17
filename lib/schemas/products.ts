@@ -1,27 +1,52 @@
 import z from "zod";
+import { PRODUCT_LIMITS } from "../utils/products";
+import { parseSchemaData } from "../utils/schema";
 
-const ProductSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  price: z.coerce.number().nonnegative("Price must be non-negative"),
-  quantity: z.coerce.number().int().min(0, "Quantity must be non-negative"),
-  sku: z.string().optional(),
-  lowStockAt: z.coerce.number().int().min(0).optional(),
+export const ProductSchema = z.object({
+  name: z
+    .string()
+    .min(PRODUCT_LIMITS.NAME_MIN, "Name is required")
+    .max(PRODUCT_LIMITS.NAME_MAX, "Name is too long"),
+  price: z.coerce
+    .number()
+    .min(PRODUCT_LIMITS.PRICE_MIN, "Price must be non-negative"),
+  quantity: z.coerce
+    .number()
+    .int()
+    .min(PRODUCT_LIMITS.QUANTITY_MIN, "Quantity must be non-negative"),
+  sku: z.string().max(PRODUCT_LIMITS.SKU_MAX, "SKU is too long").optional(),
+  lowStockAt: z.coerce
+    .number()
+    .int()
+    .min(PRODUCT_LIMITS.LOW_STOCK_MIN, "Low stock level must be non-negative")
+    .optional(),
   imageUrl: z.string().optional(),
 });
 
-export function parseProductData(formData: FormData) {
-  const parsed = ProductSchema.safeParse({
-    name: formData.get("name"),
-    price: formData.get("price"),
-    quantity: formData.get("quantity"),
-    sku: formData.get("sku") || undefined,
-    lowStockAt: formData.get("lowStockAt") || undefined,
-    imageUrl: formData.get("image") || undefined,
-  });
+export type Product = z.infer<typeof ProductSchema>;
 
-  if (!parsed.success) {
-    throw new Error("Validation failed");
+/**
+ * Parse product data from FormData or object
+ */
+export function parseProductData(
+  data: FormData | Record<string, unknown>
+): Product {
+  // Handle FormData to object conversion with special field name mapping
+  let dataObj: Record<string, unknown>;
+
+  if (data instanceof FormData) {
+    dataObj = Object.fromEntries(data);
+    // Map 'image' field to 'imageUrl' for schema consistency
+    if (dataObj.image && !dataObj.imageUrl) {
+      dataObj.imageUrl = dataObj.image;
+      delete dataObj.image;
+    }
+  } else {
+    dataObj = {
+      ...data,
+      imageUrl: data.image || data.imageUrl,
+    };
   }
 
-  return parsed.data;
+  return parseSchemaData(ProductSchema, dataObj);
 }

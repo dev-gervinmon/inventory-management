@@ -2,22 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { SerializedProduct } from "@/app/src/utils/product";
 import DeleteProductButton from "./delete-product-button";
+import { getStockStatus, formatPrice, formatProductDate } from "@/lib/utils/products";
 
 export default function ProductTable({
   products,
 }: {
   products: SerializedProduct[];
 }) {
-  const getStockStatus = (quantity: number, lowStockAt?: number | null) => {
-    if (quantity <= 0) {
-      return { label: "Out of Stock", color: "bg-red-100 text-red-800" };
-    }
-    if (lowStockAt && quantity <= lowStockAt) {
-      return { label: "Low Stock", color: "bg-yellow-100 text-yellow-800" };
-    }
-    return { label: "In Stock", color: "bg-green-100 text-green-800" };
-  };
-
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       {products.length === 0 ? (
@@ -89,7 +80,7 @@ export default function ProductTable({
                             {product.name}
                           </p>
                           <p className="text-xs text-gray-500">
-                            {new Date(product.createdAt).toLocaleDateString()}
+                            {formatProductDate(product.createdAt)}
                           </p>
                         </div>
                       </div>
@@ -127,7 +118,7 @@ export default function ProductTable({
 
                     {/* Price */}
                     <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                      ₱{Number(product.price).toLocaleString()}
+                      {formatPrice(product.price)}
                     </td>
 
                     {/* Stock Quantity */}
