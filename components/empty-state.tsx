@@ -71,7 +71,7 @@ export default function EmptyState({
       {actionLabel && actionLink && (
         <Link
           href={actionLink}
-          className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-200"
+          className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-200"
         >
           <svg
             className="w-5 h-5"
