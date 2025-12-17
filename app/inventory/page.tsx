@@ -1,5 +1,6 @@
 import Pagination from "@/components/pagination";
 import ProductTable from "@/components/product-table";
+import InventorySearch from "@/components/inventory-search";
 import SideBar from "@/components/sidebar";
 import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
@@ -48,47 +49,56 @@ export default async function InventoryPage({
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <SideBar currentPath="/inventory" />
       <main className="ml-64 p-8">
+        {/* Header Section */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Inventory</h1>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                Inventory
+              </h1>
               <p className="text-base text-gray-600 mt-2">
                 Manage your products and track inventory levels
               </p>
             </div>
             <Link
               href="/add-product"
-              className="px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
-              + Add Product
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              Add Product
             </Link>
           </div>
         </div>
 
         <div className="space-y-6">
-          {/** Search */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <form className="flex gap-2" action="/inventory" method="GET">
-              <input
-                name="q"
-                placeholder="Search products by name or SKU..."
-                defaultValue={q}
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-              />
-              <button className="px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition">
-                Search
-              </button>
-            </form>
-          </div>
+          {/* Search Bar */}
+          <InventorySearch
+            q={q}
+            totalCount={totalCount}
+            resultsCount={items.length}
+          />
 
-          {/** Product Table */}
+          {/* Product Table */}
           <ProductTable products={items} />
 
+          {/* Pagination */}
           {totalPages > 1 && (
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
               <Pagination
                 currentPage={page}
                 totalPages={totalPages}
@@ -98,6 +108,50 @@ export default async function InventoryPage({
                   pageSize: String(pageSize),
                 }}
               />
+            </div>
+          )}
+
+          {/* Empty State */}
+          {items.length === 0 && !q && (
+            <div className="bg-white rounded-lg border border-gray-200 p-12 text-center shadow-sm">
+              <svg
+                className="mx-auto h-12 w-12 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M20 7l-8-4-8 4m0 0l8 4m-8-4v10l8 4m0-10l8 4m-8-4v10l8-4"
+                />
+              </svg>
+              <h3 className="mt-4 text-lg font-semibold text-gray-900">
+                No products yet
+              </h3>
+              <p className="mt-2 text-gray-600">
+                Start building your inventory by adding your first product.
+              </p>
+              <Link
+                href="/add-product"
+                className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-200"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                Add Your First Product
+              </Link>
             </div>
           )}
         </div>
