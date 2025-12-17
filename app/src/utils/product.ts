@@ -1,4 +1,4 @@
-import { Product, Category } from "@/app/generated/prisma/client";
+import { Product, Category, Subcategory } from "@/app/generated/prisma/client";
 
 export interface SerializedProduct {
   id: string;
@@ -10,12 +10,13 @@ export interface SerializedProduct {
   lowStockAt: number | null;
   imageUrl: string | null;
   categories?: { id: string; name: string }[];
+  subcategories?: { id: string; name: string; categoryName: string }[];
   createdAt: string;
   updatedAt: string;
 }
 
 export function serializeProduct(
-  product: Product & { categories?: Category[] }
+  product: Product & { categories?: Category[]; subcategories?: (Subcategory & { category: Category })[] }
 ): SerializedProduct {
   return {
     ...product,
@@ -23,6 +24,11 @@ export function serializeProduct(
     quantity: Number(product.quantity),
     lowStockAt: product.lowStockAt ? Number(product.lowStockAt) : null,
     categories: product.categories?.map((c) => ({ id: c.id, name: c.name })),
+    subcategories: product.subcategories?.map((s) => ({
+      id: s.id,
+      name: s.name,
+      categoryName: s.category.name,
+    })),
     createdAt: product.createdAt.toISOString(),
     updatedAt: product.updatedAt.toISOString(),
   };
