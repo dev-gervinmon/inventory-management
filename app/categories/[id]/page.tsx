@@ -11,8 +11,9 @@ import {
 } from "@/lib/actions/subcategories";
 import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import Link from "next/link";
 import { redirect } from "next/navigation";
+import { SecondaryButton } from "@/components/nav-button";
+import FormButton from "@/components/form-button";
 
 export default async function EditCategoryPage({
   params,
@@ -40,12 +41,13 @@ export default async function EditCategoryPage({
       <SideBar currentPath="/categories" />
       <main className="ml-64 p-8">
         <div className="mb-8">
-          <Link
-            href="/categories"
-            className="text-purple-600 hover:underline mb-4 inline-block"
-          >
-            ← Back to Categories
-          </Link>
+          <div className="mb-4">
+            <SecondaryButton
+              href="/categories"
+              label="← Back to Categories"
+              variant="subtle"
+            />
+          </div>
           <h1 className="text-3xl font-bold text-gray-900">{category.name}</h1>
           <p className="text-base text-gray-600 mt-2">
             Manage category details and subcategories
@@ -81,18 +83,12 @@ export default async function EditCategoryPage({
                 </div>
 
                 <div className="flex flex-col gap-3">
-                  <button
+                  <FormButton
                     type="submit"
-                    className="px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition"
-                  >
-                    Update Category
-                  </button>
-                  <Link
-                    href="/categories"
-                    className="px-6 py-3 bg-gray-100 text-gray-900 font-semibold rounded-lg hover:bg-gray-200 transition text-center"
-                  >
-                    Cancel
-                  </Link>
+                    label="Update Category"
+                    variant="primary"
+                  />
+                  <SecondaryButton href="/categories" label="Cancel" />
                 </div>
               </form>
 
@@ -156,7 +152,7 @@ export default async function EditCategoryPage({
                     />
                     <button
                       type="submit"
-                      className="px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition whitespace-nowrap"
+                      className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-800 active:from-purple-800 active:to-purple-900 transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-100 whitespace-nowrap cursor-pointer"
                     >
                       Add
                     </button>
