@@ -3,37 +3,16 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "../auth";
 import prisma from "../prisma";
-import { z } from "zod";
-
-const ProductSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  price: z.coerce.number().nonnegative("Price must be non-negative"),
-  quantity: z.coerce.number().int().min(0, "Quantity must be non-negative"),
-  sku: z.string().optional(),
-  lowStockAt: z.coerce.number().int().min(0).optional(),
-  imageUrl: z.string().optional(),
-});
-
-function parseProductData(formData: FormData) {
-  const parsed = ProductSchema.safeParse({
-    name: formData.get("name"),
-    price: formData.get("price"),
-    quantity: formData.get("quantity"),
-    sku: formData.get("sku") || undefined,
-    lowStockAt: formData.get("lowStockAt") || undefined,
-    imageUrl: formData.get("image") || undefined,
-  });
-
-  if (!parsed.success) {
-    throw new Error("Validation failed");
-  }
-
-  return parsed.data;
-}
+import { parseProductData } from "../schemas/products";
 
 function getCategoryIds(formData: FormData): string[] {
   const categoryIds = formData.getAll("categoryIds");
   return categoryIds.filter((id) => typeof id === "string") as string[];
+}
+
+function getSubcategoryIds(formData: FormData): string[] {
+  const subcategoryIds = formData.getAll("subcategoryIds");
+  return subcategoryIds.filter((id) => typeof id === "string") as string[];
 }
 
 export async function deleteProduct(id: string) {
@@ -63,6 +42,7 @@ export async function createProduct(formData: FormData) {
   const user = await getCurrentUser();
   const data = parseProductData(formData);
   const categoryIds = getCategoryIds(formData);
+  const subcategoryIds = getSubcategoryIds(formData);
 
   try {
     await prisma.product.create({
@@ -71,6 +51,9 @@ export async function createProduct(formData: FormData) {
         userId: user.id,
         categories: {
           connect: categoryIds.map((id) => ({ id })),
+        },
+        subcategories: {
+          connect: subcategoryIds.map((id) => ({ id })),
         },
       },
     });
@@ -104,6 +87,7 @@ export async function editProduct(formData: FormData) {
 
   const data = parseProductData(formData);
   const categoryIds = getCategoryIds(formData);
+  const subcategoryIds = getSubcategoryIds(formData);
 
   try {
     await prisma.product.update({
@@ -112,6 +96,9 @@ export async function editProduct(formData: FormData) {
         ...data,
         categories: {
           set: categoryIds.map((id) => ({ id })),
+        },
+        subcategories: {
+          set: subcategoryIds.map((id) => ({ id })),
         },
       },
     });
