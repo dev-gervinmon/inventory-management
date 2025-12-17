@@ -9,6 +9,8 @@ import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { serializeProduct } from "../src/utils/product";
 import { Prisma } from "@/app/generated/prisma/client";
+import { PAGE_SIZE } from "@/lib/constants/filters";
+import { parseArrayParam, isValidSort } from "@/lib/utils/filters";
 
 export default async function InventoryPage({
   searchParams,
@@ -29,21 +31,12 @@ export default async function InventoryPage({
   const q = (params.q ?? "").trim();
 
   // Convert single values to arrays for consistent handling
-  const categoryIds = params.category
-    ? Array.isArray(params.category)
-      ? params.category
-      : [params.category]
-    : [];
-  const subcategoryIds = params.subcategory
-    ? Array.isArray(params.subcategory)
-      ? params.subcategory
-      : [params.subcategory]
-    : [];
+  const categoryIds = parseArrayParam(params.category);
+  const subcategoryIds = parseArrayParam(params.subcategory);
 
   const stockStatus = params.status;
-  const sortBy = params.sort || "newest";
+  const sortBy = isValidSort(params.sort) ? params.sort : "newest";
 
-  const pageSize = 10;
   const page = Math.max(1, Number(params.page ?? 1));
 
   // Build where clause with all filters - supporting multiple categories/subcategories
@@ -111,8 +104,8 @@ export default async function InventoryPage({
     prisma.product.findMany({
       where,
       orderBy,
-      skip: (page - 1) * pageSize,
-      take: pageSize,
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
       include: {
         categories: true,
         subcategories: {
@@ -137,7 +130,7 @@ export default async function InventoryPage({
     );
   }
 
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   return (
     <div className="min-h-screen bg-linear-to-r from-gray-50 to-gray-100">
