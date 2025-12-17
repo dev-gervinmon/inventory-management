@@ -1,6 +1,7 @@
 import Pagination from "@/components/pagination";
 import ProductTable from "@/components/product-table";
 import InventorySearch from "@/components/inventory-search";
+import EmptyState from "@/components/empty-state";
 import SideBar from "@/components/sidebar";
 import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
@@ -113,46 +114,13 @@ export default async function InventoryPage({
 
           {/* Empty State */}
           {items.length === 0 && !q && (
-            <div className="bg-white rounded-lg border border-gray-200 p-12 text-center shadow-sm">
-              <svg
-                className="mx-auto h-12 w-12 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M20 7l-8-4-8 4m0 0l8 4m-8-4v10l8 4m0-10l8 4m-8-4v10l8-4"
-                />
-              </svg>
-              <h3 className="mt-4 text-lg font-semibold text-gray-900">
-                No products yet
-              </h3>
-              <p className="mt-2 text-gray-600">
-                Start building your inventory by adding your first product.
-              </p>
-              <Link
-                href="/add-product"
-                className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-200"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                Add Your First Product
-              </Link>
-            </div>
+            <EmptyState
+              icon="box"
+              title="No products yet"
+              description="Start building your inventory by adding your first product."
+              actionLabel="Add Your First Product"
+              actionLink="/add-product"
+            />
           )}
         </div>
       </main>
