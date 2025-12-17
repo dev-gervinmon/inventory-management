@@ -1,8 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "../auth";
-import prisma from "../prisma";
+import { getCurrentUser } from "../auth/auth";
+import prisma from "../db/prisma";
 import { parseCategoryData } from "../schemas/categories";
 import { handlePrismaActionError } from "../errors/actions";
 import { actionRequireId } from "../validators/categories";

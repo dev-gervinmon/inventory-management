@@ -1,7 +1,7 @@
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 import { NextResponse } from "next/server";
 import { withApiHandler } from "@/lib/api/handler";
-import { parseCategoryDataJSON } from "@/lib/schemas/categories";
+import { parseCategoryData } from "@/lib/schemas/categories";
 import {
   apiRequireCategoryExists,
   apiRequireId,
@@ -13,7 +13,7 @@ export const PUT = withApiHandler(
     const id = apiRequireId(params);
 
     const body = await req.json();
-    const parsed = parseCategoryDataJSON(body);
+    const parsed = parseCategoryData(body);
 
     await apiRequireCategoryExists(id);
 

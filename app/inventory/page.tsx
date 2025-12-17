@@ -5,8 +5,8 @@ import InventoryFilters from "@/components/filters/inventory-filters";
 import EmptyState from "@/components/layout/empty-state";
 import AddProductButton from "@/components/buttons/add-product-button";
 import SideBar from "@/components/layout/sidebar";
-import { getCurrentUser } from "@/lib/auth";
-import prisma from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth/auth";
+import prisma from "@/lib/db/prisma";
 import { serializeProduct } from "../src/utils/product";
 import { Prisma } from "@/app/generated/prisma/client";
 import { PAGE_SIZE } from "@/lib/constants/filters";
@@ -126,7 +126,7 @@ export default async function InventoryPage({
   // Filter low-stock items post-fetch if needed
   if (stockStatus === "low-stock") {
     items = items.filter(
-      (item) => item.quantity > 0 && item.quantity <= (item.lowStockAt || 0)
+      (item: typeof items[0]) => item.quantity > 0 && item.quantity <= (item.lowStockAt || 0)
     );
   }
 

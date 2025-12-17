@@ -1,8 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "../auth";
-import prisma from "../prisma";
+import { getCurrentUser } from "../auth/auth";
+import prisma from "../db/prisma";
 import { parseProductData } from "../schemas/products";
 import { logActivity } from "./activities";
 import { formatPrice } from "../utils/products";
@@ -123,7 +123,7 @@ export async function bulkDeleteProducts(ids: string[]) {
     });
 
     // Log activity for bulk delete
-    const productNames = products.map((p) => p.name).join(", ");
+    const productNames = products.map((p: { id: string; name: string }) => p.name).join(", ");
     await logActivity(user.id, {
       type: "PRODUCT_DELETED",
       productName: `${products.length} products`,

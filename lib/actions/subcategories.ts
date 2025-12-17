@@ -1,9 +1,9 @@
 "use server";
 
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "../auth";
+import { getCurrentUser } from "../auth/auth";
 import { parseSubcategoryData } from "../schemas/subcategories";
 import { handlePrismaActionError } from "../errors/actions";
 import { actionRequireId } from "../validators/subcategories";

@@ -3,8 +3,8 @@ import ProductChart from "@/components/charts/products-chart";
 import SideBar from "@/components/layout/sidebar";
 import AddProductButton from "@/components/buttons/add-product-button";
 import QuickActionButton from "@/components/buttons/quick-action-button";
-import { getCurrentUser } from "@/lib/auth";
-import prisma from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth/auth";
+import prisma from "@/lib/db/prisma";
 import {
   formatActivityTime,
   getActivityIcon,
@@ -54,7 +54,8 @@ export default async function DashboardPage() {
 
   // Calculate total inventory value
   const totalValue = allProducts.reduce(
-    (sum, product) => sum + Number(product.price) * Number(product.quantity),
+    (sum: number, product: (typeof allProducts)[number]) =>
+      sum + Number(product.price) * Number(product.quantity),
     0
   );
 
@@ -308,39 +309,41 @@ export default async function DashboardPage() {
 
             {criticalStockItems.length > 0 ? (
               <div className="space-y-3">
-                {criticalStockItems.map((product) => {
-                  const status =
-                    product.quantity === 0 ? "Out of Stock" : "Low Stock";
-                  const statusColor =
-                    product.quantity === 0
-                      ? "text-red-600 bg-red-50"
-                      : "text-yellow-600 bg-yellow-50";
+                {criticalStockItems.map(
+                  (product: (typeof allProducts)[number]) => {
+                    const status =
+                      product.quantity === 0 ? "Out of Stock" : "Low Stock";
+                    const statusColor =
+                      product.quantity === 0
+                        ? "text-red-600 bg-red-50"
+                        : "text-yellow-600 bg-yellow-50";
 
-                  return (
-                    <Link
-                      key={product.id}
-                      href={`/inventory/${product.id}/edit-product`}
-                      className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
-                    >
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">
-                          {product.name}
-                        </p>
-                        <p className="text-xs text-gray-600 mt-1">
-                          SKU: {product.sku}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p
-                          className={`text-sm font-bold ${statusColor} px-2 py-1 rounded`}
-                        >
-                          {product.quantity} units
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">{status}</p>
-                      </div>
-                    </Link>
-                  );
-                })}
+                    return (
+                      <Link
+                        key={product.id}
+                        href={`/inventory/${product.id}/edit-product`}
+                        className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
+                      >
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">
+                            {product.name}
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1">
+                            SKU: {product.sku}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p
+                            className={`text-sm font-bold ${statusColor} px-2 py-1 rounded`}
+                          >
+                            {product.quantity} units
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">{status}</p>
+                        </div>
+                      </Link>
+                    );
+                  }
+                )}
               </div>
             ) : (
               <div className="text-center py-8">
@@ -364,7 +367,7 @@ export default async function DashboardPage() {
 
             {activities.length > 0 ? (
               <div className="space-y-3">
-                {activities.map((activity) => (
+                {activities.map((activity: typeof activities[number]) => (
                   <div
                     key={activity.id}
                     className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"

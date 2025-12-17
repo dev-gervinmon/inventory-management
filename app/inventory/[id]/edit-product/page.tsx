@@ -1,8 +1,8 @@
 "use server";
 
 import SideBar from "@/components/layout/sidebar";
-import { getCurrentUser } from "@/lib/auth";
-import prisma from "../../../../lib/prisma";
+import { getCurrentUser } from "@/lib/auth/auth";
+import prisma from "@/lib/db/prisma";
 import { editProduct } from "@/lib/actions/products";
 import ProductForm from "@/components/forms/product-form";
 import { redirect } from "next/navigation";
@@ -62,8 +62,8 @@ export default async function EditProductPage({
           sku={product.sku}
           lowStockAt={product.lowStockAt}
           image={product.imageUrl}
-          categoryIds={product.categories.map((c) => c.id)}
-          subcategoryIds={product.subcategories.map((s) => s.id)}
+          categoryIds={product.categories.map((c: typeof product.categories[number]) => c.id)}
+          subcategoryIds={product.subcategories.map((s: typeof product.subcategories[number]) => s.id)}
           btnAction="Edit"
           formAction={editProduct}
         />

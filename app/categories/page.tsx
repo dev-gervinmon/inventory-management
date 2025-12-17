@@ -1,8 +1,8 @@
 "use server";
 
 import SideBar from "@/components/layout/sidebar";
-import { getCurrentUser } from "@/lib/auth";
-import prisma from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth/auth";
+import prisma from "@/lib/db/prisma";
 import { deleteCategory } from "@/lib/actions/categories";
 import { PrimaryButton } from "@/components/buttons/nav-button";
 import {
@@ -55,7 +55,7 @@ export default async function CategoriesPage() {
             </div>
           ) : (
             <div className="space-y-0">
-              {categories.map((category) => (
+              {categories.map((category: typeof categories[number]) => (
                 <details
                   key={category.id}
                   className="border-b border-gray-200 last:border-b-0 group"
@@ -88,7 +88,7 @@ export default async function CategoriesPage() {
                       </p>
                     ) : (
                       <div className="space-y-2">
-                        {category.subcategories.map((sub) => (
+                        {category.subcategories.map((sub: typeof category.subcategories[number]) => (
                           <div
                             key={sub.id}
                             className="flex items-center justify-between bg-white p-3 rounded border border-gray-200"

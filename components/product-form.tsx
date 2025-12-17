@@ -1,9 +1,9 @@
 "use server";
 
-import ImageUploadField from "@/components/common/image-upload-field";
-import CategorySubcategorySelector from "./category-subcategory-selector";
-import FormButton from "@/components/buttons/form-button";
-import { SecondaryButton } from "@/components/buttons/nav-button";
+import ImageUploadField from "./common/image-upload-field";
+import CategorySubcategorySelector from "./forms/category-subcategory-selector";
+import FormButton from "./buttons/form-button";
+import { SecondaryButton } from "./buttons/nav-button";
 import prisma from "@/lib/db/prisma";
 
 export default async function ProductForm({

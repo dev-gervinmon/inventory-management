@@ -9,8 +9,8 @@ import {
   editSubcategory,
   deleteSubcategory,
 } from "@/lib/actions/subcategories";
-import { getCurrentUser } from "@/lib/auth";
-import prisma from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth/auth";
+import prisma from "@/lib/db/prisma";
 import { redirect } from "next/navigation";
 import { SecondaryButton } from "@/components/buttons/nav-button";
 import FormButton from "@/components/buttons/form-button";
@@ -113,7 +113,7 @@ export default async function EditCategoryPage({
                 </p>
               ) : (
                 <div className="space-y-3">
-                  {category.subcategories.map((sub) => (
+                  {category.subcategories.map((sub: typeof category.subcategories[0]) => (
                     <SubcategoryForm
                       key={sub.id}
                       subcategory={sub}

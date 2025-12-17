@@ -1,5 +1,5 @@
 import { withApiHandler } from "@/lib/api/handler";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 import { parseSubcategoryDataJSON } from "@/lib/schemas/subcategories";
 import {
   apiRequireCategoryExists,

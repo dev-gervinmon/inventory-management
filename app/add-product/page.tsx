@@ -1,7 +1,7 @@
 import ProductForm from "@/components/forms/product-form";
 import SideBar from "@/components/layout/sidebar";
 import { createProduct } from "@/lib/actions/products";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth/auth";
 import Link from "next/link";
 
 export default async function AddProductPage() {

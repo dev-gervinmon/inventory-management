@@ -1,5 +1,5 @@
 import SideBar from "@/components/layout/sidebar";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth/auth";
 import { AccountSettings } from "@stackframe/stack";
 
 export default async function SettingsPage() {

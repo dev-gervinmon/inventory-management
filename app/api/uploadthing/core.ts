@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth/auth";
 
 import { createUploadthing, type FileRouter } from "uploadthing/next-legacy";
 import { UploadThingError } from "uploadthing/server";
