@@ -92,39 +92,24 @@ export default async function CategoriesPage() {
                                 {new Date(sub.createdAt).toLocaleDateString()}
                               </p>
                             </div>
-                            <div className="flex gap-2">
-                              <Link
-                                href={`/categories/${category.id}/subcategories/${sub.id}`}
-                                className="text-orange-600 hover:text-orange-900 text-sm"
-                              >
-                                Edit
-                              </Link>
-                              {/* Add delete subcategory action */}
-                            </div>
                           </div>
                         ))}
                       </div>
                     )}
-                    <Link
-                      href={`/categories/${category.id}/subcategories/new`}
-                      className="inline-block mt-3 px-4 py-2 text-sm bg-purple-100 text-purple-600 rounded hover:bg-purple-200"
-                    >
-                      + Add Subcategory
-                    </Link>
                   </div>
 
                   <div className="px-6 py-3 border-t bg-gray-50 flex gap-2">
                     <Link
                       href={`/categories/${category.id}`}
-                      className="text-orange-600 hover:text-orange-900 text-sm font-medium"
+                      className="px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded hover:bg-purple-700 transition"
                     >
-                      Edit Category
+                      Edit
                     </Link>
                     <form action={deleteCategory} className="inline">
                       <input type="hidden" name="id" value={category.id} />
                       <button
                         type="submit"
-                        className="text-red-600 hover:text-red-900 text-sm font-medium"
+                        className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700 transition"
                       >
                         Delete
                       </button>
