@@ -18,7 +18,7 @@ export default async function InventoryPage({
   const params = await searchParams;
   const q = (params.q ?? "").trim();
 
-  const pageSize = 5;
+  const pageSize = 10;
   const page = Math.max(1, Number(params.page ?? 1));
 
   const where = {
