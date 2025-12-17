@@ -1,9 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { SerializedProduct } from "@/app/src/utils/product";
-import DeleteProductButton from "./delete-product-button";
+import { bulkDeleteProducts } from "@/lib/actions/products";
 import {
   getStockStatus,
   formatPrice,
@@ -16,9 +17,82 @@ export default function ProductTable({
   products: SerializedProduct[];
 }) {
   const router = useRouter();
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleSelectAll = () => {
+    if (selectedIds.size === products.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(products.map((p) => p.id)));
+    }
+  };
+
+  const handleSelectProduct = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) {
+      alert("Please select at least one product");
+      return;
+    }
+
+    if (
+      !confirm(
+        `Delete ${selectedIds.size} product(s)? This action cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await bulkDeleteProducts(Array.from(selectedIds));
+      setSelectedIds(new Set());
+      router.refresh();
+    } catch (error) {
+      alert("Failed to delete products");
+      console.error(error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      {/* Toolbar */}
+      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+        <input
+          type="checkbox"
+          checked={selectedIds.size > 0 && selectedIds.size === products.length}
+          onChange={handleSelectAll}
+          title="Select all products"
+          className="w-4 h-4 cursor-pointer"
+        />
+
+        {selectedIds.size > 0 && (
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-gray-600">
+              {selectedIds.size} selected
+            </span>
+            <button
+              onClick={handleBulkDelete}
+              disabled={isDeleting}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              {isDeleting ? "Deleting..." : "Delete Selected"}
+            </button>
+          </div>
+        )}
+      </div>
+
       {products.length === 0 ? (
         <div className="p-8 text-center">
           <p className="text-gray-500">No products found.</p>
@@ -27,27 +101,25 @@ export default function ProductTable({
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+              <tr className="border-b-2 border-gray-300 bg-gray-100">
+                <th className="px-6 py-4 text-left"></th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Product
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   SKU
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Categories
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Price
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Stock
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Status
-                </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                  Delete
                 </th>
               </tr>
             </thead>
@@ -62,16 +134,33 @@ export default function ProductTable({
                   router.push(`/inventory/${product.id}/edit-product`);
                 };
 
+                const isSelected = selectedIds.has(product.id);
+
                 return (
                   <tr
                     key={product.id}
                     onClick={handleRowClick}
-                    className={`cursor-pointer transition ${
-                      index % 2 === 0
+                    className={`transition border-b border-gray-200 cursor-pointer ${
+                      isSelected
+                        ? "bg-blue-50"
+                        : index % 2 === 0
                         ? "bg-white hover:bg-blue-50"
                         : "bg-gray-50 hover:bg-blue-50"
-                    } border-b border-gray-200 hover:border-blue-200`}
+                    } hover:border-blue-200`}
                   >
+                    {/* Checkbox Column */}
+                    <td
+                      className="px-6 py-4"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleSelectProduct(product.id)}
+                        className="w-4 h-4 cursor-pointer"
+                      />
+                    </td>
+
                     {/* Product Name + Image */}
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -153,14 +242,6 @@ export default function ProductTable({
                       >
                         {status.label}
                       </span>
-                    </td>
-
-                    {/* Delete Action */}
-                    <td
-                      className="px-6 py-4 text-sm"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <DeleteProductButton productId={product.id} />
                     </td>
                   </tr>
                 );
