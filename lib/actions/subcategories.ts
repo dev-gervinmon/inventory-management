@@ -55,6 +55,4 @@ export async function deleteSubcategory(formData: FormData) {
   } catch (error) {
     handlePrismaActionError(error, "Subcategory");
   }
-  revalidatePath("/categories");
-  redirect(`/categories`);
 }
