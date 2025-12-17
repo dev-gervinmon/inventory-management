@@ -4,11 +4,46 @@ import SideBar from "@/components/sidebar";
 import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
+function formatActivityTime(date: Date): string {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return "Just now";
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function getActivityIcon(type: string): string {
+  switch (type) {
+    case "PRODUCT_ADDED":
+      return "➕";
+    case "PRODUCT_DELETED":
+      return "🗑️";
+    case "STOCK_UPDATED":
+      return "📦";
+    case "PRICE_UPDATED":
+      return "💰";
+    case "PRODUCT_EDITED":
+      return "✏️";
+    default:
+      return "📝";
+  }
+}
+
 export default async function DashboardPage() {
   const user = await getCurrentUser();
   const userId = user.id;
 
-  const [totalProducts, allProducts] = await Promise.all([
+  const [totalProducts, allProducts, activities] = await Promise.all([
     prisma.product.count({ where: { userId } }),
 
     prisma.product.findMany({
@@ -22,6 +57,12 @@ export default async function DashboardPage() {
         sku: true,
         name: true,
       },
+    }),
+
+    prisma.activity.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      take: 8,
     }),
   ]);
 
@@ -75,15 +116,6 @@ export default async function DashboardPage() {
       products: weekProducts.length,
     });
   }
-
-  const recent = await prisma.product.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
-    take: 5,
-    include: {
-      categories: true,
-    },
-  });
 
   // Get critical stock items (out of stock + low stock)
   const criticalStockItems = allProducts
@@ -321,9 +353,10 @@ export default async function DashboardPage() {
                       : "text-yellow-600 bg-yellow-50";
 
                   return (
-                    <div
+                    <Link
                       key={product.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+                      href={`/inventory/${product.id}/edit-product`}
+                      className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
                     >
                       <div className="flex-1">
                         <p className="text-sm font-medium text-gray-900">
@@ -341,7 +374,7 @@ export default async function DashboardPage() {
                         </p>
                         <p className="text-xs text-gray-500 mt-1">{status}</p>
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>
@@ -358,68 +391,41 @@ export default async function DashboardPage() {
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold text-gray-900">
-                Recent Products
+                Recent Activity
               </h2>
-              <Link
-                href="/inventory"
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-              >
-                View all →
-              </Link>
+              <span className="text-xs text-gray-500 font-medium">
+                Latest {activities.length}
+              </span>
             </div>
 
-            <div className="space-y-3">
-              {recent.map((product) => {
-                const stockLevel =
-                  product.quantity === 0
-                    ? 0
-                    : product.quantity <= (product.lowStockAt || 5)
-                    ? 1
-                    : 2;
-
-                const bgColors = [
-                  "bg-red-100",
-                  "bg-yellow-100",
-                  "bg-green-100",
-                ];
-                const dotColors = [
-                  "bg-red-500",
-                  "bg-yellow-500",
-                  "bg-green-500",
-                ];
-                const textColors = [
-                  "text-red-600",
-                  "text-yellow-600",
-                  "text-green-600",
-                ];
-
-                return (
+            {activities.length > 0 ? (
+              <div className="space-y-3">
+                {activities.map((activity) => (
                   <div
-                    key={product.id}
-                    className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+                    key={activity.id}
+                    className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
                   >
-                    <div className="flex items-center space-x-3">
-                      <div
-                        className={`w-3 h-3 rounded-full ${dotColors[stockLevel]}`}
-                      />
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">
-                          {product.name}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          ₱{Number(product.price).toFixed(2)}
-                        </p>
-                      </div>
+                    <div className="text-xl mt-0.5">
+                      {getActivityIcon(activity.type)}
                     </div>
-                    <div
-                      className={`text-sm font-bold ${textColors[stockLevel]}`}
-                    >
-                      {product.quantity} units
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {activity.message}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {formatActivityTime(activity.createdAt)}
+                      </p>
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-sm text-gray-500">
+                  No activity yet. Start by adding a product!
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </main>
