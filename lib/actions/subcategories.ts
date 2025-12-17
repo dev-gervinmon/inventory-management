@@ -37,12 +37,9 @@ export async function editSubcategory(formData: FormData) {
     });
 
     revalidatePath("/categories");
-    redirect(`/categories/${data.categoryId}`);
   } catch (error) {
     handlePrismaActionError(error, "Subcategory");
   }
-  revalidatePath("/categories");
-  redirect(`/categories/${data.categoryId}`);
 }
 
 export async function deleteSubcategory(formData: FormData) {
