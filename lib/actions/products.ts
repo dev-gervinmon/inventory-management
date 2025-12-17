@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "../auth";
 import prisma from "../prisma";
 import { parseProductData } from "../schemas/products";
+import { logActivity } from "./activities";
 
 function getCategoryIds(formData: FormData): string[] {
   const categoryIds = formData.getAll("categoryIds");
@@ -23,12 +24,27 @@ export async function deleteProduct(id: string) {
   }
 
   try {
+    // Get product info before deleting for the log
+    const product = await prisma.product.findUnique({
+      where: { id },
+      select: { userId: true, name: true },
+    });
+
+    if (!product || product.userId !== user.id) {
+      throw new Error("Product not found or unauthorized");
+    }
+
     const result = await prisma.product.deleteMany({
       where: { id, userId: user.id },
     });
 
-    if (result.count === 0) {
-      throw new Error("Product not found or unauthorized");
+    if (result.count > 0) {
+      await logActivity(user.id, {
+        type: "PRODUCT_DELETED",
+        productId: id,
+        productName: product.name,
+        message: `Deleted product "${product.name}"`,
+      });
     }
 
     return { success: true };
@@ -45,7 +61,7 @@ export async function createProduct(formData: FormData) {
   const subcategoryIds = getSubcategoryIds(formData);
 
   try {
-    await prisma.product.create({
+    const createdProduct = await prisma.product.create({
       data: {
         ...data,
         userId: user.id,
@@ -55,6 +71,18 @@ export async function createProduct(formData: FormData) {
         subcategories: {
           connect: subcategoryIds.map((id) => ({ id })),
         },
+      },
+    });
+
+    await logActivity(user.id, {
+      type: "PRODUCT_ADDED",
+      productId: createdProduct.id,
+      productName: createdProduct.name,
+      message: `Added new product "${createdProduct.name}" (₱${createdProduct.price})`,
+      details: {
+        sku: createdProduct.sku || "",
+        price: createdProduct.price.toNumber(),
+        quantity: createdProduct.quantity,
       },
     });
   } catch (error) {
@@ -75,13 +103,19 @@ export async function editProduct(formData: FormData) {
     throw new Error("Product ID is required");
   }
 
-  // Verify product exists and belongs to user
-  const product = await prisma.product.findUnique({
+  // Verify product exists and belongs to user and get old data
+  const oldProduct = await prisma.product.findUnique({
     where: { id },
-    select: { userId: true },
+    select: {
+      userId: true,
+      name: true,
+      price: true,
+      quantity: true,
+      sku: true,
+    },
   });
 
-  if (!product || product.userId !== user.id) {
+  if (!oldProduct || oldProduct.userId !== user.id) {
     throw new Error("Product not found or unauthorized");
   }
 
@@ -90,7 +124,7 @@ export async function editProduct(formData: FormData) {
   const subcategoryIds = getSubcategoryIds(formData);
 
   try {
-    await prisma.product.update({
+    const updatedProduct = await prisma.product.update({
       where: { id },
       data: {
         ...data,
@@ -102,6 +136,68 @@ export async function editProduct(formData: FormData) {
         },
       },
     });
+
+    // Log activity based on what changed
+    const changes: Record<
+      string,
+      { old: string | number; new: string | number }
+    > = {};
+    let hasChanges = false;
+
+    if (oldProduct.name !== updatedProduct.name) {
+      changes.name = { old: oldProduct.name, new: updatedProduct.name };
+      hasChanges = true;
+    }
+    if (oldProduct.price !== updatedProduct.price) {
+      changes.price = {
+        old: oldProduct.price.toNumber(),
+        new: updatedProduct.price.toNumber(),
+      };
+      hasChanges = true;
+    }
+    if (oldProduct.quantity !== updatedProduct.quantity) {
+      changes.quantity = {
+        old: oldProduct.quantity,
+        new: updatedProduct.quantity,
+      };
+      hasChanges = true;
+    }
+
+    if (hasChanges) {
+      // Flatten changes into a single-level record for logging
+      const flattenedChanges: Record<string, string | number | boolean> = {};
+      for (const [key, value] of Object.entries(changes)) {
+        flattenedChanges[`${key}_old`] = value.old;
+        flattenedChanges[`${key}_new`] = value.new;
+      }
+
+      // Determine which type of change took priority
+      if (changes.quantity) {
+        await logActivity(user.id, {
+          type: "STOCK_UPDATED",
+          productId: id,
+          productName: updatedProduct.name,
+          message: `Updated stock for "${updatedProduct.name}": ${oldProduct.quantity} → ${updatedProduct.quantity} units`,
+          details: flattenedChanges,
+        });
+      } else if (changes.price) {
+        await logActivity(user.id, {
+          type: "PRICE_UPDATED",
+          productId: id,
+          productName: updatedProduct.name,
+          message: `Updated price for "${updatedProduct.name}": ₱${oldProduct.price} → ₱${updatedProduct.price}`,
+          details: flattenedChanges,
+        });
+      } else {
+        await logActivity(user.id, {
+          type: "PRODUCT_EDITED",
+          productId: id,
+          productName: updatedProduct.name,
+          message: `Updated product "${updatedProduct.name}"`,
+          details: flattenedChanges,
+        });
+      }
+    }
   } catch (error) {
     if (error instanceof Error && error.message.includes("Unique constraint")) {
       throw new Error("SKU already exists");
