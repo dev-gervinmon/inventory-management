@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import ImageUploadField from "./image-upload-field";
+import CategorySubcategorySelector from "./category-subcategory-selector";
 import prisma from "@/lib/prisma";
 
 export default async function ProductForm({
@@ -13,6 +14,7 @@ export default async function ProductForm({
   lowStockAt = null,
   image = null,
   categoryIds = [],
+  subcategoryIds = [],
   btnAction = "Add",
   formAction,
 }: {
@@ -24,160 +26,173 @@ export default async function ProductForm({
   lowStockAt?: number | null;
   image?: string | null;
   categoryIds?: string[];
+  subcategoryIds?: string[];
   btnAction?: string;
   formAction: (formData: FormData) => void | Promise<void>;
 }) {
   const categories = await prisma.category.findMany({
+    include: {
+      subcategories: {
+        orderBy: { name: "asc" },
+      },
+    },
     orderBy: { name: "asc" },
   });
   return (
-    <div className="max-w-2xl">
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <form action={formAction} className="space-y-6">
+    <div className="max-w-6xl">
+      <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
+        <form action={formAction} className="space-y-8">
           {id && <input type="hidden" name="id" value={id} />}
-          <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Product Name *
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              required
-              placeholder="Enter product name"
-              defaultValue={name || ""}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-transparent"
-            />
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Product Name - Full Width */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">
+              Basic Information
+            </h2>
             <div>
               <label
-                htmlFor="price"
+                htmlFor="name"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Price *
+                Product Name *
               </label>
               <input
-                type="number"
-                id="price"
-                name="price"
-                step="0.01"
-                min="0"
+                type="text"
+                id="name"
+                name="name"
                 required
-                placeholder="0.0"
-                defaultValue={price || ""}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="quantity"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Quantity *
-              </label>
-              <input
-                type="number"
-                id="quantity"
-                name="quantity"
-                min="0"
-                required
-                placeholder="0"
-                defaultValue={quantity || ""}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-transparent"
+                placeholder="Enter product name"
+                defaultValue={name || ""}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
               />
             </div>
           </div>
 
-          <div>
-            <label
-              htmlFor="sku"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              SKU (optional)
-            </label>
-            <input
-              type="text"
-              id="sku"
-              name="sku"
-              placeholder="Enter SKU"
-              defaultValue={sku || ""}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-transparent"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="lowStockAt"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Low Stock At (optional)
-            </label>
-            <input
-              type="number"
-              id="lowStockAt"
-              name="lowStockAt"
-              min="0"
-              placeholder="Enter low stock threshold"
-              defaultValue={lowStockAt || ""}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-transparent"
-            />
-          </div>
-
-          <ImageUploadField defaultUrl={image || ""} />
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Categories (optional)
-            </label>
-            <div className="border border-gray-300 rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto">
-              {categories.length === 0 ? (
-                <p className="text-sm text-gray-500">
-                  No categories available.{" "}
-                  <Link
-                    href="/categories/new"
-                    className="text-purple-600 hover:text-purple-700"
-                  >
-                    Create one
-                  </Link>
-                </p>
-              ) : (
-                categories.map((category) => (
-                  <div key={category.id} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id={`category-${category.id}`}
-                      name="categoryIds"
-                      value={category.id}
-                      defaultChecked={categoryIds.includes(category.id)}
-                      className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
-                    />
+          {/* 2 Column Layout: Form Fields on Left, Image on Right */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column: Form Fields */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Pricing & Inventory */}
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-6">
+                  Pricing & Inventory
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
                     <label
-                      htmlFor={`category-${category.id}`}
-                      className="ml-2 text-sm text-gray-700"
+                      htmlFor="price"
+                      className="block text-sm font-medium text-gray-700 mb-2"
                     >
-                      {category.name}
+                      Price *
                     </label>
+                    <input
+                      type="number"
+                      id="price"
+                      name="price"
+                      step="0.01"
+                      min="0"
+                      required
+                      placeholder="0.0"
+                      defaultValue={price || ""}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                    />
                   </div>
-                ))
-              )}
+                  <div>
+                    <label
+                      htmlFor="quantity"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Quantity *
+                    </label>
+                    <input
+                      type="number"
+                      id="quantity"
+                      name="quantity"
+                      min="0"
+                      required
+                      placeholder="0"
+                      defaultValue={quantity || ""}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Additional Details */}
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-6">
+                  Additional Details
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label
+                      htmlFor="sku"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      SKU (optional)
+                    </label>
+                    <input
+                      type="text"
+                      id="sku"
+                      name="sku"
+                      placeholder="Enter SKU"
+                      defaultValue={sku || ""}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="lowStockAt"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Low Stock At (optional)
+                    </label>
+                    <input
+                      type="number"
+                      id="lowStockAt"
+                      name="lowStockAt"
+                      min="0"
+                      placeholder="Enter low stock threshold"
+                      defaultValue={lowStockAt || ""}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Image */}
+            <div className="lg:col-span-1">
+              <h2 className="text-lg font-semibold text-gray-900 mb-6">
+                Product Image
+              </h2>
+              <ImageUploadField defaultUrl={image || ""} />
             </div>
           </div>
 
-          <div className="flex gap-5">
+          {/* Categories & Subcategories - Full Width */}
+          <div className="border-t border-gray-200 pt-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">
+              Categories
+            </h2>
+            <CategorySubcategorySelector
+              categories={categories}
+              initialCategoryIds={categoryIds}
+              initialSubcategoryIds={subcategoryIds}
+            />
+          </div>
+
+          {/* Submit Buttons */}
+          <div className="border-t border-gray-200 pt-8 flex gap-4">
             <button
               type="submit"
-              className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+              className="px-8 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition shadow-sm"
             >
               {btnAction} product
             </button>
             <Link
               href="/inventory"
-              className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+              className="px-8 py-3 bg-gray-100 text-gray-900 font-semibold rounded-lg hover:bg-gray-200 transition"
             >
               Cancel
             </Link>
