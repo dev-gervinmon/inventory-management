@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useTransition } from "react";
+import CloseButton from "./close-button";
 
 export default function InventorySearch({
   q,
@@ -66,26 +67,13 @@ export default function InventorySearch({
               className="flex-1 bg-transparent text-gray-900 placeholder-gray-500 focus:outline-none pr-8"
             />
             {q && (
-              <button
-                type="button"
-                onClick={handleClearSearch}
-                className="absolute right-2 p-2 hover:bg-gray-200 rounded-md transition-all duration-200 cursor-pointer"
-                title="Clear search"
-              >
-                <svg
-                  className="w-5 h-5 text-gray-400 hover:text-gray-700 transition-colors"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
+              <div className="absolute right-2">
+                <CloseButton
+                  onClick={handleClearSearch}
+                  variant="gray"
+                  title="Clear search"
+                />
+              </div>
             )}
           </div>
           <button
