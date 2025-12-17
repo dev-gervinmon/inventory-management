@@ -3,16 +3,17 @@
 import SideBar from "@/components/sidebar";
 import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import Link from "next/link";
 import { deleteCategory } from "@/lib/actions/categories";
+import { PrimaryButton } from "@/components/nav-button";
 import {
   formatCategoryDate,
   getCategorySubcategoryLabel,
   getEmptyStateMessage,
 } from "@/lib/utils/categories";
+import Link from "next/link";
 
 export default async function CategoriesPage() {
-  const user = await getCurrentUser();
+  await getCurrentUser();
 
   const categories = await prisma.category.findMany({
     include: {
@@ -35,12 +36,7 @@ export default async function CategoriesPage() {
               </h1>
               <p className="text-sm text-gray-500">Manage product categories</p>
             </div>
-            <Link
-              href="/categories/new"
-              className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-            >
-              Add Category
-            </Link>
+            <PrimaryButton href="/categories/new" label="Add Category" />
           </div>
         </div>
 
@@ -62,13 +58,15 @@ export default async function CategoriesPage() {
               {categories.map((category) => (
                 <details
                   key={category.id}
-                  className="border-b border-gray-200 last:border-b-0"
+                  className="border-b border-gray-200 last:border-b-0 group"
                 >
-                  <summary className="px-6 py-4 cursor-pointer hover:bg-gray-50 flex items-center justify-between">
+                  <summary className="px-6 py-4 cursor-pointer hover:bg-linear-to-r hover:from-purple-50 hover:to-purple-50 hover:shadow-sm transition-all duration-200 flex items-center justify-between group-hover:border-l-4 group-hover:border-l-purple-600 group-hover:pl-5">
                     <div className="flex items-center gap-3 flex-1">
-                      <span className="text-sm text-gray-400">▶</span>
+                      <span className="text-sm text-gray-400 group-hover:text-purple-600 transition-colors">
+                        ▶
+                      </span>
                       <div>
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-gray-900 group-hover:text-purple-700 transition-colors">
                           {category.name}
                         </p>
                         <p className="text-xs text-gray-500">
@@ -78,7 +76,7 @@ export default async function CategoriesPage() {
                         </p>
                       </div>
                     </div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-gray-500 group-hover:text-purple-600 transition-colors">
                       {formatCategoryDate(category.createdAt)}
                     </div>
                   </summary>
@@ -112,7 +110,7 @@ export default async function CategoriesPage() {
                   <div className="px-6 py-3 border-t bg-gray-50 flex gap-2">
                     <Link
                       href={`/categories/${category.id}`}
-                      className="px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded hover:bg-purple-700 transition"
+                      className="px-4 py-2 bg-linear-to-r from-purple-600 to-purple-700 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-200 shadow-md hover:shadow-lg"
                     >
                       Edit
                     </Link>
@@ -120,7 +118,7 @@ export default async function CategoriesPage() {
                       <input type="hidden" name="id" value={category.id} />
                       <button
                         type="submit"
-                        className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700 transition"
+                        className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-all duration-200 shadow-md hover:shadow-lg"
                       >
                         Delete
                       </button>
