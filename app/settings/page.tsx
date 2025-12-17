@@ -6,7 +6,7 @@ export default async function SettingsPage() {
   const user = await getCurrentUser();
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-50">
       <SideBar currentPath="/settings" />
       <main className="ml-64 p-8">
         <div className="mb-8">
