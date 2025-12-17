@@ -95,7 +95,7 @@ export default function Pagination({
                 href={getPageUrl(pageNumber)}
                 className={`px-3 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
                   isCurrentPage
-                    ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-md hover:shadow-lg"
+                    ? "bg-linear-to-r from-purple-600 to-purple-700 text-white shadow-md hover:shadow-lg"
                     : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400 shadow-sm hover:shadow-md"
                 }`}
               >
