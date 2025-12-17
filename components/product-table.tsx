@@ -69,7 +69,7 @@ export default function ProductTable({
   return (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
       {/* Toolbar */}
-      <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 flex items-center justify-between">
+      <div className="px-6 py-4 border-b border-gray-200 bg-linear-to-r from-gray-50 to-gray-100 flex items-center justify-between">
         <input
           type="checkbox"
           checked={selectedIds.size > 0 && selectedIds.size === products.length}
