@@ -1,5 +1,5 @@
 import { jsonError, notFound } from "../errors/http";
-import prisma from "../prisma";
+import prisma from "@/lib/db/prisma";
 
 export function actionRequireId(formData: FormData) {
   const id = String(formData.get("id") || "").trim();
