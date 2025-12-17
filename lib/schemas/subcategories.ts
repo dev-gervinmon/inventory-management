@@ -1,38 +1,22 @@
 import { z } from "zod";
+import { SUBCATEGORY_LIMITS } from "../utils/categories";
+import { parseSchemaData } from "../utils/schema";
 
 export const SubcategorySchema = z.object({
-  name: z.string().min(1, "Subcategory name is required"),
+  name: z
+    .string()
+    .min(SUBCATEGORY_LIMITS.NAME_MIN, "Subcategory name is required")
+    .max(SUBCATEGORY_LIMITS.NAME_MAX, "Subcategory name is too long"),
   categoryId: z.string().min(1, "Category ID is required"),
 });
 
 export type Subcategory = z.infer<typeof SubcategorySchema>;
 
-export function parseSubcategoryData(formData: FormData) {
-  const parsed = SubcategorySchema.safeParse({
-    name: formData.get("name"),
-    categoryId: formData.get("categoryId"),
-  });
-
-  if (!parsed.success) {
-    const first = parsed.error.issues[0]?.message || "Validation failed";
-    throw new Error(first);
-  }
-
-  return parsed.data;
-}
-
-export function parseSubcategoryDataJSON(data: {
-  name?: string;
-  categoryId?: string;
-}) {
-  const parsed = SubcategorySchema.safeParse({
-    name: data.name,
-    categoryId: data.categoryId,
-  });
-
-  if (!parsed.success) {
-    const first = parsed.error.issues[0]?.message || "Validation failed";
-    throw new Error(first);
-  }
-  return parsed.data;
+/**
+ * Parse subcategory data from FormData or object
+ */
+export function parseSubcategoryData(
+  data: FormData | Record<string, string>
+): Subcategory {
+  return parseSchemaData(SubcategorySchema, data);
 }

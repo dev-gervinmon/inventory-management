@@ -5,6 +5,11 @@ import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { deleteCategory } from "@/lib/actions/categories";
+import {
+  formatCategoryDate,
+  getCategorySubcategoryLabel,
+  getEmptyStateMessage,
+} from "@/lib/utils/categories";
 
 export default async function CategoriesPage() {
   const user = await getCurrentUser();
@@ -42,7 +47,9 @@ export default async function CategoriesPage() {
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           {categories.length === 0 ? (
             <div className="p-6 text-center">
-              <p className="text-gray-500 mb-4">No categories yet</p>
+              <p className="text-gray-500 mb-4">
+                {getEmptyStateMessage("categories")}
+              </p>
               <Link
                 href="/categories/new"
                 className="inline-block px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
@@ -65,18 +72,22 @@ export default async function CategoriesPage() {
                           {category.name}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {category.subcategories.length} subcategories
+                          {getCategorySubcategoryLabel(
+                            category.subcategories.length
+                          )}
                         </p>
                       </div>
                     </div>
                     <div className="text-sm text-gray-500">
-                      {new Date(category.createdAt).toLocaleDateString()}
+                      {formatCategoryDate(category.createdAt)}
                     </div>
                   </summary>
 
                   <div className="bg-gray-50 px-6 py-4 space-y-2">
                     {category.subcategories.length === 0 ? (
-                      <p className="text-sm text-gray-500">No subcategories</p>
+                      <p className="text-sm text-gray-500">
+                        {getEmptyStateMessage("subcategories")}
+                      </p>
                     ) : (
                       <div className="space-y-2">
                         {category.subcategories.map((sub) => (
@@ -89,7 +100,7 @@ export default async function CategoriesPage() {
                                 {sub.name}
                               </p>
                               <p className="text-xs text-gray-500">
-                                {new Date(sub.createdAt).toLocaleDateString()}
+                                {formatCategoryDate(sub.createdAt)}
                               </p>
                             </div>
                           </div>

@@ -1,33 +1,21 @@
 import { z } from "zod";
+import { CATEGORY_LIMITS } from "../utils/categories";
+import { parseSchemaData } from "../utils/schema";
 
 export const CategorySchema = z.object({
-  name: z.string().min(1, "Category name is required"),
+  name: z
+    .string()
+    .min(CATEGORY_LIMITS.NAME_MIN, "Category name is required")
+    .max(CATEGORY_LIMITS.NAME_MAX, "Category name is too long"),
 });
 
 export type Category = z.infer<typeof CategorySchema>;
 
-export function parseCategoryData(formData: FormData) {
-  const parsed = CategorySchema.safeParse({
-    name: formData.get("name"),
-  });
-
-  if (!parsed.success) {
-    const first = parsed.error.issues[0]?.message || "Validation failed";
-    throw new Error(first);
-  }
-
-  return parsed.data;
-}
-
-export function parseCategoryDataJSON(data: { name?: string }) {
-  const parsed = CategorySchema.safeParse({
-    name: data.name,
-  });
-
-  if (!parsed.success) {
-    const first = parsed.error.issues[0]?.message || "Validation failed";
-    throw new Error(first);
-  }
-
-  return parsed.data;
+/**
+ * Parse category data from FormData or object
+ */
+export function parseCategoryData(
+  data: FormData | Record<string, string>
+): Category {
+  return parseSchemaData(CategorySchema, data);
 }

@@ -1,6 +1,10 @@
 "use client";
 
 import { useState, FormEvent } from "react";
+import {
+  confirmDelete,
+  formatCategoryDate,
+} from "@/lib/utils/categories";
 
 interface Subcategory {
   id: string;
@@ -25,7 +29,7 @@ export default function SubcategoryForm({
   const [name, setName] = useState(subcategory.name);
 
   const handleDelete = (e: FormEvent<HTMLFormElement>) => {
-    if (!confirm("Are you sure you want to delete this subcategory?")) {
+    if (!confirmDelete(subcategory.name, "subcategory")) {
       e.preventDefault();
     }
   };
@@ -77,7 +81,7 @@ export default function SubcategoryForm({
               {subcategory.name}
             </p>
             <p className="text-xs text-gray-500">
-              {new Date(subcategory.createdAt).toLocaleDateString()}
+              {formatCategoryDate(subcategory.createdAt)}
             </p>
           </div>
           <div className="flex gap-2">
