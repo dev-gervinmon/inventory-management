@@ -1,10 +1,8 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import {
-  confirmDelete,
-  formatCategoryDate,
-} from "@/lib/utils/categories";
+import FormButton from "./form-button";
+import { confirmDelete, formatCategoryDate } from "@/lib/utils/categories";
 
 interface Subcategory {
   id: string;
@@ -63,16 +61,16 @@ export default function SubcategoryForm({
           >
             Save
           </button>
-          <button
+          <FormButton
             type="button"
+            label="Cancel"
+            variant="secondary"
+            size="sm"
             onClick={() => {
               setIsEditing(false);
               setName(subcategory.name);
             }}
-            className="px-4 py-2 bg-gray-200 text-gray-900 text-sm font-medium rounded-lg hover:bg-gray-300 transition"
-          >
-            Cancel
-          </button>
+          />
         </form>
       ) : (
         <>
