@@ -32,8 +32,6 @@ export default function Pagination({
       i++
     ) {
       range.push(i);
-
-      // if currentPage = 6, totalPages = 10, delta = 2 -> range = [4, 5, 6, 7, 8].
     }
 
     if (currentPage - delta > 2) {
@@ -56,54 +54,72 @@ export default function Pagination({
   const visiblePages = getVisiblePages();
 
   return (
-    <nav className="flex items-center justify-center gap-1">
-      <Link
-        href={getPageUrl(currentPage - 1)}
-        className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg ${
-          currentPage <= 1
-            ? "text-gray-400 cursor-not-allowed bg-gray-100"
-            : "text-gray-700 hover:bg-gray-100 bg-white border border-gray-300"
-        }`}
-        aria-disabled={currentPage <= 1}
-      >
-        <ChevronLeft /> Previous
-      </Link>
-      {visiblePages.map((page, key) => {
-        const pageNumber = page as number;
-        const isCurrentPage = pageNumber === currentPage;
+    <div className="flex items-center justify-between">
+      {/* Page Info */}
+      <div className="text-sm text-gray-600 font-medium">
+        Page <span className="text-gray-900 font-bold">{currentPage}</span> of{" "}
+        <span className="text-gray-900 font-bold">{totalPages}</span>
+      </div>
 
-        if (page === "...") {
-          return (
-            <span key={key} className="px-3 py-2 text-sm text-gray-500">
-              ...
-            </span>
-          );
-        }
-        return (
-          <Link
-            key={key}
-            href={getPageUrl(pageNumber)}
-            className={`px-3 py-2 text-sm font-medium rounded-lg ${
-              isCurrentPage
-                ? "bg-purple-600 text-white"
-                : "text-gray-700 hover:bg-gray-100 bg-white border border-gray-300"
-            }`}
-          >
-            {pageNumber}
-          </Link>
-        );
-      })}
-      <Link
-        href={getPageUrl(currentPage + 1)}
-        className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg ${
-          currentPage >= totalPages
-            ? "text-gray-400 cursor-not-allowed bg-gray-100"
-            : "text-gray-700 hover:bg-gray-100 bg-white border border-gray-300"
-        }`}
-        aria-disabled={currentPage >= totalPages}
-      >
-        <ChevronRight /> Next
-      </Link>
-    </nav>
+      {/* Navigation */}
+      <nav className="flex items-center justify-center gap-2">
+        <Link
+          href={getPageUrl(currentPage - 1)}
+          className={`inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
+            currentPage <= 1
+              ? "text-gray-400 cursor-not-allowed bg-gray-100"
+              : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400 shadow-sm hover:shadow-md active:from-gray-300 active:to-gray-300"
+          }`}
+          aria-disabled={currentPage <= 1}
+        >
+          <ChevronLeft className="w-4 h-4" /> Previous
+        </Link>
+
+        {/* Page Numbers */}
+        <div className="flex items-center gap-1">
+          {visiblePages.map((page, key) => {
+            const pageNumber = page as number;
+            const isCurrentPage = pageNumber === currentPage;
+
+            if (page === "...") {
+              return (
+                <span key={key} className="px-2 py-2 text-sm text-gray-500">
+                  ...
+                </span>
+              );
+            }
+
+            return (
+              <Link
+                key={key}
+                href={getPageUrl(pageNumber)}
+                className={`px-3 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
+                  isCurrentPage
+                    ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-md hover:shadow-lg"
+                    : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400 shadow-sm hover:shadow-md"
+                }`}
+              >
+                {pageNumber}
+              </Link>
+            );
+          })}
+        </div>
+
+        <Link
+          href={getPageUrl(currentPage + 1)}
+          className={`inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
+            currentPage >= totalPages
+              ? "text-gray-400 cursor-not-allowed bg-gray-100"
+              : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400 shadow-sm hover:shadow-md"
+          }`}
+          aria-disabled={currentPage >= totalPages}
+        >
+          Next <ChevronRight className="w-4 h-4" />
+        </Link>
+      </nav>
+
+      {/* Empty space for balance */}
+      <div className="w-24" />
+    </div>
   );
 }
