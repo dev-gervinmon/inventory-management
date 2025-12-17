@@ -30,7 +30,7 @@ export function PrimaryButton({
   return (
     <Link
       href={href}
-      className={`inline-block text-center bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-200 shadow-md hover:shadow-lg ${sizeClass[size]} ${className}`}
+      className={`inline-block text-center bg-linear-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-200 shadow-md hover:shadow-lg ${sizeClass[size]} ${className}`}
     >
       {label}
     </Link>

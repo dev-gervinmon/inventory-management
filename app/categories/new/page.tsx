@@ -7,7 +7,7 @@ import FormButton from "@/components/form-button";
 import { SecondaryButton } from "@/components/nav-button";
 
 export default async function NewCategoryPage() {
-  const user = await getCurrentUser();
+  await getCurrentUser();
 
   return (
     <div className="min-h-screen bg-gray-50">
