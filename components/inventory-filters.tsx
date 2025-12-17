@@ -2,6 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import { useTransition, useState, useMemo } from "react";
+import {
+  SORT_OPTIONS,
+  STOCK_STATUS_OPTIONS,
+  INPUT_CLASS,
+  INPUT_FOCUS_PURPLE,
+  INPUT_FOCUS_BLUE,
+  BADGE_COLORS,
+  FILTER_LIST_MAX_HEIGHT_CLASS,
+} from "@/lib/constants/filters";
+import { buildFilterUrl } from "@/lib/utils/filters";
 
 interface InventoryFiltersProps {
   categories: Array<{
@@ -54,10 +64,26 @@ export default function InventoryFilters({
       ? currentCategories.filter((id) => id !== categoryId)
       : [...currentCategories, categoryId];
 
-    const params = new URLSearchParams();
-    newCategories.forEach((id) => params.append("category", id));
-    if (currentStatus) params.set("status", currentStatus);
-    if (currentSort) params.set("sort", currentSort);
+    const params = buildFilterUrl({
+      categories: newCategories,
+      subcategories: currentSubcategories,
+      status: currentStatus as
+        | "all"
+        | "in-stock"
+        | "low-stock"
+        | "out-of-stock"
+        | undefined,
+      sort: currentSort as
+        | "newest"
+        | "oldest"
+        | "name-asc"
+        | "name-desc"
+        | "price-high"
+        | "price-low"
+        | "stock-low"
+        | "quantity-high"
+        | undefined,
+    });
 
     startTransition(() => {
       router.push(`/inventory?${params.toString()}`);
@@ -69,11 +95,26 @@ export default function InventoryFilters({
       ? currentSubcategories.filter((id) => id !== subcategoryId)
       : [...currentSubcategories, subcategoryId];
 
-    const params = new URLSearchParams();
-    currentCategories.forEach((id) => params.append("category", id));
-    newSubcategories.forEach((id) => params.append("subcategory", id));
-    if (currentStatus) params.set("status", currentStatus);
-    if (currentSort) params.set("sort", currentSort);
+    const params = buildFilterUrl({
+      categories: currentCategories,
+      subcategories: newSubcategories,
+      status: currentStatus as
+        | "all"
+        | "in-stock"
+        | "low-stock"
+        | "out-of-stock"
+        | undefined,
+      sort: currentSort as
+        | "newest"
+        | "oldest"
+        | "name-asc"
+        | "name-desc"
+        | "price-high"
+        | "price-low"
+        | "stock-low"
+        | "quantity-high"
+        | undefined,
+    });
 
     startTransition(() => {
       router.push(`/inventory?${params.toString()}`);
@@ -81,12 +122,26 @@ export default function InventoryFilters({
   };
 
   const handleStatusChange = (value: string) => {
-    const params = new URLSearchParams();
-    currentCategories.forEach((id) => params.append("category", id));
-    currentSubcategories.forEach((id) => params.append("subcategory", id));
-    if (value) params.set("status", value);
-    if (currentSort && currentSort !== "newest")
-      params.set("sort", currentSort);
+    const params = buildFilterUrl({
+      categories: currentCategories,
+      subcategories: currentSubcategories,
+      status: (value || undefined) as
+        | "all"
+        | "in-stock"
+        | "low-stock"
+        | "out-of-stock"
+        | undefined,
+      sort: currentSort as
+        | "newest"
+        | "oldest"
+        | "name-asc"
+        | "name-desc"
+        | "price-high"
+        | "price-low"
+        | "stock-low"
+        | "quantity-high"
+        | undefined,
+    });
 
     startTransition(() => {
       router.push(`/inventory?${params.toString()}`);
@@ -94,11 +149,25 @@ export default function InventoryFilters({
   };
 
   const handleSortChange = (value: string) => {
-    const params = new URLSearchParams();
-    currentCategories.forEach((id) => params.append("category", id));
-    currentSubcategories.forEach((id) => params.append("subcategory", id));
-    if (currentStatus) params.set("status", currentStatus);
-    if (value && value !== "newest") params.set("sort", value);
+    const params = buildFilterUrl({
+      categories: currentCategories,
+      subcategories: currentSubcategories,
+      status: currentStatus as
+        | "all"
+        | "in-stock"
+        | "low-stock"
+        | "out-of-stock"
+        | undefined,
+      sort: (value || "newest") as
+        | "newest"
+        | "oldest"
+        | "name-asc"
+        | "name-desc"
+        | "price-high"
+        | "price-low"
+        | "stock-low"
+        | "quantity-high",
+    });
 
     startTransition(() => {
       router.push(`/inventory?${params.toString()}`);
@@ -161,7 +230,7 @@ export default function InventoryFilters({
               value={categorySearch}
               onChange={(e) => setCategorySearch(e.target.value)}
               disabled={isPending}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition disabled:bg-gray-50 disabled:text-gray-400"
+              className={`${INPUT_CLASS} ${INPUT_FOCUS_PURPLE}`}
             />
             {categorySearch && (
               <button
@@ -174,7 +243,9 @@ export default function InventoryFilters({
           </div>
 
           {/* Categories List */}
-          <div className="space-y-2 max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50">
+          <div
+            className={`space-y-2 ${FILTER_LIST_MAX_HEIGHT_CLASS} overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50`}
+          >
             {filteredCategories.length > 0 ? (
               filteredCategories.map((category) => (
                 <label
@@ -229,7 +300,7 @@ export default function InventoryFilters({
               value={subcategorySearch}
               onChange={(e) => setSubcategorySearch(e.target.value)}
               disabled={isPending}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-50 disabled:text-gray-400"
+              className={`${INPUT_CLASS} ${INPUT_FOCUS_BLUE}`}
             />
             {subcategorySearch && (
               <button
@@ -242,7 +313,9 @@ export default function InventoryFilters({
           </div>
 
           {/* Subcategories List */}
-          <div className="space-y-2 max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50">
+          <div
+            className={`space-y-2 ${FILTER_LIST_MAX_HEIGHT_CLASS} overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50`}
+          >
             {availableSubcategories.length > 0 ? (
               availableSubcategories.map((subcategory) => (
                 <label
@@ -285,12 +358,14 @@ export default function InventoryFilters({
             value={currentStatus || ""}
             onChange={(e) => handleStatusChange(e.target.value)}
             disabled={isPending}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition disabled:bg-gray-50 disabled:text-gray-400"
+            className={`${INPUT_CLASS} ${INPUT_FOCUS_PURPLE}`}
           >
             <option value="">All Items</option>
-            <option value="in-stock">In Stock</option>
-            <option value="low-stock">Low Stock</option>
-            <option value="out-of-stock">Out of Stock</option>
+            {STOCK_STATUS_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -303,16 +378,13 @@ export default function InventoryFilters({
             value={currentSort || "newest"}
             onChange={(e) => handleSortChange(e.target.value)}
             disabled={isPending}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition disabled:bg-gray-50 disabled:text-gray-400"
+            className={`${INPUT_CLASS} ${INPUT_FOCUS_PURPLE}`}
           >
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="name-asc">Name (A-Z)</option>
-            <option value="name-desc">Name (Z-A)</option>
-            <option value="price-low">Price: Low to High</option>
-            <option value="price-high">Price: High to Low</option>
-            <option value="stock-low">Low Stock First</option>
-            <option value="quantity-high">Highest Quantity</option>
+            {SORT_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
           </select>
         </div>
       </div>
@@ -323,7 +395,7 @@ export default function InventoryFilters({
           {selectedCategoryNames.map((name) => (
             <span
               key={name}
-              className="inline-flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium"
+              className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${BADGE_COLORS.category}`}
             >
               📁 {name}
             </span>
@@ -331,18 +403,22 @@ export default function InventoryFilters({
           {selectedSubcategoryNames.map((name) => (
             <span
               key={name}
-              className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium"
+              className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${BADGE_COLORS.subcategory}`}
             >
               📂 {name}
             </span>
           ))}
           {currentStatus && (
-            <span className="inline-flex items-center gap-2 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
+            <span
+              className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${BADGE_COLORS.status}`}
+            >
               📊 {currentStatus.replace("-", " ")}
             </span>
           )}
           {currentSort && currentSort !== "newest" && (
-            <span className="inline-flex items-center gap-2 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+            <span
+              className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${BADGE_COLORS.sort}`}
+            >
               🔄 Sort: {currentSort.replace("-", " ")}
             </span>
           )}
