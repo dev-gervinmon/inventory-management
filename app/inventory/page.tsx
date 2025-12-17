@@ -2,6 +2,7 @@ import Pagination from "@/components/pagination";
 import ProductTable from "@/components/product-table";
 import InventorySearch from "@/components/inventory-search";
 import EmptyState from "@/components/empty-state";
+import AddProductButton from "@/components/add-product-button";
 import SideBar from "@/components/sidebar";
 import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
@@ -64,25 +65,7 @@ export default async function InventoryPage({
                 Manage your products and track inventory levels
               </p>
             </div>
-            <Link
-              href="/add-product"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-200 shadow-lg hover:shadow-xl"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              Add Product
-            </Link>
+            <AddProductButton />
           </div>
         </div>
 
