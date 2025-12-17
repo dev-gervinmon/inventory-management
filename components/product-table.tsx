@@ -1,14 +1,22 @@
+"use client";
+
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { SerializedProduct } from "@/app/src/utils/product";
 import DeleteProductButton from "./delete-product-button";
-import { getStockStatus, formatPrice, formatProductDate } from "@/lib/utils/products";
+import {
+  getStockStatus,
+  formatPrice,
+  formatProductDate,
+} from "@/lib/utils/products";
 
 export default function ProductTable({
   products,
 }: {
   products: SerializedProduct[];
 }) {
+  const router = useRouter();
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       {products.length === 0 ? (
@@ -39,7 +47,7 @@ export default function ProductTable({
                   Status
                 </th>
                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                  Actions
+                  Delete
                 </th>
               </tr>
             </thead>
@@ -50,12 +58,19 @@ export default function ProductTable({
                   product.lowStockAt
                 );
 
+                const handleRowClick = () => {
+                  router.push(`/inventory/${product.id}/edit-product`);
+                };
+
                 return (
                   <tr
                     key={product.id}
-                    className={`border-b border-gray-200 hover:bg-gray-50 transition ${
-                      index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                    }`}
+                    onClick={handleRowClick}
+                    className={`cursor-pointer transition ${
+                      index % 2 === 0
+                        ? "bg-white hover:bg-blue-50"
+                        : "bg-gray-50 hover:bg-blue-50"
+                    } border-b border-gray-200 hover:border-blue-200`}
                   >
                     {/* Product Name + Image */}
                     <td className="px-6 py-4">
@@ -140,17 +155,12 @@ export default function ProductTable({
                       </span>
                     </td>
 
-                    {/* Actions */}
-                    <td className="px-6 py-4 text-sm">
-                      <div className="flex gap-3">
-                        <Link
-                          href={`/inventory/${product.id}/edit-product`}
-                          className="text-blue-600 hover:text-blue-900 font-medium"
-                        >
-                          Edit
-                        </Link>
-                        <DeleteProductButton productId={product.id} />
-                      </div>
+                    {/* Delete Action */}
+                    <td
+                      className="px-6 py-4 text-sm"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <DeleteProductButton productId={product.id} />
                     </td>
                   </tr>
                 );
