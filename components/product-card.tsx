@@ -56,24 +56,43 @@ export default function ProductCard({
 
       {/* Content */}
       <div className="p-4 space-y-3">
-        {/* Categories */}
-        {product.categories && product.categories.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {product.categories.slice(0, 2).map((category) => (
-              <span
-                key={category.id}
-                className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full font-medium"
-              >
-                {category.name}
-              </span>
-            ))}
-            {product.categories.length > 2 && (
-              <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full font-medium">
-                +{product.categories.length - 2}
-              </span>
-            )}
-          </div>
-        )}
+        {/* Categories and Subcategories */}
+        <div className="space-y-1">
+          {product.categories && product.categories.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {product.categories.slice(0, 1).map((category) => (
+                <span
+                  key={category.id}
+                  className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full font-medium"
+                >
+                  {category.name}
+                </span>
+              ))}
+              {product.categories.length > 1 && (
+                <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full font-medium">
+                  +{product.categories.length - 1}
+                </span>
+              )}
+            </div>
+          )}
+          {product.subcategories && product.subcategories.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {product.subcategories.slice(0, 2).map((subcategory) => (
+                <span
+                  key={subcategory.id}
+                  className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-medium"
+                >
+                  {subcategory.name}
+                </span>
+              ))}
+              {product.subcategories.length > 2 && (
+                <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full font-medium">
+                  +{product.subcategories.length - 2}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Name + SKU */}
         <div>
