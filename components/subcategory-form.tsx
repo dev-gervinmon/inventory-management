@@ -11,11 +11,15 @@ interface Subcategory {
 export default function SubcategoryForm({
   subcategory,
   categoryId,
+  categoryName,
   formAction,
+  deleteAction,
 }: {
   subcategory: Subcategory;
   categoryId: string;
+  categoryName: string;
   formAction: (formData: FormData) => Promise<void>;
+  deleteAction: (formData: FormData) => Promise<void>;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(subcategory.name);
@@ -84,7 +88,11 @@ export default function SubcategoryForm({
             >
               Edit
             </button>
-            <form onSubmit={handleDelete} className="inline">
+            <form
+              onSubmit={handleDelete}
+              action={deleteAction}
+              className="inline"
+            >
               <input type="hidden" name="id" value={subcategory.id} />
               <input type="hidden" name="categoryId" value={categoryId} />
               <button
