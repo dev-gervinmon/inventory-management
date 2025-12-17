@@ -97,6 +97,47 @@ export async function deleteProduct(id: string) {
 }
 
 /**
+ * Delete multiple products (bulk delete)
+ */
+export async function bulkDeleteProducts(ids: string[]) {
+  const user = await getCurrentUser();
+
+  if (!ids || ids.length === 0) {
+    throw new Error("No products selected");
+  }
+
+  try {
+    // Get product names for logging
+    const products = await prisma.product.findMany({
+      where: { id: { in: ids }, userId: user.id },
+      select: { id: true, name: true },
+    });
+
+    if (products.length === 0) {
+      throw new Error("No products found or unauthorized");
+    }
+
+    // Delete all products
+    await prisma.product.deleteMany({
+      where: { id: { in: ids }, userId: user.id },
+    });
+
+    // Log activity for bulk delete
+    const productNames = products.map((p) => p.name).join(", ");
+    await logActivity(user.id, {
+      type: "PRODUCT_DELETED",
+      productName: `${products.length} products`,
+      message: `Bulk deleted ${products.length} product(s): ${productNames}`,
+    });
+
+    return { success: true, deletedCount: products.length };
+  } catch (error) {
+    console.error("Bulk delete error:", error);
+    throw new Error("Failed to delete products");
+  }
+}
+
+/**
  * Create a new product
  */
 export async function createProduct(formData: FormData) {
