@@ -1,8 +1,8 @@
 import Link from "next/link";
-import ProductChart from "@/components/products-chart";
-import SideBar from "@/components/sidebar";
-import AddProductButton from "@/components/add-product-button";
-import QuickActionButton from "@/components/quick-action-button";
+import ProductChart from "@/components/charts/products-chart";
+import SideBar from "@/components/layout/sidebar";
+import AddProductButton from "@/components/buttons/add-product-button";
+import QuickActionButton from "@/components/buttons/quick-action-button";
 import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import {

@@ -1,10 +1,10 @@
 "use server";
 
-import SideBar from "@/components/sidebar";
+import SideBar from "@/components/layout/sidebar";
 import { createCategory } from "@/lib/actions/categories";
 import { getCurrentUser } from "@/lib/auth";
-import FormButton from "@/components/form-button";
-import { SecondaryButton } from "@/components/nav-button";
+import FormButton from "@/components/buttons/form-button";
+import { SecondaryButton } from "@/components/buttons/nav-button";
 
 export default async function NewCategoryPage() {
   await getCurrentUser();

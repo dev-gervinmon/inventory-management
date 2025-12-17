@@ -1,4 +1,4 @@
-import SideBar from "@/components/sidebar";
+import SideBar from "@/components/layout/sidebar";
 import { getCurrentUser } from "@/lib/auth";
 import { AccountSettings } from "@stackframe/stack";
 

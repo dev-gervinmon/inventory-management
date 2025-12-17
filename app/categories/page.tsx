@@ -1,10 +1,10 @@
 "use server";
 
-import SideBar from "@/components/sidebar";
+import SideBar from "@/components/layout/sidebar";
 import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { deleteCategory } from "@/lib/actions/categories";
-import { PrimaryButton } from "@/components/nav-button";
+import { PrimaryButton } from "@/components/buttons/nav-button";
 import {
   formatCategoryDate,
   getCategorySubcategoryLabel,

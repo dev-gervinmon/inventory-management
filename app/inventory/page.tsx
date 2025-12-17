@@ -1,10 +1,10 @@
-import Pagination from "@/components/pagination";
-import ProductTable from "@/components/product-table";
-import InventorySearch from "@/components/inventory-search";
-import InventoryFilters from "@/components/inventory-filters";
-import EmptyState from "@/components/empty-state";
-import AddProductButton from "@/components/add-product-button";
-import SideBar from "@/components/sidebar";
+import Pagination from "@/components/common/pagination";
+import ProductTable from "@/components/tables/product-table";
+import InventorySearch from "@/components/filters/inventory-search";
+import InventoryFilters from "@/components/filters/inventory-filters";
+import EmptyState from "@/components/layout/empty-state";
+import AddProductButton from "@/components/buttons/add-product-button";
+import SideBar from "@/components/layout/sidebar";
 import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { serializeProduct } from "../src/utils/product";

@@ -1,5 +1,5 @@
-import ProductForm from "@/components/product-form";
-import SideBar from "@/components/sidebar";
+import ProductForm from "@/components/forms/product-form";
+import SideBar from "@/components/layout/sidebar";
 import { createProduct } from "@/lib/actions/products";
 import { getCurrentUser } from "@/lib/auth";
 import Link from "next/link";

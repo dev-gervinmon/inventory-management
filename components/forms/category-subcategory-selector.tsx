@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import CloseButton from "./close-button";
+import CloseButton from "@/components/buttons/close-button";
 
 interface Subcategory {
   id: string;

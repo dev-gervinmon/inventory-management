@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useTransition } from "react";
-import CloseButton from "./close-button";
+import CloseButton from "@/components/buttons/close-button";
 
 export default function InventorySearch({
   q,

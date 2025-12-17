@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import FormButton from "./form-button";
+import FormButton from "@/components/buttons/form-button";
 import { confirmDelete, formatCategoryDate } from "@/lib/utils/categories";
 
 interface Subcategory {

@@ -1,8 +1,8 @@
 "use server";
 
-import SideBar from "@/components/sidebar";
+import SideBar from "@/components/layout/sidebar";
 import SubcategoryForm from "@/components/subcategory-form";
-import DeleteCategoryButton from "@/components/delete-category-button";
+import DeleteCategoryButton from "@/components/buttons/delete/delete-category-button";
 import { editCategory } from "@/lib/actions/categories";
 import {
   createSubcategory,
@@ -12,8 +12,8 @@ import {
 import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { SecondaryButton } from "@/components/nav-button";
-import FormButton from "@/components/form-button";
+import { SecondaryButton } from "@/components/buttons/nav-button";
+import FormButton from "@/components/buttons/form-button";
 
 export default async function EditCategoryPage({
   params,
