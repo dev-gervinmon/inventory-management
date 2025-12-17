@@ -6,14 +6,12 @@ import prisma from "../prisma";
 import { parseProductData } from "../schemas/products";
 import { logActivity } from "./activities";
 
-function getCategoryIds(formData: FormData): string[] {
-  const categoryIds = formData.getAll("categoryIds");
-  return categoryIds.filter((id) => typeof id === "string") as string[];
-}
-
-function getSubcategoryIds(formData: FormData): string[] {
-  const subcategoryIds = formData.getAll("subcategoryIds");
-  return subcategoryIds.filter((id) => typeof id === "string") as string[];
+/**
+ * Extract IDs from FormData for a given key
+ */
+function extractIdsFromFormData(formData: FormData, key: string): string[] {
+  const ids = formData.getAll(key);
+  return ids.filter((id) => typeof id === "string") as string[];
 }
 
 export async function deleteProduct(id: string) {
@@ -57,8 +55,8 @@ export async function deleteProduct(id: string) {
 export async function createProduct(formData: FormData) {
   const user = await getCurrentUser();
   const data = parseProductData(formData);
-  const categoryIds = getCategoryIds(formData);
-  const subcategoryIds = getSubcategoryIds(formData);
+  const categoryIds = extractIdsFromFormData(formData, "categoryIds");
+  const subcategoryIds = extractIdsFromFormData(formData, "subcategoryIds");
 
   try {
     const createdProduct = await prisma.product.create({
@@ -120,8 +118,8 @@ export async function editProduct(formData: FormData) {
   }
 
   const data = parseProductData(formData);
-  const categoryIds = getCategoryIds(formData);
-  const subcategoryIds = getSubcategoryIds(formData);
+  const categoryIds = extractIdsFromFormData(formData, "categoryIds");
+  const subcategoryIds = extractIdsFromFormData(formData, "subcategoryIds");
 
   try {
     const updatedProduct = await prisma.product.update({
@@ -137,41 +135,35 @@ export async function editProduct(formData: FormData) {
       },
     });
 
-    // Log activity based on what changed
-    const changes: Record<
-      string,
-      { old: string | number; new: string | number }
-    > = {};
-    let hasChanges = false;
+    // Track which fields changed
+    const changes: Record<string, { old: string | number; new: string | number }> = {};
 
     if (oldProduct.name !== updatedProduct.name) {
       changes.name = { old: oldProduct.name, new: updatedProduct.name };
-      hasChanges = true;
     }
     if (oldProduct.price !== updatedProduct.price) {
       changes.price = {
         old: oldProduct.price.toNumber(),
         new: updatedProduct.price.toNumber(),
       };
-      hasChanges = true;
     }
     if (oldProduct.quantity !== updatedProduct.quantity) {
       changes.quantity = {
         old: oldProduct.quantity,
         new: updatedProduct.quantity,
       };
-      hasChanges = true;
     }
 
-    if (hasChanges) {
-      // Flatten changes into a single-level record for logging
+    // Only log if something actually changed
+    if (Object.keys(changes).length > 0) {
+      // Flatten changes for database storage
       const flattenedChanges: Record<string, string | number | boolean> = {};
       for (const [key, value] of Object.entries(changes)) {
         flattenedChanges[`${key}_old`] = value.old;
         flattenedChanges[`${key}_new`] = value.new;
       }
 
-      // Determine which type of change took priority
+      // Prioritize which type of change to log (stock > price > other)
       if (changes.quantity) {
         await logActivity(user.id, {
           type: "STOCK_UPDATED",

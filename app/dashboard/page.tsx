@@ -3,41 +3,14 @@ import ProductChart from "@/components/products-chart";
 import SideBar from "@/components/sidebar";
 import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-
-function formatActivityTime(date: Date): string {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) return "Just now";
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
-
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
-}
-
-function getActivityIcon(type: string): string {
-  switch (type) {
-    case "PRODUCT_ADDED":
-      return "➕";
-    case "PRODUCT_DELETED":
-      return "🗑️";
-    case "STOCK_UPDATED":
-      return "📦";
-    case "PRICE_UPDATED":
-      return "💰";
-    case "PRODUCT_EDITED":
-      return "✏️";
-    default:
-      return "📝";
-  }
-}
+import {
+  formatActivityTime,
+  getActivityIcon,
+  calculateStockStats,
+  generateWeeklyProductData,
+  getCriticalStockItems,
+  DASHBOARD_LIMITS,
+} from "@/lib/utils/dashboard";
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -62,66 +35,25 @@ export default async function DashboardPage() {
     prisma.activity.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
-      take: 8,
+      take: DASHBOARD_LIMITS.ACTIVITY_FEED,
     }),
   ]);
 
+  // Calculate stock statistics
+  const stockStats = calculateStockStats(allProducts);
+  const { inStockCount, lowStockCount, outOfStockCount, inStockPercentage, lowStockPercentage, outOfStockPercentage } = stockStats;
+
+  // Calculate total inventory value
   const totalValue = allProducts.reduce(
     (sum, product) => sum + Number(product.price) * Number(product.quantity),
     0
   );
 
-  const inStockCount = allProducts.filter((p) => Number(p.quantity) > 5).length;
-  const lowStockCount = allProducts.filter(
-    (p) =>
-      p.lowStockAt !== null &&
-      Number(p.quantity) <= Number(p.lowStockAt) &&
-      Number(p.quantity) >= 1
-  ).length;
-  const outOfStockCount = allProducts.filter(
-    (p) => Number(p.quantity) === 0
-  ).length;
+  // Generate weekly product data for chart
+  const weeklyProductsData = generateWeeklyProductData(allProducts);
 
-  const inStockPercentage =
-    totalProducts > 0 ? Math.round((inStockCount / totalProducts) * 100) : 0;
-  const lowStockPercentage =
-    totalProducts > 0 ? Math.round((lowStockCount / totalProducts) * 100) : 0;
-  const outOfStockPercentage =
-    totalProducts > 0 ? Math.round((outOfStockCount / totalProducts) * 100) : 0;
-
-  const now = new Date();
-  const weeklyProductsData = [];
-
-  for (let i = 11; i >= 0; i--) {
-    const weekStart = new Date(now);
-    weekStart.setDate(weekStart.getDate() - i * 7);
-    weekStart.setHours(0, 0, 0, 0);
-
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekEnd.getDate() + 6);
-    weekEnd.setHours(23, 59, 59, 999);
-
-    const weekLabel = `${String(weekStart.getMonth() + 1).padStart(
-      2,
-      "0"
-    )}/${String(weekStart.getDate() + 1).padStart(2, "0")}`;
-
-    const weekProducts = allProducts.filter((product) => {
-      const productDate = new Date(product.createdAt);
-      return productDate >= weekStart && productDate <= weekEnd;
-    });
-
-    weeklyProductsData.push({
-      week: weekLabel,
-      products: weekProducts.length,
-    });
-  }
-
-  // Get critical stock items (out of stock + low stock)
-  const criticalStockItems = allProducts
-    .filter((p) => p.quantity === 0 || p.quantity <= (p.lowStockAt || 5))
-    .sort((a, b) => a.quantity - b.quantity)
-    .slice(0, 8);
+  // Get critical stock items
+  const criticalStockItems = getCriticalStockItems(allProducts);
 
   return (
     <div className="min-h-screen bg-gray-50">
