@@ -1,8 +1,8 @@
+import Link from "next/link";
 import ProductChart from "@/components/products-chart";
 import SideBar from "@/components/sidebar";
 import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { TrendingUp } from "lucide-react";
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -14,10 +14,13 @@ export default async function DashboardPage() {
     prisma.product.findMany({
       where: { userId },
       select: {
+        id: true,
         price: true,
         quantity: true,
         lowStockAt: true,
         createdAt: true,
+        sku: true,
+        name: true,
       },
     }),
   ]);
@@ -82,97 +85,291 @@ export default async function DashboardPage() {
     },
   });
 
+  // Get critical stock items (out of stock + low stock)
+  const criticalStockItems = allProducts
+    .filter((p) => p.quantity === 0 || p.quantity <= (p.lowStockAt || 5))
+    .sort((a, b) => a.quantity - b.quantity)
+    .slice(0, 8);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <SideBar currentPath="/dashboard" />
       <main className="ml-64 p-8">
-        {/** Header */}
+        {/** Header with Quick Actions */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-semibold text-gray-900">
-                Dashboard
-              </h1>
-              <p className="text-sm text-gray-500">
+              <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+              <p className="text-sm text-gray-600 mt-1">
                 Welcome back! Here is an overview of your inventory.
               </p>
             </div>
           </div>
+
+          {/** Quick Actions */}
+          <div className="flex gap-3">
+            <Link
+              href="/add-product"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            >
+              + Add Product
+            </Link>
+            <Link
+              href="/inventory"
+              className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+            >
+              View Inventory
+            </Link>
+            <Link
+              href="/categories"
+              className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+            >
+              Manage Categories
+            </Link>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/** Stats */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">
-              Key Metrics
-            </h2>
-
-            <div className="grid grid-cols-3 gap-6">
-              {/** Total Products */}
-              <div className="text-center">
-                <div className="text-3xl font-bold text-gray-900">
+        {/** Key Metrics - 4 Column Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/** Total Products */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6 hover:border-gray-300 transition-colors">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm text-gray-600 font-medium">
+                  Total Products
+                </p>
+                <p className="text-3xl font-bold text-gray-900 mt-2">
                   {totalProducts}
-                </div>
-                <div className="text-small text-gray-600">Total Products</div>
-                <div className="flex items-center justify-center mt-1">
-                  <span className="text-xs text-green-600">
-                    +{totalProducts}
-                  </span>
-                  <TrendingUp className="w-3 h-3 text-green-600 ml-1" />
-                </div>
+                </p>
               </div>
-
-              {/** Total Value */}
-              <div className="text-center">
-                <div className="text-3xl font-bold text-gray-900">
-                  ₱{Number(totalValue).toFixed(0)}
-                </div>
-                <div className="text-small text-gray-600">Total Value</div>
-                <div className="flex items-center justify-center mt-1">
-                  <span className="text-xs text-green-600">
-                    +₱{Number(totalValue).toFixed(0)}
-                  </span>
-                  <TrendingUp className="w-3 h-3 text-green-600 ml-1" />
-                </div>
-              </div>
-
-              {/** Total Products */}
-              <div className="text-center">
-                <div className="text-3xl font-bold text-gray-900">
-                  {lowStockCount}
-                </div>
-                <div className="text-small text-gray-600">Low Stock</div>
-                <div className="flex items-center justify-center mt-1">
-                  <span className="text-xs text-green-600">
-                    +{lowStockCount}
-                  </span>
-                  <TrendingUp className="w-3 h-3 text-green-600 ml-1" />
-                </div>
+              <div className="p-3 bg-blue-50 rounded-lg">
+                <div className="w-6 h-6 text-blue-600">📦</div>
               </div>
             </div>
+            <p className="text-xs text-gray-500 mt-4">
+              All products in inventory
+            </p>
           </div>
 
-          {/** Inventory Over Time */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2>New products per week</h2>
+          {/** Total Value */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6 hover:border-gray-300 transition-colors">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm text-gray-600 font-medium">Total Value</p>
+                <p className="text-3xl font-bold text-gray-900 mt-2">
+                  ₱{Number(totalValue).toFixed(0)}
+                </p>
+              </div>
+              <div className="p-3 bg-green-50 rounded-lg">
+                <div className="w-6 h-6 text-green-600">💰</div>
+              </div>
             </div>
-            <div className="h-48">
+            <p className="text-xs text-gray-500 mt-4">
+              Estimated inventory value
+            </p>
+          </div>
+
+          {/** In Stock */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6 hover:border-gray-300 transition-colors">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm text-gray-600 font-medium">In Stock</p>
+                <p className="text-3xl font-bold text-green-600 mt-2">
+                  {inStockCount}
+                </p>
+              </div>
+              <div className="p-3 bg-green-50 rounded-lg">
+                <div className="w-6 h-6 text-green-600 flex items-center justify-center">
+                  ✓
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-4">
+              {inStockPercentage}% of inventory
+            </p>
+          </div>
+
+          {/** Critical Items */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6 hover:border-gray-300 transition-colors">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm text-gray-600 font-medium">
+                  Critical Stock
+                </p>
+                <p className="text-3xl font-bold text-red-600 mt-2">
+                  {outOfStockCount + lowStockCount}
+                </p>
+              </div>
+              <div className="p-3 bg-red-50 rounded-lg">
+                <div className="w-6 h-6 text-red-600 flex items-center justify-center">
+                  !
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-4">
+              Low or out of stock items
+            </p>
+          </div>
+        </div>
+
+        {/** Charts Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          {/** Weekly Products Chart - 2 cols */}
+          <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-gray-900">
+                New Products Per Week
+              </h2>
+            </div>
+            <div className="h-64">
               <ProductChart data={weeklyProductsData} />
             </div>
           </div>
+
+          {/** Stock Distribution */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">
+              Stock Status
+            </h2>
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 rounded-full bg-green-500" />
+                    <span className="text-sm font-medium text-gray-700">
+                      In Stock
+                    </span>
+                  </div>
+                  <span className="text-sm font-bold text-gray-900">
+                    {inStockPercentage}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-green-500 h-2 rounded-full"
+                    style={{ width: `${inStockPercentage}%` }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                    <span className="text-sm font-medium text-gray-700">
+                      Low Stock
+                    </span>
+                  </div>
+                  <span className="text-sm font-bold text-gray-900">
+                    {lowStockPercentage}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-yellow-500 h-2 rounded-full"
+                    style={{ width: `${lowStockPercentage}%` }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 rounded-full bg-red-500" />
+                    <span className="text-sm font-medium text-gray-700">
+                      Out of Stock
+                    </span>
+                  </div>
+                  <span className="text-sm font-bold text-gray-900">
+                    {outOfStockPercentage}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-red-500 h-2 rounded-full"
+                    style={{ width: `${outOfStockPercentage}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/** Stock Levels */}
+        {/** Critical Items & Recent Products */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/** Low Stock Alert */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold text-gray-900">
-                Stock Levels
+                Critical Stock Alerts
               </h2>
+              {criticalStockItems.length > 0 && (
+                <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full">
+                  {criticalStockItems.length} items
+                </span>
+              )}
             </div>
+
+            {criticalStockItems.length > 0 ? (
+              <div className="space-y-3">
+                {criticalStockItems.map((product) => {
+                  const status =
+                    product.quantity === 0 ? "Out of Stock" : "Low Stock";
+                  const statusColor =
+                    product.quantity === 0
+                      ? "text-red-600 bg-red-50"
+                      : "text-yellow-600 bg-yellow-50";
+
+                  return (
+                    <div
+                      key={product.id}
+                      className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">
+                          {product.name}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">
+                          SKU: {product.sku}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p
+                          className={`text-sm font-bold ${statusColor} px-2 py-1 rounded`}
+                        >
+                          {product.quantity} units
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">{status}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-sm text-gray-500">
+                  ✓ All items are well stocked!
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/** Recent Products */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Recent Products
+              </h2>
+              <Link
+                href="/inventory"
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
+                View all →
+              </Link>
+            </div>
+
             <div className="space-y-3">
-              {recent.map((product, key) => {
+              {recent.map((product) => {
                 const stockLevel =
                   product.quantity === 0
                     ? 0
@@ -181,85 +378,47 @@ export default async function DashboardPage() {
                     : 2;
 
                 const bgColors = [
-                  "bg-red-600",
-                  "bg-yellow-600",
-                  "bg-green-600",
+                  "bg-red-100",
+                  "bg-yellow-100",
+                  "bg-green-100",
+                ];
+                const dotColors = [
+                  "bg-red-500",
+                  "bg-yellow-500",
+                  "bg-green-500",
                 ];
                 const textColors = [
                   "text-red-600",
                   "text-yellow-600",
                   "text-green-600",
                 ];
+
                 return (
                   <div
-                    className="flex items-center justify-between p-3 rounded-lg bg-gray-50"
-                    key={key}
+                    key={product.id}
+                    className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
                   >
                     <div className="flex items-center space-x-3">
                       <div
-                        className={`w-3 h-3 rounded-full ${bgColors[stockLevel]}`}
-                      ></div>
-                      <span className="text-sm font-medium text-gray-900">
-                        {product.name}
-                      </span>
+                        className={`w-3 h-3 rounded-full ${dotColors[stockLevel]}`}
+                      />
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">
+                          {product.name}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          ₱{Number(product.price).toFixed(2)}
+                        </p>
+                      </div>
                     </div>
                     <div
-                      className={`text-sm font-medium ${textColors[stockLevel]}`}
+                      className={`text-sm font-bold ${textColors[stockLevel]}`}
                     >
                       {product.quantity} units
                     </div>
                   </div>
                 );
               })}
-            </div>
-          </div>
-          {/** Efficiency  -- under construction !! Static chart*/}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Efficiency
-              </h2>
-            </div>
-            <div className="flex items-center justify-center">
-              <div className="relative w-48 h-48">
-                <div className="absolute inset-0 rounded-full border-8 border-gray-200" />
-                <div
-                  className="absolute inset-0 rounded-full border-8 border-purple-600"
-                  style={{
-                    clipPath:
-                      "polygon(50%, 50%, 50%, 0%, 100%, 0%, 100%, 100%, 0%, 100%, 0%, 50%)",
-                  }}
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900">
-                      {inStockPercentage}%
-                    </div>
-                    <div className="text-sm text-gray-600">In Stock</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 space-y-2">
-              <div className="flex items-center justify-between text-sm text-gray-600">
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 rounded-full bg-purple-600" />
-                  <span>In Stock ({inStockPercentage}%)</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between text-sm text-gray-600">
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 rounded-full bg-purple-200" />
-                  <span>Low Stock ({lowStockPercentage}%)</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between text-sm text-gray-600">
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 rounded-full bg-gray-200" />
-                  <span>Out of Stock ({outOfStockPercentage}%)</span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
