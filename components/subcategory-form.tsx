@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { deleteSubcategory } from "@/lib/actions/subcategories";
 
 interface Subcategory {
   id: string;
@@ -12,15 +11,11 @@ interface Subcategory {
 export default function SubcategoryForm({
   subcategory,
   categoryId,
-  categoryName,
   formAction,
-  deleteAction,
 }: {
   subcategory: Subcategory;
   categoryId: string;
-  categoryName: string;
   formAction: (formData: FormData) => Promise<void>;
-  deleteAction: (formData: FormData) => Promise<void>;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(subcategory.name);
@@ -39,7 +34,7 @@ export default function SubcategoryForm({
   };
 
   return (
-    <div className="border border-gray-200 rounded-lg p-4 flex items-center justify-between bg-gradient-to-r from-blue-50 to-transparent">
+    <div className="border border-gray-200 rounded-lg p-4 flex items-center justify-between bg-linear-to-r from-blue-50 to-transparent">
       {isEditing ? (
         <form onSubmit={handleSave} className="flex-1 flex gap-3 items-center">
           <input type="hidden" name="id" value={subcategory.id} />
