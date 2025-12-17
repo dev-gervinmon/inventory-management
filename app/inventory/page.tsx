@@ -1,9 +1,10 @@
 import Pagination from "@/components/pagination";
-import ProductCard from "@/components/product-card";
+import ProductTable from "@/components/product-table";
 import SideBar from "@/components/sidebar";
 import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { serializeProduct } from "../src/utils/product";
+import Link from "next/link";
 
 export default async function InventoryPage({
   searchParams,
@@ -33,6 +34,11 @@ export default async function InventoryPage({
       take: pageSize,
       include: {
         categories: true,
+        subcategories: {
+          include: {
+            category: true,
+          },
+        },
       },
     }),
   ]);
@@ -48,41 +54,38 @@ export default async function InventoryPage({
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-semibold text-gray-900">
-                Inventory
-              </h1>
-              <p className="text-sm text-gray-500">
+              <h1 className="text-3xl font-bold text-gray-900">Inventory</h1>
+              <p className="text-base text-gray-600 mt-2">
                 Manage your products and track inventory levels
               </p>
             </div>
+            <Link
+              href="/add-product"
+              className="px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition"
+            >
+              + Add Product
+            </Link>
           </div>
         </div>
 
         <div className="space-y-6">
           {/** Search */}
-          <div className="bg-white rounded-large border border-gray-200 p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
             <form className="flex gap-2" action="/inventory" method="GET">
               <input
                 name="q"
-                placeholder="Search products..."
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:border-transparent"
+                placeholder="Search products by name or SKU..."
+                defaultValue={q}
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
               />
-              <button className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+              <button className="px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition">
                 Search
               </button>
             </form>
           </div>
 
-          {/** Product Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {items.length === 0 && (
-              <p className="text-gray-500 text-sm">No products found.</p>
-            )}
-
-            {items.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          {/** Product Table */}
+          <ProductTable products={items} />
 
           {totalPages > 1 && (
             <div className="bg-white rounded-lg border border-gray-200 p-6">
