@@ -6,7 +6,7 @@ import prisma from "../../../../lib/prisma";
 import { editProduct } from "@/lib/actions/products";
 import ProductForm from "@/components/product-form";
 import { redirect } from "next/navigation";
-import Link from "next/link";
+import { SecondaryButton } from "@/components/nav-button";
 
 export default async function EditProductPage({
   params,
@@ -38,12 +38,11 @@ export default async function EditProductPage({
       <main className="ml-64 p-8">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
-            <Link
+            <SecondaryButton
               href="/inventory"
-              className="text-gray-600 hover:text-gray-900 flex items-center gap-1"
-            >
-              ← Back
-            </Link>
+              label="← Back"
+              variant="subtle"
+            />
           </div>
           <div className="flex items-center justify-between">
             <div>
