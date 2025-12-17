@@ -15,7 +15,11 @@ export default async function NewCategoryPage() {
       <main className="ml-64 p-8">
         <div className="mb-8">
           <div className="mb-4">
-            <SecondaryButton href="/categories" label="← Back to Categories" variant="subtle" />
+            <SecondaryButton
+              href="/categories"
+              label="← Back to Categories"
+              variant="subtle"
+            />
           </div>
           <h1 className="text-3xl font-bold text-gray-900">
             Create New Category
@@ -49,7 +53,12 @@ export default async function NewCategoryPage() {
               </div>
 
               <div className="flex gap-4 pt-2">
-                <FormButton type="submit" label="Create Category" variant="primary" size="lg" />
+                <FormButton
+                  type="submit"
+                  label="Create Category"
+                  variant="primary"
+                  size="lg"
+                />
                 <SecondaryButton href="/categories" label="Cancel" size="lg" />
               </div>
             </form>
