@@ -3,7 +3,8 @@
 import SideBar from "@/components/sidebar";
 import { createCategory } from "@/lib/actions/categories";
 import { getCurrentUser } from "@/lib/auth";
-import Link from "next/link";
+import FormButton from "@/components/form-button";
+import { SecondaryButton } from "@/components/nav-button";
 
 export default async function NewCategoryPage() {
   const user = await getCurrentUser();
@@ -13,12 +14,9 @@ export default async function NewCategoryPage() {
       <SideBar currentPath="/categories" />
       <main className="ml-64 p-8">
         <div className="mb-8">
-          <Link
-            href="/categories"
-            className="text-purple-600 hover:underline mb-4 inline-block"
-          >
-            ← Back to Categories
-          </Link>
+          <div className="mb-4">
+            <SecondaryButton href="/categories" label="← Back to Categories" variant="subtle" />
+          </div>
           <h1 className="text-3xl font-bold text-gray-900">
             Create New Category
           </h1>
@@ -51,18 +49,8 @@ export default async function NewCategoryPage() {
               </div>
 
               <div className="flex gap-4 pt-2">
-                <button
-                  type="submit"
-                  className="px-8 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition shadow-sm"
-                >
-                  Create Category
-                </button>
-                <Link
-                  href="/categories"
-                  className="px-8 py-3 bg-gray-100 text-gray-900 font-semibold rounded-lg hover:bg-gray-200 transition"
-                >
-                  Cancel
-                </Link>
+                <FormButton type="submit" label="Create Category" variant="primary" size="lg" />
+                <SecondaryButton href="/categories" label="Cancel" size="lg" />
               </div>
             </form>
           </div>
