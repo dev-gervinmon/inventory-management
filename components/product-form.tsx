@@ -1,8 +1,9 @@
 "use server";
 
-import Link from "next/link";
 import ImageUploadField from "./image-upload-field";
 import CategorySubcategorySelector from "./category-subcategory-selector";
+import FormButton from "./form-button";
+import { SecondaryButton } from "./nav-button";
 import prisma from "@/lib/prisma";
 
 export default async function ProductForm({
@@ -184,18 +185,13 @@ export default async function ProductForm({
 
           {/* Submit Buttons */}
           <div className="border-t border-gray-200 pt-8 flex gap-4">
-            <button
+            <FormButton
               type="submit"
-              className="px-8 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition shadow-sm"
-            >
-              {btnAction} product
-            </button>
-            <Link
-              href="/inventory"
-              className="px-8 py-3 bg-gray-100 text-gray-900 font-semibold rounded-lg hover:bg-gray-200 transition"
-            >
-              Cancel
-            </Link>
+              label={`${btnAction} product`}
+              variant="primary"
+              size="lg"
+            />
+            <SecondaryButton href="/inventory" label="Cancel" size="lg" />
           </div>
         </form>
       </div>
