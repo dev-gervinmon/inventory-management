@@ -1,6 +1,8 @@
 import Link from "next/link";
 import ProductChart from "@/components/products-chart";
 import SideBar from "@/components/sidebar";
+import AddProductButton from "@/components/add-product-button";
+import QuickActionButton from "@/components/quick-action-button";
 import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import {
@@ -41,7 +43,14 @@ export default async function DashboardPage() {
 
   // Calculate stock statistics
   const stockStats = calculateStockStats(allProducts);
-  const { inStockCount, lowStockCount, outOfStockCount, inStockPercentage, lowStockPercentage, outOfStockPercentage } = stockStats;
+  const {
+    inStockCount,
+    lowStockCount,
+    outOfStockCount,
+    inStockPercentage,
+    lowStockPercentage,
+    outOfStockPercentage,
+  } = stockStats;
 
   // Calculate total inventory value
   const totalValue = allProducts.reduce(
@@ -71,25 +80,48 @@ export default async function DashboardPage() {
           </div>
 
           {/** Quick Actions */}
-          <div className="flex gap-3">
-            <Link
-              href="/add-product"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
-            >
-              + Add Product
-            </Link>
-            <Link
+          <div className="flex flex-wrap gap-3">
+            <AddProductButton variant="simple" size="sm" />
+            <QuickActionButton
               href="/inventory"
-              className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
-            >
-              View Inventory
-            </Link>
-            <Link
+              label="View Inventory"
+              icon={
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M20 7l-8-4-8 4m0 0l8 4m-8-4v10l8 4m0-10l8 4m-8-4v10l8-4"
+                  />
+                </svg>
+              }
+              variant="secondary"
+            />
+            <QuickActionButton
               href="/categories"
-              className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
-            >
-              Manage Categories
-            </Link>
+              label="Manage Categories"
+              icon={
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 0 1 0 2.828l-7 7a2 2 0 0 1-2.828 0l-7-7A1.994 1.994 0 0 1 3 12V7a4 4 0 0 1 4-4z"
+                  />
+                </svg>
+              }
+              variant="secondary"
+            />
           </div>
         </div>
 
