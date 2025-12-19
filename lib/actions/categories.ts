@@ -1,17 +1,22 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { getCurrentUser } from "../auth/auth";
 import prisma from "../db/prisma";
 import { parseCategoryData } from "../schemas/categories";
 import { handlePrismaActionError } from "../errors/actions";
 import { actionRequireId } from "../validators/categories";
-import { logActivity } from "./activities";
+
+type ActionResponse = {
+  success: boolean;
+  error?: string;
+};
 
 /**
  * Create a new category
  */
-export async function createCategory(formData: FormData) {
+export async function createCategory(
+  formData: FormData
+): Promise<ActionResponse> {
   await getCurrentUser();
   const data = parseCategoryData(formData);
 
@@ -22,16 +27,24 @@ export async function createCategory(formData: FormData) {
 
     // Note: Activity logging for categories could be added here if needed
     // await logActivity(userId, { ... })
+    return {
+      success: true,
+    };
   } catch (error) {
-    handlePrismaActionError(error, "Category");
+    const message = handlePrismaActionError(error, "Category");
+    return {
+      success: false,
+      error: message,
+    };
   }
-  redirect("/categories");
 }
 
 /**
  * Update an existing category
  */
-export async function editCategory(formData: FormData) {
+export async function editCategory(
+  formData: FormData
+): Promise<ActionResponse> {
   await getCurrentUser();
   const id = actionRequireId(formData);
   const data = parseCategoryData(formData);
@@ -51,16 +64,25 @@ export async function editCategory(formData: FormData) {
     if (oldCategory?.name !== data.name) {
       // Activity logging could be added here if category changes are important to track
     }
+
+    return {
+      success: true,
+    };
   } catch (error) {
-    handlePrismaActionError(error, "Category");
+    const message = handlePrismaActionError(error, "Category");
+    return {
+      success: false,
+      error: message,
+    };
   }
-  redirect("/categories");
 }
 
 /**
  * Delete a category and all its subcategories
  */
-export async function deleteCategory(formData: FormData) {
+export async function deleteCategory(
+  formData: FormData
+): Promise<ActionResponse> {
   await getCurrentUser();
   const id = actionRequireId(formData);
 
@@ -75,8 +97,14 @@ export async function deleteCategory(formData: FormData) {
     });
 
     // Note: Category deletion cascades to subcategories via database
+    return {
+      success: true,
+    };
   } catch (error) {
-    handlePrismaActionError(error, "Category");
+    const message = handlePrismaActionError(error, "Category");
+    return {
+      success: false,
+      error: message,
+    };
   }
-  redirect("/categories");
 }
