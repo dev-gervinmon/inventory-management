@@ -6,6 +6,15 @@ import { useRouter } from "next/navigation";
 import { SerializedProduct } from "@/app/src/utils/product";
 import { bulkDeleteProducts } from "@/lib/actions/products";
 import EmptyState from "@/components/layout/empty-state";
+import { useSearch } from "@/lib/hooks/useSearch";
+import { useSelection } from "@/lib/hooks/useSelection";
+import { usePagination } from "@/lib/hooks/usePagination";
+import { useSort } from "@/lib/hooks/useSort";
+import SortableHeader from "@/components/common/sortable-header";
+import MessageBanner from "@/components/common/message-banner";
+import { useMessage } from "@/lib/hooks/useMessage";
+import ConfirmationModal from "@/components/modals/confirmation-modal";
+import FormButton from "@/components/buttons/form-button";
 import {
   getStockStatus,
   formatPrice,
@@ -18,162 +27,386 @@ export default function ProductTable({
   products: SerializedProduct[];
 }) {
   const router = useRouter();
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [isDeleting, setIsDeleting] = useState(false);
+  const { message, showSuccess, showError, clearMessage } = useMessage({
+    autoClose: true,
+    timeout: 5000,
+  });
 
-  const handleSelectAll = () => {
-    if (selectedIds.size === products.length) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(products.map((p) => p.id)));
-    }
-  };
+  // Filter state
+  const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
+  const [statusFilter, setStatusFilter] = useState<string>("");
 
-  const handleSelectProduct = (id: string) => {
-    const newSelected = new Set(selectedIds);
-    if (newSelected.has(id)) {
-      newSelected.delete(id);
-    } else {
-      newSelected.add(id);
-    }
-    setSelectedIds(newSelected);
-  };
-
-  const handleBulkDelete = async () => {
-    if (selectedIds.size === 0) {
-      alert("Please select at least one product");
-      return;
-    }
-
-    if (
-      !confirm(
-        `Delete ${selectedIds.size} product(s)? This action cannot be undone.`
+  // Get unique categories from all products
+  const allCategories = Array.from(
+    new Set(
+      products.flatMap((p) =>
+        (p.categories || []).map((c) => ({ id: c.id, name: c.name }))
       )
-    ) {
+    ),
+    (cat) => cat
+  );
+
+  // Apply category and status filters
+  const filteredByCategory = categoryFilter.length
+    ? products.filter((p) =>
+        categoryFilter.some((catId) =>
+          (p.categories || []).some((c) => c.id === catId)
+        )
+      )
+    : products;
+
+  const filteredByStatus =
+    statusFilter === "in-stock"
+      ? filteredByCategory.filter((p) => p.quantity > 0)
+      : statusFilter === "out-of-stock"
+      ? filteredByCategory.filter((p) => p.quantity === 0)
+      : statusFilter === "low-stock"
+      ? filteredByCategory.filter(
+          (p) => p.quantity > 0 && p.quantity <= (p.lowStockAt || 0)
+        )
+      : filteredByCategory;
+
+  // Search hook
+  const {
+    searchQuery,
+    setSearch,
+    clearSearch,
+    filteredItems: filteredProducts,
+  } = useSearch(filteredByStatus, { searchableFields: ["name", "sku"] });
+
+  // Sort hook
+  const {
+    sortKey,
+    sortDirection,
+    toggleSort,
+    sortedItems: sortedProducts,
+  } = useSort({
+    items: filteredProducts,
+    initialSortKey: "createdAt",
+    initialDirection: "desc",
+  });
+
+  // Pagination hook
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedItems: paginatedProducts,
+    startIndex,
+    endIndex,
+  } = usePagination(sortedProducts, { itemsPerPage: 10 });
+
+  // Selection hook
+  const { selectedIds, toggle, selectAll, deselectAll, count } = useSelection();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setCurrentPage(1);
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      selectAll(sortedProducts.map((p) => p.id));
+    } else {
+      deselectAll();
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (count === 0) {
+      showError("Please select at least one product to delete");
       return;
     }
+    setIsBulkDeleteModalOpen(true);
+  };
 
+  const handleConfirmBulkDelete = async () => {
     setIsDeleting(true);
+    clearMessage();
+
     try {
       await bulkDeleteProducts(Array.from(selectedIds));
-      setSelectedIds(new Set());
+      showSuccess(`Successfully deleted ${count} product(s)!`);
+      deselectAll();
+      setIsBulkDeleteModalOpen(false);
       router.refresh();
     } catch (error) {
-      alert("Failed to delete products");
-      console.error(error);
+      showError(
+        error instanceof Error ? error.message : "Failed to delete products"
+      );
     } finally {
       setIsDeleting(false);
     }
   };
 
-  return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-      {/* Toolbar */}
-      <div className="px-6 py-4 border-b border-gray-200 bg-linear-to-r from-gray-50 to-gray-100 flex items-center justify-between">
-        <input
-          type="checkbox"
-          checked={selectedIds.size > 0 && selectedIds.size === products.length}
-          onChange={handleSelectAll}
-          title="Select all products"
-          className="w-4 h-4 cursor-pointer accent-purple-600"
-        />
+  const handleClearFilters = () => {
+    setCategoryFilter([]);
+    setStatusFilter("");
+    setCurrentPage(1);
+  };
 
-        {selectedIds.size > 0 && (
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-gray-700">
-              {selectedIds.size} selected
-            </span>
+  const hasActiveFilters = categoryFilter.length > 0 || statusFilter;
+
+  return (
+    <div className="space-y-4">
+      <MessageBanner message={message} />
+
+      {/* Filters Section */}
+      <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold text-gray-900">Filters</h3>
+          {hasActiveFilters && (
             <button
-              onClick={handleBulkDelete}
-              disabled={isDeleting}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 inline-flex items-center gap-2"
+              onClick={handleClearFilters}
+              className="text-sm text-purple-600 hover:text-purple-700 font-medium transition-colors"
             >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                />
-              </svg>
-              {isDeleting ? "Deleting..." : "Delete"}
+              Clear all
             </button>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Categories Filter */}
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-gray-700">
+              Categories{" "}
+              {categoryFilter.length > 0 && `(${categoryFilter.length})`}
+            </label>
+            <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-2 bg-gray-50">
+              {allCategories.length === 0 ? (
+                <p className="text-xs text-gray-500">No categories available</p>
+              ) : (
+                allCategories.map((cat) => (
+                  <label
+                    key={cat.id}
+                    className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-2 rounded transition"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={categoryFilter.includes(cat.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setCategoryFilter([...categoryFilter, cat.id]);
+                        } else {
+                          setCategoryFilter(
+                            categoryFilter.filter((id) => id !== cat.id)
+                          );
+                        }
+                        setCurrentPage(1);
+                      }}
+                      className="w-4 h-4 cursor-pointer"
+                    />
+                    <span className="text-sm text-gray-700">{cat.name}</span>
+                  </label>
+                ))
+              )}
+            </div>
           </div>
-        )}
+
+          {/* Stock Status Filter */}
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-gray-700">
+              Stock Status
+            </label>
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+            >
+              <option value="">All Items</option>
+              <option value="in-stock">In Stock</option>
+              <option value="low-stock">Low Stock</option>
+              <option value="out-of-stock">Out of Stock</option>
+            </select>
+          </div>
+        </div>
       </div>
 
-      {products.length === 0 ? (
-        <EmptyState
-          icon="package"
-          title="No products found."
-          description="Start adding products to your inventory to get started."
-        />
-      ) : (
-        <div className="overflow-x-auto">
+      {/* Search Input */}
+      <div className="relative">
+        <div className="relative flex items-center">
+          <svg
+            className="absolute left-4 w-5 h-5 text-gray-400 pointer-events-none"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={searchQuery}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="w-full pl-12 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => {
+                clearSearch();
+                setCurrentPage(1);
+              }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+              title="Clear search"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Search Results Info */}
+      {searchQuery && (
+        <div className="bg-linear-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200 px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <svg
+              className="w-4 h-4 text-purple-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+            <span className="text-xs text-gray-700 font-medium">
+              Found <strong>{sortedProducts.length}</strong> of{" "}
+              <strong>{products.length}</strong> product
+              {products.length !== 1 ? "s" : ""} matching &quot;
+              <strong className="text-purple-700">{searchQuery}</strong>&quot;
+            </span>
+          </div>
+        </div>
+      )}
+
+      {count > 0 && (
+        <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <span className="text-sm font-medium text-blue-900">
+            {count} product(s) selected
+          </span>
+          <FormButton
+            type="button"
+            label={`Delete Selected (${count})`}
+            variant="delete"
+            size="sm"
+            disabled={isDeleting}
+            onClick={handleBulkDelete}
+          />
+        </div>
+      )}
+
+      <div className="overflow-x-auto border border-gray-200 rounded-lg">
+        {sortedProducts.length === 0 ? (
+          <div className="p-8 text-center text-gray-500">
+            {searchQuery ? (
+              <div>
+                <p className="text-sm">No products match your search</p>
+                <p className="text-xs mt-1">Try adjusting your search terms</p>
+              </div>
+            ) : hasActiveFilters ? (
+              <div>
+                <p className="text-sm">No products match your filters</p>
+                <p className="text-xs mt-1">
+                  Try adjusting your filter settings
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm">No products found</p>
+            )}
+          </div>
+        ) : (
           <table className="w-full">
             <thead>
-              <tr className="border-b-2 border-gray-300 bg-gray-100">
-                <th className="px-6 py-4 text-left"></th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                  Product
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="px-6 py-3 text-left">
+                  <input
+                    type="checkbox"
+                    id="select-all"
+                    checked={
+                      count === sortedProducts.length &&
+                      sortedProducts.length > 0
+                    }
+                    onChange={(e) => handleSelectAll(e.target.checked)}
+                    className="w-4 h-4 cursor-pointer"
+                  />
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                  SKU
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <SortableHeader
+                  label="Product"
+                  sortKey="name"
+                  currentSortKey={sortKey}
+                  sortDirection={sortDirection}
+                  onSort={toggleSort}
+                />
+                <SortableHeader
+                  label="SKU"
+                  sortKey="sku"
+                  currentSortKey={sortKey}
+                  sortDirection={sortDirection}
+                  onSort={toggleSort}
+                />
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
                   Categories
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                  Price
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                  Stock
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <SortableHeader
+                  label="Price"
+                  sortKey="price"
+                  currentSortKey={sortKey}
+                  sortDirection={sortDirection}
+                  onSort={toggleSort}
+                />
+                <SortableHeader
+                  label="Stock"
+                  sortKey="quantity"
+                  currentSortKey={sortKey}
+                  sortDirection={sortDirection}
+                  onSort={toggleSort}
+                />
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
                   Status
                 </th>
               </tr>
             </thead>
             <tbody>
-              {products.map((product, index) => {
+              {paginatedProducts.map((product) => {
                 const status = getStockStatus(
                   Number(product.quantity),
                   product.lowStockAt
                 );
-
-                const handleRowClick = () => {
-                  router.push(`/inventory/${product.id}/edit-product`);
-                };
-
                 const isSelected = selectedIds.has(product.id);
 
                 return (
                   <tr
                     key={product.id}
-                    onClick={handleRowClick}
-                    className={`transition-colors duration-150 border-b border-gray-200 cursor-pointer ${
-                      isSelected
-                        ? "bg-purple-50"
-                        : index % 2 === 0
-                        ? "bg-white hover:bg-gray-50"
-                        : "bg-gray-50 hover:bg-gray-100"
+                    onClick={() =>
+                      router.push(`/inventory/${product.id}/edit-product`)
+                    }
+                    className={`border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition ${
+                      isSelected ? "bg-purple-50" : ""
                     }`}
                   >
-                    {/* Checkbox Column */}
                     <td
                       className="px-6 py-4"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <input
                         type="checkbox"
+                        id={`select-${product.id}`}
                         checked={isSelected}
-                        onChange={() => handleSelectProduct(product.id)}
-                        className="w-4 h-4 cursor-pointer accent-purple-600"
+                        onChange={() => toggle(product.id)}
+                        className="w-4 h-4 cursor-pointer"
                       />
                     </td>
 
@@ -270,8 +503,62 @@ export default function ProductTable({
               })}
             </tbody>
           </table>
+        )}
+      </div>
+
+      {/* Pagination Controls */}
+      {sortedProducts.length > 0 && totalPages > 1 && (
+        <div className="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="text-sm text-gray-600">
+            Showing {startIndex + 1} to{" "}
+            {Math.min(endIndex, sortedProducts.length)} of{" "}
+            {sortedProducts.length} items
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition cursor-pointer"
+            >
+              ← Previous
+            </button>
+            <div className="flex items-center gap-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (pageNum) => (
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`w-10 h-10 rounded-lg font-medium transition cursor-pointer ${
+                      currentPage === pageNum
+                        ? "bg-purple-600 text-white"
+                        : "border border-gray-300 hover:bg-purple-50 hover:border-purple-300 hover:scale-105"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                )
+              )}
+            </div>
+            <button
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition cursor-pointer"
+            >
+              Next →
+            </button>
+          </div>
         </div>
       )}
+
+      <ConfirmationModal
+        isOpen={isBulkDeleteModalOpen}
+        onClose={() => setIsBulkDeleteModalOpen(false)}
+        onConfirm={handleConfirmBulkDelete}
+        title="Delete Products"
+        message={`Are you sure you want to delete ${count} product(s)? This action cannot be undone.`}
+        confirmLabel="Delete All"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }
