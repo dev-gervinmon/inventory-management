@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "../auth/auth";
 import { parseSubcategoryData } from "../schemas/subcategories";
 import { actionRequireId } from "../validators/subcategories";
+import { logActivity } from "./activities";
 
 const CATEGORIES_PATH = "/categories";
 
@@ -16,10 +17,26 @@ export async function createSubcategory(
   formData: FormData
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await getCurrentUser();
+    const user = await getCurrentUser();
     const data = parseSubcategoryData(formData);
 
-    await prisma.subcategory.create({ data });
+    const createdSubcategory = await prisma.subcategory.create({ data });
+
+    // Log the activity
+    const category = await prisma.category.findUnique({
+      where: { id: data.categoryId },
+      select: { name: true },
+    });
+
+    await logActivity(user.id, {
+      type: "SUBCATEGORY_ADDED",
+      subcategoryId: createdSubcategory.id,
+      subcategoryName: createdSubcategory.name,
+      categoryId: data.categoryId,
+      categoryName: category?.name || "",
+      message: `Subcategory "${createdSubcategory.name}" was created in category "${category?.name}"`,
+    });
+
     revalidatePath(CATEGORIES_PATH);
     return { success: true };
   } catch (error) {
@@ -45,14 +62,41 @@ export async function editSubcategory(
   formData: FormData
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await getCurrentUser();
+    const user = await getCurrentUser();
     const id = actionRequireId(formData);
     const data = parseSubcategoryData(formData);
 
-    await prisma.subcategory.update({
+    const oldSubcategory = await prisma.subcategory.findUnique({
+      where: { id },
+      select: { name: true, categoryId: true },
+    });
+
+    const updatedSubcategory = await prisma.subcategory.update({
       where: { id },
       data,
     });
+
+    // Log if name changed
+    if (oldSubcategory?.name !== data.name) {
+      const category = await prisma.category.findUnique({
+        where: { id: oldSubcategory?.categoryId || "" },
+        select: { name: true },
+      });
+
+      await logActivity(user.id, {
+        type: "SUBCATEGORY_EDITED",
+        subcategoryId: id,
+        subcategoryName: updatedSubcategory.name,
+        categoryId: oldSubcategory?.categoryId || "",
+        categoryName: category?.name || "",
+        message: `Subcategory name changed from "${oldSubcategory?.name}" to "${updatedSubcategory.name}" in category "${category?.name}"`,
+        details: {
+          oldName: oldSubcategory?.name || "",
+          newName: updatedSubcategory.name,
+        },
+      });
+    }
+
     revalidatePath(CATEGORIES_PATH);
     return { success: true };
   } catch (error) {
@@ -78,14 +122,35 @@ export async function deleteSubcategory(
   formData: FormData
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await getCurrentUser();
+    const user = await getCurrentUser();
     const id = actionRequireId(formData);
     const categoryId = String(formData.get("categoryId") || "").trim();
     if (!categoryId) {
       throw new Error("Category ID is required");
     }
 
+    const subcategoryData = await prisma.subcategory.findUnique({
+      where: { id },
+      select: { name: true },
+    });
+
+    const categoryData = await prisma.category.findUnique({
+      where: { id: categoryId },
+      select: { name: true },
+    });
+
     await prisma.subcategory.delete({ where: { id } });
+
+    // Log the deletion
+    await logActivity(user.id, {
+      type: "SUBCATEGORY_DELETED",
+      subcategoryId: id,
+      subcategoryName: subcategoryData?.name || "",
+      categoryId,
+      categoryName: categoryData?.name || "",
+      message: `Subcategory "${subcategoryData?.name}" was deleted from category "${categoryData?.name}"`,
+    });
+
     return { success: true };
   } catch (error) {
     const errorMessage =
@@ -101,7 +166,7 @@ export async function deleteBulkSubcategories(
   formData: FormData
 ): Promise<{ success: boolean; error?: string; deletedCount?: number }> {
   try {
-    await getCurrentUser();
+    const user = await getCurrentUser();
     const ids = formData.getAll("ids") as string[];
     const categoryId = String(formData.get("categoryId") || "").trim();
 
@@ -113,8 +178,31 @@ export async function deleteBulkSubcategories(
       throw new Error("Category ID is required");
     }
 
+    // Get subcategory and category details for logging
+    const subcategories = await prisma.subcategory.findMany({
+      where: { id: { in: ids } },
+      select: { name: true },
+    });
+
+    const category = await prisma.category.findUnique({
+      where: { id: categoryId },
+      select: { name: true },
+    });
+
     const result = await prisma.subcategory.deleteMany({
       where: { id: { in: ids } },
+    });
+
+    // Log the bulk deletion
+    await logActivity(user.id, {
+      type: "SUBCATEGORY_DELETED",
+      categoryId,
+      categoryName: category?.name || "",
+      message: `${result.count} subcategory(ies) were deleted from category "${category?.name}"`,
+      details: {
+        deletedCount: result.count,
+        deletedNames: subcategories.map((s) => s.name).join(", "),
+      },
     });
 
     revalidatePath(CATEGORIES_PATH);
