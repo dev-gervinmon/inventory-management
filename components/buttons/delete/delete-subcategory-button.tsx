@@ -2,31 +2,32 @@
 
 import { deleteSubcategory } from "@/lib/actions/subcategories";
 import FormButton from "@/components/buttons/form-button";
-import { FormEvent, useState } from "react";
+import ConfirmationModal from "@/components/modals/confirmation-modal";
+import { useState } from "react";
 import { formatErrorMessage } from "@/lib/utils/subcategories";
 
 export default function DeleteSubcategoryButton({
   subcategoryId,
   categoryId,
+  subcategoryName,
 }: {
   subcategoryId: string;
   categoryId: string;
+  subcategoryName: string;
 }) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
-  const handleDelete = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!confirm("Are you sure you want to delete this subcategory?")) {
-      return;
-    }
-
+  const handleConfirmDelete = async () => {
     setIsDeleting(true);
     setMessage({ type: "", text: "" });
 
     try {
-      const formData = new FormData(e.currentTarget);
+      const formData = new FormData();
+      formData.append("id", subcategoryId);
+      formData.append("categoryId", categoryId);
+
       const response = await deleteSubcategory(formData);
 
       if (response.success) {
@@ -34,6 +35,7 @@ export default function DeleteSubcategoryButton({
           type: "success",
           text: "Subcategory deleted successfully!",
         });
+        setIsModalOpen(false);
       } else {
         setMessage({
           type: "error",
@@ -52,17 +54,23 @@ export default function DeleteSubcategoryButton({
 
   return (
     <div className="flex flex-col gap-2">
-      <form onSubmit={handleDelete} className="inline">
-        <input type="hidden" name="id" value={subcategoryId} />
-        <input type="hidden" name="categoryId" value={categoryId} />
-        <FormButton
-          type="submit"
-          label={isDeleting ? "Deleting..." : "Delete"}
-          variant="delete"
-          size="md"
-          disabled={isDeleting}
-        />
-      </form>
+      <FormButton
+        type="button"
+        onClick={() => setIsModalOpen(true)}
+        label="Delete"
+        variant="delete"
+        size="md"
+        disabled={isDeleting}
+      />
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Subcategory"
+        message={`Are you sure you want to delete "${subcategoryName}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        isLoading={isDeleting}
+      />
       {message.text && (
         <div
           className={`text-sm p-2 rounded-lg ${
