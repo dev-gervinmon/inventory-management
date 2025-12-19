@@ -56,47 +56,6 @@ function flattenChanges(
 }
 
 /**
- * Delete a product
- */
-export async function deleteProduct(id: string) {
-  const user = await getCurrentUser();
-
-  if (!id) {
-    throw new Error("Product ID is required");
-  }
-
-  try {
-    // Get product info before deleting for the log
-    const product = await prisma.product.findUnique({
-      where: { id },
-      select: { userId: true, name: true },
-    });
-
-    if (!product || product.userId !== user.id) {
-      throw new Error("Product not found or unauthorized");
-    }
-
-    const result = await prisma.product.deleteMany({
-      where: { id, userId: user.id },
-    });
-
-    if (result.count > 0) {
-      await logActivity(user.id, {
-        type: "PRODUCT_DELETED",
-        productId: id,
-        productName: product.name,
-        message: `Deleted product "${product.name}"`,
-      });
-    }
-
-    return { success: true };
-  } catch (error) {
-    console.error("Delete error:", error);
-    throw new Error("Failed to delete product");
-  }
-}
-
-/**
  * Delete multiple products (bulk delete)
  */
 export async function bulkDeleteProducts(ids: string[]) {
@@ -123,7 +82,9 @@ export async function bulkDeleteProducts(ids: string[]) {
     });
 
     // Log activity for bulk delete
-    const productNames = products.map((p: { id: string; name: string }) => p.name).join(", ");
+    const productNames = products
+      .map((p: { id: string; name: string }) => p.name)
+      .join(", ");
     await logActivity(user.id, {
       type: "PRODUCT_DELETED",
       productName: `${products.length} products`,
@@ -282,4 +243,43 @@ export async function editProduct(formData: FormData) {
   }
 
   redirect(INVENTORY_PATH);
+}
+
+/**
+ * Delete a single product
+ */
+export async function deleteProduct(id: string) {
+  const user = await getCurrentUser();
+
+  const product = await prisma.product.findUnique({
+    where: { id },
+    select: {
+      userId: true,
+      name: true,
+    },
+  });
+
+  if (!product || product.userId !== user.id) {
+    throw new Error("Product not found or unauthorized");
+  }
+
+  try {
+    await prisma.product.delete({
+      where: { id },
+    });
+
+    // Log the deletion
+    await logActivity(user.id, {
+      type: "PRODUCT_DELETED",
+      productId: id,
+      productName: product.name,
+      message: `Deleted product "${product.name}"`,
+      details: {},
+    });
+
+    return { success: true };
+  } catch (error) {
+    if (error instanceof Error) throw error;
+    throw new Error("Failed to delete product");
+  }
 }
