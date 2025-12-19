@@ -1,7 +1,7 @@
 interface FormButtonProps {
   type: "submit" | "button" | "reset";
   label: string;
-  variant?: "primary" | "secondary";
+  variant?: "primary" | "secondary" | "edit" | "delete";
   size?: "sm" | "md" | "lg";
   disabled?: boolean;
   onClick?: () => void;
@@ -28,6 +28,9 @@ export default function FormButton({
       "bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 active:from-purple-800 active:to-purple-900 disabled:from-purple-400 disabled:to-purple-500",
     secondary:
       "bg-gray-100 text-gray-900 border border-gray-300 hover:bg-gray-200 hover:border-gray-400 active:bg-gray-300 disabled:bg-gray-50 disabled:text-gray-400",
+    edit: "bg-gray-200 text-gray-800 hover:bg-gray-300 active:bg-gray-400 disabled:bg-gray-100 disabled:text-gray-400",
+    delete:
+      "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 disabled:bg-gray-400 disabled:text-gray-200",
   };
 
   return (
