@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useMessage } from "@/lib/hooks/useMessage";
 import { useSelection } from "@/lib/hooks/useSelection";
+import { useSearch } from "@/lib/hooks/useSearch";
+import { usePagination } from "@/lib/hooks/usePagination";
 import { deleteBulkCategories } from "@/lib/actions/categories";
 import { formatCategoryDate } from "@/lib/utils/categories";
 import ConfirmationModal from "@/components/modals/confirmation-modal";
@@ -23,6 +25,8 @@ interface CategoriesTableProps {
   categories: Category[];
 }
 
+const ITEMS_PER_PAGE = 10;
+
 export default function CategoriesTable({ categories }: CategoriesTableProps) {
   const { showSuccess, showError } = useMessage();
   const [isPending, startTransition] = useTransition();
@@ -31,9 +35,32 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
 
   const [showConfirm, setShowConfirm] = useState(false);
 
+  // Search hook
+  const {
+    searchQuery,
+    setSearch,
+    clearSearch,
+    filteredItems: filteredCategories,
+  } = useSearch(categories, { searchableFields: ["name"] });
+
+  // Pagination hook
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedItems: paginatedCategories,
+    startIndex,
+    endIndex,
+  } = usePagination(filteredCategories, { itemsPerPage: ITEMS_PER_PAGE });
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setCurrentPage(1);
+  };
+
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      selectAll(categories.map((c) => c.id));
+      selectAll(filteredCategories.map((c) => c.id));
     } else {
       deselectAll();
     }
@@ -62,14 +89,76 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
 
         // Reload page to get fresh data
         window.location.reload();
-      } catch (error) {
+      } catch {
         showError("An error occurred while deleting categories");
       }
     });
   };
 
   return (
-    <>
+    <div className="space-y-4">
+      {/* Search Input */}
+      <div className="relative">
+        <div className="relative flex items-center">
+          <svg
+            className="absolute left-4 w-5 h-5 text-gray-400 pointer-events-none"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search categories..."
+            value={searchQuery}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="w-full pl-12 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => clearSearch()}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+              title="Clear search"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Search Results Info */}
+      {searchQuery && (
+        <div className="bg-linear-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200 px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <svg
+              className="w-4 h-4 text-purple-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+            <span className="text-xs text-gray-700 font-medium">
+              Found <strong>{filteredCategories.length}</strong> of{" "}
+              <strong>{categories.length}</strong> categor
+              {categories.length !== 1 ? "ies" : "y"} matching &quot;
+              <strong className="text-purple-700">{searchQuery}</strong>&quot;
+            </span>
+          </div>
+        </div>
+      )}
+
       {count > 0 && (
         <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
           <span className="text-sm font-medium text-blue-900">
@@ -86,7 +175,7 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
         </div>
       )}
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto border border-gray-200 rounded-lg">
         <table className="w-full">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
@@ -95,7 +184,10 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
                   type="checkbox"
                   id="select-all"
                   className="w-4 h-4 cursor-pointer"
-                  checked={categories.length > 0 && count === categories.length}
+                  checked={
+                    filteredCategories.length > 0 &&
+                    count === filteredCategories.length
+                  }
                   onChange={(e) => handleSelectAll(e.target.checked)}
                 />
               </th>
@@ -114,7 +206,7 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
             </tr>
           </thead>
           <tbody>
-            {categories.map((category) => (
+            {paginatedCategories.map((category) => (
               <tr
                 key={category.id}
                 className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
@@ -124,7 +216,7 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
                     type="checkbox"
                     className="w-4 h-4 cursor-pointer"
                     checked={isSelected(category.id)}
-                    onChange={(e) => toggle(category.id)}
+                    onChange={() => toggle(category.id)}
                   />
                 </td>
                 <td className="px-6 py-4">
@@ -152,6 +244,38 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
         </table>
       </div>
 
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-600">
+            Showing {startIndex + 1}-
+            {Math.min(endIndex, filteredCategories.length)} of{" "}
+            {filteredCategories.length} categories
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              ← Previous
+            </button>
+            <span className="text-sm text-gray-600">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() =>
+                setCurrentPage(Math.min(totalPages, currentPage + 1))
+              }
+              disabled={currentPage === totalPages}
+              className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              Next →
+            </button>
+          </div>
+        </div>
+      )}
+
       <ConfirmationModal
         isOpen={showConfirm}
         onClose={() => setShowConfirm(false)}
@@ -162,6 +286,6 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
         }? This action cannot be undone.`}
         isLoading={isPending}
       />
-    </>
+    </div>
   );
 }
