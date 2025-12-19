@@ -1,7 +1,7 @@
 "use server";
 
 import SideBar from "@/components/layout/sidebar";
-import SubcategoriesList from "@/components/forms/subcategories-list";
+import SubcategoriesList from "@/components/list/subcategories-list";
 import AddSubcategoryForm from "@/components/forms/add-subcategory-form";
 import EditCategoryForm from "@/components/forms/edit-category-form";
 import DeleteCategoryButton from "@/components/buttons/delete/delete-category-button";
