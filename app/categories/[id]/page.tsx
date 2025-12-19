@@ -98,6 +98,14 @@ export default async function EditCategoryPage({
 
           {/* Right Column: Subcategories */}
           <div className="lg:col-span-2 space-y-8">
+            {/* Add New Subcategory */}
+            <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
+              <h2 className="text-lg font-semibold text-gray-900 mb-6">
+                Add New Subcategory
+              </h2>
+              <AddSubcategoryForm categoryId={category.id} />
+            </div>
+
             {/* Subcategories List */}
             <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
               <h2 className="text-lg font-semibold text-gray-900 mb-6">
@@ -115,14 +123,6 @@ export default async function EditCategoryPage({
                   formAction={editSubcategory}
                 />
               )}
-            </div>
-
-            {/* Add New Subcategory */}
-            <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">
-                Add New Subcategory
-              </h2>
-              <AddSubcategoryForm categoryId={category.id} />
             </div>
           </div>
         </div>
