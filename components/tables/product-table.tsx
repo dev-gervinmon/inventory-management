@@ -194,7 +194,7 @@ export default function ProductTable({
 
       {/* Search Results Info */}
       {searchQuery && (
-        <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200 px-4 py-3 flex items-center justify-between">
+        <div className="bg-linear-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200 px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <svg
               className="w-4 h-4 text-purple-600"
