@@ -10,6 +10,7 @@ import { useSelection } from "@/lib/hooks/useSelection";
 import { usePagination } from "@/lib/hooks/usePagination";
 import { useSort } from "@/lib/hooks/useSort";
 import SortableHeader from "@/components/common/sortable-header";
+import SearchableMultiSelect from "@/components/common/searchable-multi-select";
 import MessageBanner from "@/components/common/message-banner";
 import { useMessage } from "@/lib/hooks/useMessage";
 import ConfirmationModal from "@/components/modals/confirmation-modal";
@@ -36,14 +37,15 @@ export default function ProductTable({
   const [statusFilter, setStatusFilter] = useState<string>("");
 
   // Get unique categories from all products
-  const allCategories = Array.from(
-    new Set(
-      products.flatMap((p) =>
-        (p.categories || []).map((c) => ({ id: c.id, name: c.name }))
-      )
-    ),
-    (cat) => cat
-  );
+  const categoryMap = new Map<string, { id: string; name: string }>();
+  products.forEach((p) => {
+    (p.categories || []).forEach((c) => {
+      if (!categoryMap.has(c.id)) {
+        categoryMap.set(c.id, { id: c.id, name: c.name });
+      }
+    });
+  });
+  const allCategories = Array.from(categoryMap.values());
 
   // Apply category and status filters
   const filteredByCategory = categoryFilter.length
@@ -170,38 +172,17 @@ export default function ProductTable({
           {/* Categories Filter */}
           <div className="space-y-2">
             <label className="text-sm font-semibold text-gray-700">
-              Categories{" "}
-              {categoryFilter.length > 0 && `(${categoryFilter.length})`}
+              Categories
             </label>
-            <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-2 bg-gray-50">
-              {allCategories.length === 0 ? (
-                <p className="text-xs text-gray-500">No categories available</p>
-              ) : (
-                allCategories.map((cat) => (
-                  <label
-                    key={cat.id}
-                    className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-2 rounded transition"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={categoryFilter.includes(cat.id)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setCategoryFilter([...categoryFilter, cat.id]);
-                        } else {
-                          setCategoryFilter(
-                            categoryFilter.filter((id) => id !== cat.id)
-                          );
-                        }
-                        setCurrentPage(1);
-                      }}
-                      className="w-4 h-4 cursor-pointer"
-                    />
-                    <span className="text-sm text-gray-700">{cat.name}</span>
-                  </label>
-                ))
-              )}
-            </div>
+            <SearchableMultiSelect
+              options={allCategories}
+              selectedIds={categoryFilter}
+              onChange={(selected) => {
+                setCategoryFilter(selected);
+                setCurrentPage(1);
+              }}
+              placeholder="Search categories..."
+            />
           </div>
 
           {/* Stock Status Filter */}
