@@ -1,9 +1,9 @@
 "use server";
 
 import SideBar from "@/components/layout/sidebar";
+import DeleteCategoryButton from "@/components/buttons/delete/delete-category-button";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
-import { deleteCategory } from "@/lib/actions/categories";
 import { PrimaryButton } from "@/components/buttons/nav-button";
 import {
   formatCategoryDate,
@@ -19,6 +19,11 @@ export default async function CategoriesPage() {
     include: {
       subcategories: {
         orderBy: { createdAt: "desc" },
+      },
+      _count: {
+        select: {
+          products: true,
+        },
       },
     },
     orderBy: { createdAt: "desc" },
@@ -55,7 +60,7 @@ export default async function CategoriesPage() {
             </div>
           ) : (
             <div className="space-y-0">
-              {categories.map((category: typeof categories[number]) => (
+              {categories.map((category: (typeof categories)[number]) => (
                 <details
                   key={category.id}
                   className="border-b border-gray-200 last:border-b-0 group"
@@ -66,9 +71,14 @@ export default async function CategoriesPage() {
                         ▶
                       </span>
                       <div>
-                        <p className="font-medium text-gray-900 group-hover:text-purple-700 transition-colors">
-                          {category.name}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-gray-900 group-hover:text-purple-700 transition-colors">
+                            {category.name}
+                          </p>
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                            {category._count.products} products
+                          </span>
+                        </div>
                         <p className="text-xs text-gray-500">
                           {getCategorySubcategoryLabel(
                             category.subcategories.length
@@ -88,21 +98,23 @@ export default async function CategoriesPage() {
                       </p>
                     ) : (
                       <div className="space-y-2">
-                        {category.subcategories.map((sub: typeof category.subcategories[number]) => (
-                          <div
-                            key={sub.id}
-                            className="flex items-center justify-between bg-white p-3 rounded border border-gray-200"
-                          >
-                            <div>
-                              <p className="text-sm font-medium text-gray-900">
-                                {sub.name}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {formatCategoryDate(sub.createdAt)}
-                              </p>
+                        {category.subcategories.map(
+                          (sub: (typeof category.subcategories)[number]) => (
+                            <div
+                              key={sub.id}
+                              className="flex items-center justify-between bg-white p-3 rounded border border-gray-200"
+                            >
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">
+                                  {sub.name}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {formatCategoryDate(sub.createdAt)}
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          )
+                        )}
                       </div>
                     )}
                   </div>
@@ -114,15 +126,10 @@ export default async function CategoriesPage() {
                     >
                       Edit
                     </Link>
-                    <form action={deleteCategory} className="inline">
-                      <input type="hidden" name="id" value={category.id} />
-                      <button
-                        type="submit"
-                        className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                      >
-                        Delete
-                      </button>
-                    </form>
+                    <DeleteCategoryButton
+                      categoryId={category.id}
+                      categoryName={category.name}
+                    />
                   </div>
                 </details>
               ))}
