@@ -68,7 +68,7 @@ export default function StickyFormHeader({
               onClick={() =>
                 onBack ? onBack(backHref) : (window.location.href = backHref)
               }
-              className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -88,15 +88,6 @@ export default function StickyFormHeader({
 
           {/* Right Side: Action Buttons */}
           <div className="flex items-center gap-3">
-            {isDirty && onReset && (
-              <button
-                type="button"
-                onClick={onReset}
-                className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-              >
-                Reset
-              </button>
-            )}
             <FormButton
               type="submit"
               label="Save changes"
@@ -105,6 +96,15 @@ export default function StickyFormHeader({
               disabled={isLoading}
               onClick={handleSubmit}
             />
+            {isDirty && onReset && (
+              <FormButton
+                type="button"
+                label="Reset"
+                variant="secondary"
+                size={isSticky ? "sm" : "md"}
+                onClick={onReset}
+              />
+            )}
           </div>
         </div>
       </div>
