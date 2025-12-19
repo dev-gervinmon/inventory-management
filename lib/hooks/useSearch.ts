@@ -4,10 +4,7 @@ interface UseSearchOptions<T> {
   searchableFields?: (keyof T)[];
 }
 
-export function useSearch<T>(
-  items: T[],
-  options: UseSearchOptions<T> = {}
-) {
+export function useSearch<T>(items: T[], options: UseSearchOptions<T> = {}) {
   const { searchableFields } = options;
   const [searchQuery, setSearchQuery] = useState("");
 
