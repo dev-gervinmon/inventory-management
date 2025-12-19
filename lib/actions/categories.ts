@@ -151,3 +151,55 @@ export async function deleteCategory(
     };
   }
 }
+
+/**
+ * Delete multiple categories at once
+ */
+export async function deleteBulkCategories(
+  formData: FormData
+): Promise<{ success: boolean; error?: string; deletedCount?: number }> {
+  try {
+    const user = await getCurrentUser();
+    const ids = formData.getAll("ids") as string[];
+
+    if (!ids || ids.length === 0) {
+      return { success: false, error: "No categories selected" };
+    }
+
+    // Get category details for logging
+    const categories = await prisma.category.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, name: true, subcategories: { select: { id: true } } },
+    });
+
+    const result = await prisma.category.deleteMany({
+      where: { id: { in: ids } },
+    });
+
+    // Log the bulk deletion
+    const categoryNames = categories.map((c) => c.name).join(", ");
+    const totalSubcategories = categories.reduce(
+      (sum, c) => sum + c.subcategories.length,
+      0
+    );
+
+    await logActivity(user.id, {
+      type: "CATEGORY_DELETED",
+      message: `${result.count} category(ies) were deleted (${categoryNames}) along with ${totalSubcategories} subcategory(ies)`,
+      details: {
+        deletedCount: result.count,
+        deletedNames: categoryNames,
+        totalSubcategoriesDeleted: totalSubcategories,
+      },
+    });
+
+    // Revalidate affected pages
+    revalidatePath("/categories");
+
+    return { success: true, deletedCount: result.count };
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to delete categories";
+    return { success: false, error: errorMessage };
+  }
+}
