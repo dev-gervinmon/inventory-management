@@ -48,10 +48,13 @@ export default async function CategoriesPage() {
 
           {/* Right Column: Categories List */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
+              <h2 className="text-lg font-semibold text-gray-900 mb-6">
+                Categories ({categories.length})
+              </h2>
               {categories.length === 0 ? (
-                <div className="p-6 text-center">
-                  <p className="text-gray-500 mb-4">
+                <div className="text-center">
+                  <p className="text-gray-500">
                     {getEmptyStateMessage("categories")}
                   </p>
                 </div>
