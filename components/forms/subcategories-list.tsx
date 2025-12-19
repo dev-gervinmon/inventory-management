@@ -7,6 +7,8 @@ import ConfirmationModal from "@/components/modals/confirmation-modal";
 import MessageBanner from "@/components/common/message-banner";
 import { deleteBulkSubcategories } from "@/lib/actions/subcategories";
 import { useMessage } from "@/lib/hooks/useMessage";
+import { usePagination } from "@/lib/hooks/usePagination";
+import { useSearch } from "@/lib/hooks/useSearch";
 import { UI_CONSTANTS } from "@/lib/utils/subcategories";
 
 interface Subcategory {
@@ -35,27 +37,28 @@ export default function SubcategoriesList({
     autoClose: true,
     timeout: UI_CONSTANTS.MESSAGE_TIMEOUT,
   });
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
-  // Filter subcategories based on search query
-  const filteredSubcategories = subcategories.filter((sub) =>
-    sub.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Search hook
+  const {
+    searchQuery,
+    setSearch,
+    clearSearch,
+    filteredItems: filteredSubcategories,
+  } = useSearch(subcategories, { searchableFields: ["name"] });
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredSubcategories.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedSubcategories = filteredSubcategories.slice(
+  // Pagination hook
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedItems: paginatedSubcategories,
     startIndex,
-    endIndex
-  );
+    endIndex,
+  } = usePagination(filteredSubcategories, { itemsPerPage: 10 });
 
   // Reset to page 1 when search query changes
   const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
+    setSearch(value);
     setCurrentPage(1);
   };
 
@@ -130,7 +133,7 @@ export default function SubcategoriesList({
         />
         {searchQuery && (
           <button
-            onClick={() => handleSearchChange("")}
+            onClick={() => clearSearch()}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             title="Clear search"
           >
@@ -253,7 +256,7 @@ export default function SubcategoriesList({
           </div>
           <div className="flex gap-2">
             <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              onClick={() => setCurrentPage(currentPage - 1)}
               disabled={currentPage === 1}
               className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition cursor-pointer"
             >
@@ -277,9 +280,7 @@ export default function SubcategoriesList({
               )}
             </div>
             <button
-              onClick={() =>
-                setCurrentPage(Math.min(totalPages, currentPage + 1))
-              }
+              onClick={() => setCurrentPage(currentPage + 1)}
               disabled={currentPage === totalPages}
               className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition cursor-pointer"
             >
