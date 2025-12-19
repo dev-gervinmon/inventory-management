@@ -9,6 +9,7 @@ import { deleteBulkSubcategories } from "@/lib/actions/subcategories";
 import { useMessage } from "@/lib/hooks/useMessage";
 import { usePagination } from "@/lib/hooks/usePagination";
 import { useSearch } from "@/lib/hooks/useSearch";
+import { useSelection } from "@/lib/hooks/useSelection";
 import { UI_CONSTANTS } from "@/lib/utils/subcategories";
 
 interface Subcategory {
@@ -30,7 +31,6 @@ export default function SubcategoriesList({
   categoryId,
   formAction,
 }: SubcategoriesListProps) {
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
   const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
   const { message, showSuccess, showError, clearMessage } = useMessage({
@@ -56,6 +56,9 @@ export default function SubcategoriesList({
     endIndex,
   } = usePagination(filteredSubcategories, { itemsPerPage: 10 });
 
+  // Selection hook
+  const { selectedIds, toggle, selectAll, deselectAll, count } = useSelection();
+
   // Reset to page 1 when search query changes
   const handleSearchChange = (value: string) => {
     setSearch(value);
@@ -64,24 +67,18 @@ export default function SubcategoriesList({
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedIds(new Set(filteredSubcategories.map((sub) => sub.id)));
+      selectAll(filteredSubcategories.map((sub) => sub.id));
     } else {
-      setSelectedIds(new Set());
+      deselectAll();
     }
   };
 
-  const handleSelectOne = (id: string, checked: boolean) => {
-    const newSet = new Set(selectedIds);
-    if (checked) {
-      newSet.add(id);
-    } else {
-      newSet.delete(id);
-    }
-    setSelectedIds(newSet);
+  const handleSelectOne = (id: string) => {
+    toggle(id);
   };
 
   const handleBulkDelete = async () => {
-    if (selectedIds.size === 0) {
+    if (count === 0) {
       showError("Please select at least one subcategory to delete");
       return;
     }
@@ -95,7 +92,7 @@ export default function SubcategoriesList({
 
     try {
       const formData = new FormData();
-      selectedIds.forEach((id) => formData.append("ids", id));
+      Array.from(selectedIds).forEach((id) => formData.append("ids", id));
       formData.append("categoryId", categoryId);
 
       const response = await deleteBulkSubcategories(formData);
@@ -104,7 +101,7 @@ export default function SubcategoriesList({
         showSuccess(
           `Successfully deleted ${response.deletedCount} subcategory(ies)!`
         );
-        setSelectedIds(new Set());
+        deselectAll();
         setIsBulkDeleteModalOpen(false);
       } else {
         showError(response.error || "Failed to delete subcategories");
@@ -150,14 +147,14 @@ export default function SubcategoriesList({
         </div>
       )}
 
-      {selectedIds.size > 0 && (
+      {count > 0 && (
         <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
           <span className="text-sm font-medium text-blue-900">
-            {selectedIds.size} subcategory(ies) selected
+            {count} subcategory(ies) selected
           </span>
           <FormButton
             type="button"
-            label={`Delete Selected (${selectedIds.size})`}
+            label={`Delete Selected (${count})`}
             variant="delete"
             size="sm"
             disabled={isDeleting}
@@ -187,7 +184,7 @@ export default function SubcategoriesList({
                     type="checkbox"
                     id="select-all"
                     checked={
-                      selectedIds.size === filteredSubcategories.length &&
+                      count === filteredSubcategories.length &&
                       filteredSubcategories.length > 0
                     }
                     onChange={(e) => handleSelectAll(e.target.checked)}
@@ -228,9 +225,7 @@ export default function SubcategoriesList({
                       type="checkbox"
                       id={`select-${sub.id}`}
                       checked={selectedIds.has(sub.id)}
-                      onChange={(e) =>
-                        handleSelectOne(sub.id, e.target.checked)
-                      }
+                      onChange={() => handleSelectOne(sub.id)}
                       className="w-4 h-4 cursor-pointer"
                     />
                   </td>
@@ -294,7 +289,7 @@ export default function SubcategoriesList({
         onClose={() => setIsBulkDeleteModalOpen(false)}
         onConfirm={handleConfirmBulkDelete}
         title="Delete Subcategories"
-        message={`Are you sure you want to delete ${selectedIds.size} subcategory(ies)? This action cannot be undone.`}
+        message={`Are you sure you want to delete ${count} subcategory(ies)? This action cannot be undone.`}
         confirmLabel="Delete All"
         isLoading={isDeleting}
       />
