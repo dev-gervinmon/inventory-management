@@ -40,10 +40,10 @@ export default function Tabs({
               key={tab.id}
               type="button"
               onClick={() => handleTabChange(tab.id)}
-              className={`px-4 py-3 text-sm font-medium transition-all whitespace-nowrap ${
+              className={`px-4 py-3 text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === tab.id
                   ? "border-b-2 border-purple-600 text-purple-600"
-                  : "text-gray-600 hover:text-gray-900 border-b-2 border-transparent"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-b-2 border-transparent"
               }`}
             >
               <div className="flex items-center gap-2">
