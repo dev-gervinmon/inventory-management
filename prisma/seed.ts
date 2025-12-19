@@ -11,51 +11,172 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   const demoUserId = "292489e6-837a-4520-957b-97f153a5bd53";
 
-  // Check if category already exists
-  const existingCategory = await prisma.category.findUnique({
-    where: { name: "Electronics" },
-    include: { subcategories: true },
-  });
+  // Check if categories already exist
+  const existingCategories = await prisma.category.count();
 
-  if (existingCategory) {
-    console.log("✓ Electronics category already exists, skipping seed");
+  if (existingCategories > 0) {
     console.log(
-      `  Contains ${existingCategory.subcategories.length} subcategories`
+      `✓ Categories already exist (${existingCategories} found), skipping seed`
     );
     return;
   }
 
-  // Create a category with subcategories
-  const category = await prisma.category.create({
-    data: {
+  // Category data with subcategories
+  const categoriesData = [
+    {
       name: "Electronics",
-      subcategories: {
-        create: [
-          { name: "Laptops" },
-          { name: "Desktops" },
-          { name: "Tablets" },
-          { name: "Smartphones" },
-          { name: "Accessories" },
-          { name: "Monitors" },
-          { name: "Keyboards & Mice" },
-          { name: "Audio Equipment" },
-          { name: "Cameras" },
-          { name: "Smart Home Devices" },
-        ],
-      },
+      subcategories: [
+        "Laptops",
+        "Desktops",
+        "Tablets",
+        "Smartphones",
+        "Accessories",
+      ],
     },
-    include: {
-      subcategories: true,
+    {
+      name: "Clothing",
+      subcategories: [
+        "Men's Wear",
+        "Women's Wear",
+        "Kids Wear",
+        "Footwear",
+        "Accessories",
+      ],
     },
-  });
+    {
+      name: "Home & Garden",
+      subcategories: ["Furniture", "Bedding", "Kitchen", "Gardening", "Decor"],
+    },
+    {
+      name: "Sports & Outdoors",
+      subcategories: [
+        "Fitness",
+        "Team Sports",
+        "Camping",
+        "Water Sports",
+        "Cycling",
+      ],
+    },
+    {
+      name: "Books & Media",
+      subcategories: ["Books", "eBooks", "Audiobooks", "Magazines", "Movies"],
+    },
+    {
+      name: "Beauty & Personal Care",
+      subcategories: [
+        "Skincare",
+        "Haircare",
+        "Makeup",
+        "Fragrance",
+        "Bath & Body",
+      ],
+    },
+    {
+      name: "Toys & Games",
+      subcategories: [
+        "Board Games",
+        "Video Games",
+        "Action Figures",
+        "Puzzles",
+        "Outdoor Toys",
+      ],
+    },
+    {
+      name: "Food & Beverage",
+      subcategories: [
+        "Snacks",
+        "Beverages",
+        "Frozen Foods",
+        "Organic",
+        "International",
+      ],
+    },
+    {
+      name: "Automotive",
+      subcategories: ["Accessories", "Tools", "Cleaning", "Parts", "Safety"],
+    },
+    {
+      name: "Pet Supplies",
+      subcategories: [
+        "Dog Food",
+        "Cat Food",
+        "Toys",
+        "Bedding",
+        "Health & Grooming",
+      ],
+    },
+    {
+      name: "Office Supplies",
+      subcategories: [
+        "Paper Products",
+        "Writing Instruments",
+        "Organizers",
+        "Technology",
+        "Furniture",
+      ],
+    },
+    {
+      name: "Musical Instruments",
+      subcategories: [
+        "Guitars",
+        "Keyboards",
+        "Drums",
+        "Wind Instruments",
+        "Accessories",
+      ],
+    },
+    {
+      name: "Health & Wellness",
+      subcategories: [
+        "Vitamins",
+        "Supplements",
+        "Medical Devices",
+        "Fitness Equipment",
+        "Wellness",
+      ],
+    },
+    {
+      name: "Jewelry & Watches",
+      subcategories: ["Rings", "Necklaces", "Bracelets", "Watches", "Earrings"],
+    },
+    {
+      name: "Tools & Hardware",
+      subcategories: [
+        "Power Tools",
+        "Hand Tools",
+        "Safety Equipment",
+        "Hardware",
+        "Storage",
+      ],
+    },
+  ];
 
-  console.log("✓ Seed data created successfully!");
-  console.log(`✓ Created category: ${category.name}`);
-  console.log(`✓ Created ${category.subcategories.length} subcategories`);
-  console.log("\nSubcategories:");
-  category.subcategories.forEach((sub) => {
-    console.log(`  - ${sub.name}`);
-  });
+  // Create categories with subcategories
+  for (const categoryData of categoriesData) {
+    await prisma.category.create({
+      data: {
+        name: categoryData.name,
+        subcategories: {
+          create: categoryData.subcategories.map((name) => ({ name })),
+        },
+      },
+      include: {
+        subcategories: true,
+      },
+    });
+    console.log(`✓ Created category: ${categoryData.name}`);
+  }
+
+  console.log(`\n✓ Seed data created successfully!`);
+  console.log(
+    `✓ Created ${categoriesData.length} categories with subcategories`
+  );
+  console.log(
+    `✓ Total subcategories: ${categoriesData.reduce(
+      (sum, c) => sum + c.subcategories.length,
+      0
+    )}`
+  );
 
   // Create products
   await prisma.product.createMany({
