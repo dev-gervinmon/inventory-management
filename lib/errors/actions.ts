@@ -3,21 +3,21 @@ import { Prisma } from "@/app/generated/prisma/client";
 export function handlePrismaActionError(
   error: unknown,
   entityName = "Resource"
-) {
+): string {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2002") {
       const field = (error.meta?.target as string[])?.[0] || "field";
-      throw new Error(`${capitalize(field)} already exists`);
+      return `${capitalize(field)} already exists`;
     }
     if (error.code === "P2025") {
-      throw new Error(`${entityName} not found`);
+      return `${entityName} not found`;
     }
   }
   if (error instanceof Error) {
-    throw error;
+    return error.message;
   }
   console.error(`${entityName} action error:`, error);
-  throw new Error(`Failed to process ${entityName.toLowerCase()}`);
+  return `Failed to process ${entityName.toLowerCase()}`;
 }
 
 function capitalize(s: string) {
