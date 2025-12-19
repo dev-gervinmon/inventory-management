@@ -52,8 +52,9 @@ export default async function EditCategoryPage({
 
         {/* Main Form and Subcategories in 2 Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column: Category Edit */}
-          <div className="lg:col-span-1">
+          {/* Left Column: Forms */}
+          <div className="lg:col-span-1 space-y-8">
+            {/* Edit Category Form */}
             <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm sticky top-8 z-10">
               <h2 className="text-lg font-semibold text-gray-900 mb-6">
                 Edit Category
@@ -71,18 +72,18 @@ export default async function EditCategoryPage({
                 />
               </div>
             </div>
-          </div>
 
-          {/* Right Column: Subcategories */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Add New Subcategory */}
-            <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
+            {/* Add New Subcategory Form */}
+            <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm sticky top-80 z-10">
               <h2 className="text-lg font-semibold text-gray-900 mb-6">
                 Add New Subcategory
               </h2>
               <AddSubcategoryForm categoryId={category.id} />
             </div>
+          </div>
 
+          {/* Right Column: Subcategories List */}
+          <div className="lg:col-span-2">
             {/* Subcategories List */}
             <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
               <h2 className="text-lg font-semibold text-gray-900 mb-6">
@@ -91,7 +92,7 @@ export default async function EditCategoryPage({
 
               {category.subcategories.length === 0 ? (
                 <p className="text-gray-500 text-sm">
-                  No subcategories yet. Create one below.
+                  No subcategories yet. Create one using the form on the left.
                 </p>
               ) : (
                 <SubcategoriesList
