@@ -72,7 +72,6 @@ export default async function EditProductPage({
             image={product.imageUrl}
             categoryIds={product.categories.map((c) => c.id)}
             subcategoryIds={product.subcategories.map((s) => s.id)}
-            btnAction="Edit"
             formAction={editProduct}
             categories={categories}
           />
