@@ -1,9 +1,8 @@
 "use server";
 
 import SideBar from "@/components/layout/sidebar";
-import { createCategory } from "@/lib/actions/categories";
 import { getCurrentUser } from "@/lib/auth/auth";
-import FormButton from "@/components/buttons/form-button";
+import CategoryForm from "@/components/forms/category-form";
 import { SecondaryButton } from "@/components/buttons/nav-button";
 
 export default async function NewCategoryPage() {
@@ -34,34 +33,7 @@ export default async function NewCategoryPage() {
             <h2 className="text-lg font-semibold text-gray-900 mb-6">
               Category Information
             </h2>
-            <form action={createCategory} className="space-y-6">
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Category Name *
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  required
-                  placeholder="Enter category name"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                />
-              </div>
-
-              <div className="flex gap-4 pt-2">
-                <FormButton
-                  type="submit"
-                  label="Create Category"
-                  variant="primary"
-                  size="lg"
-                />
-                <SecondaryButton href="/categories" label="Cancel" size="lg" />
-              </div>
-            </form>
+            <CategoryForm />
           </div>
 
           <p className="text-sm text-gray-600 mt-6">
