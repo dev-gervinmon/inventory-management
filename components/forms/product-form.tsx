@@ -1,5 +1,11 @@
+"use client";
+
 import ImageUploadField from "@/components/common/image-upload-field";
 import CategorySubcategorySelector from "./category-subcategory-selector";
+import Tabs, { TabPanel } from "@/components/common/tabs";
+import FormField from "./form-field";
+import { useProductFormContext } from "@/lib/contexts/product-form-context";
+import { Package, DollarSign, Tag, Image as ImageIcon } from "lucide-react";
 
 interface Category {
   id: string;
@@ -10,7 +16,7 @@ interface Category {
   }>;
 }
 
-export default async function ProductForm({
+export default function ProductForm({
   id,
   name = "",
   price = null,
@@ -20,7 +26,6 @@ export default async function ProductForm({
   image = null,
   categoryIds = [],
   subcategoryIds = [],
-  btnAction = "Add",
   formAction,
   categories = [],
 }: {
@@ -33,149 +38,197 @@ export default async function ProductForm({
   image?: string | null;
   categoryIds?: string[];
   subcategoryIds?: string[];
-  btnAction?: string;
   formAction: (formData: FormData) => void | Promise<void>;
   categories?: Category[];
 }) {
+  const { formErrors, isSubmitting } = useProductFormContext();
+
+  const tabs = [
+    { id: "basic", label: "Basic Info", icon: <Package className="w-4 h-4" /> },
+    {
+      id: "inventory",
+      label: "Inventory",
+      icon: <DollarSign className="w-4 h-4" />,
+    },
+    { id: "media", label: "Media", icon: <ImageIcon className="w-4 h-4" /> },
+    {
+      id: "categories",
+      label: "Categories",
+      icon: <Tag className="w-4 h-4" />,
+    },
+  ];
+
   return (
     <form action={formAction} className="space-y-8">
       {id && <input type="hidden" name="id" value={id} />}
 
-      {/* Product Name - Full Width */}
-      <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-6">
-          Basic Information
-        </h2>
-        <div>
-          <label
-            htmlFor="name"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Product Name *
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            required
-            placeholder="Enter product name"
-            defaultValue={name || ""}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-          />
-        </div>
-      </div>
+      <Tabs tabs={tabs} defaultTabId="basic">
+        {/* Tab 1: Basic Information */}
+        <TabPanel tabId="basic">
+          <div className="space-y-6">
+            <FormField
+              id="name"
+              label="Product Name"
+              required
+              error={formErrors.name}
+            >
+              <input
+                type="text"
+                id="name"
+                name="name"
+                required
+                placeholder="Enter product name"
+                defaultValue={name || ""}
+                disabled={isSubmitting}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition ${
+                  formErrors.name
+                    ? "border-red-500 bg-red-50"
+                    : "border-gray-300"
+                }`}
+              />
+            </FormField>
+          </div>
+        </TabPanel>
 
-      {/* 2 Column Layout: Form Fields on Left, Image on Right */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column: Form Fields */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* Pricing & Inventory */}
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">
-              Pricing & Inventory
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label
-                  htmlFor="price"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Price *
-                </label>
-                <input
-                  type="number"
+        {/* Tab 2: Inventory & Pricing */}
+        <TabPanel tabId="inventory">
+          <div className="space-y-6">
+            {/* Pricing & Inventory */}
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900 mb-4">
+                Pricing & Inventory
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
                   id="price"
-                  name="price"
-                  step="0.01"
-                  min="0"
+                  label="Price"
                   required
-                  placeholder="0.0"
-                  defaultValue={price || ""}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="quantity"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  error={formErrors.price}
                 >
-                  Quantity *
-                </label>
-                <input
-                  type="number"
+                  <input
+                    type="number"
+                    id="price"
+                    name="price"
+                    step="0.01"
+                    min="0"
+                    required
+                    placeholder="0.0"
+                    defaultValue={
+                      price !== null && price !== undefined ? price : undefined
+                    }
+                    disabled={isSubmitting}
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition ${
+                      formErrors.price
+                        ? "border-red-500 bg-red-50"
+                        : "border-gray-300"
+                    }`}
+                  />
+                </FormField>
+
+                <FormField
                   id="quantity"
-                  name="quantity"
-                  min="0"
+                  label="Quantity"
                   required
-                  placeholder="0"
-                  defaultValue={quantity || ""}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                />
+                  error={formErrors.quantity}
+                >
+                  <input
+                    type="number"
+                    id="quantity"
+                    name="quantity"
+                    min="0"
+                    required
+                    placeholder="0"
+                    defaultValue={
+                      quantity !== null && quantity !== undefined
+                        ? quantity
+                        : undefined
+                    }
+                    disabled={isSubmitting}
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition ${
+                      formErrors.quantity
+                        ? "border-red-500 bg-red-50"
+                        : "border-gray-300"
+                    }`}
+                  />
+                </FormField>
               </div>
             </div>
-          </div>
 
-          {/* Additional Details */}
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">
-              Additional Details
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label
-                  htmlFor="sku"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  SKU (optional)
-                </label>
-                <input
-                  type="text"
+            {/* Additional Details */}
+            <div className="border-t border-gray-200 pt-6">
+              <h3 className="text-sm font-semibold text-gray-900 mb-4">
+                Additional Details
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
                   id="sku"
-                  name="sku"
-                  placeholder="Enter SKU"
-                  defaultValue={sku || ""}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="lowStockAt"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  label="SKU"
+                  error={formErrors.sku}
+                  hint="Optional product identifier"
                 >
-                  Low Stock At (optional)
-                </label>
-                <input
-                  type="number"
+                  <input
+                    type="text"
+                    id="sku"
+                    name="sku"
+                    placeholder="Enter SKU"
+                    defaultValue={sku || ""}
+                    disabled={isSubmitting}
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition ${
+                      formErrors.sku
+                        ? "border-red-500 bg-red-50"
+                        : "border-gray-300"
+                    }`}
+                  />
+                </FormField>
+
+                <FormField
                   id="lowStockAt"
-                  name="lowStockAt"
-                  min="0"
-                  placeholder="Enter low stock threshold"
-                  defaultValue={lowStockAt || ""}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                />
+                  label="Low Stock Alert"
+                  error={formErrors.lowStockAt}
+                  hint="Alert when quantity falls below this"
+                >
+                  <input
+                    type="number"
+                    id="lowStockAt"
+                    name="lowStockAt"
+                    min="0"
+                    placeholder="Enter threshold"
+                    defaultValue={
+                      lowStockAt !== null && lowStockAt !== undefined
+                        ? lowStockAt
+                        : undefined
+                    }
+                    disabled={isSubmitting}
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition ${
+                      formErrors.lowStockAt
+                        ? "border-red-500 bg-red-50"
+                        : "border-gray-300"
+                    }`}
+                  />
+                </FormField>
               </div>
             </div>
           </div>
-        </div>
+        </TabPanel>
 
-        {/* Right Column: Image */}
-        <div className="lg:col-span-1">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">
-            Product Image
-          </h2>
-          <ImageUploadField defaultUrl={image || ""} />
-        </div>
-      </div>
+        {/* Tab 3: Media */}
+        <TabPanel tabId="media">
+          <div className="space-y-6">
+            <ImageUploadField defaultUrl={image || ""} />
+          </div>
+        </TabPanel>
 
-      {/* Categories & Subcategories - Full Width */}
-      <div className="border-t border-gray-200 pt-8">
-        <h2 className="text-lg font-semibold text-gray-900 mb-6">Categories</h2>
-        <CategorySubcategorySelector
-          categories={categories}
-          initialCategoryIds={categoryIds}
-          initialSubcategoryIds={subcategoryIds}
-        />
-      </div>
+        {/* Tab 4: Categories */}
+        <TabPanel tabId="categories">
+          <div className="space-y-6">
+            <CategorySubcategorySelector
+              categories={categories}
+              initialCategoryIds={categoryIds}
+              initialSubcategoryIds={subcategoryIds}
+            />
+          </div>
+        </TabPanel>
+      </Tabs>
     </form>
   );
 }
