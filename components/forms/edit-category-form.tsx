@@ -7,10 +7,7 @@ import MessageBanner from "@/components/common/message-banner";
 import { useMessage } from "@/lib/hooks/useMessage";
 import { formatErrorMessage } from "@/lib/utils/subcategories";
 import { UI_CONSTANTS } from "@/lib/utils/subcategories";
-
-const CATEGORY_LIMITS = {
-  NAME_MAX: 50,
-};
+import { CATEGORY_LIMITS } from "@/lib/utils/categories";
 
 interface EditCategoryFormProps {
   categoryId: string;

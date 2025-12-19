@@ -7,10 +7,7 @@ import MessageBanner from "@/components/common/message-banner";
 import { useMessage } from "@/lib/hooks/useMessage";
 import { formatErrorMessage } from "@/lib/utils/subcategories";
 import { UI_CONSTANTS } from "@/lib/utils/subcategories";
-
-const CATEGORY_LIMITS = {
-  NAME_MAX: 50,
-};
+import { CATEGORY_LIMITS } from "@/lib/utils/categories";
 
 export default function CategoryForm() {
   const [name, setName] = useState("");
@@ -47,7 +44,6 @@ export default function CategoryForm() {
       if (response.success) {
         setName("");
         showSuccess("Category created successfully!");
-        // Optionally redirect after success
         setTimeout(() => {
           window.location.href = "/categories";
         }, 1500);
@@ -103,8 +99,8 @@ export default function CategoryForm() {
           type="submit"
           label={isSubmitting ? "Creating..." : "Create Category"}
           variant="primary"
-          size="lg"
           disabled={isSubmitting}
+          className="w-full"
         />
       </div>
     </form>

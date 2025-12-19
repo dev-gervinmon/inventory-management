@@ -73,9 +73,11 @@ export async function editCategory(
         type: "CATEGORY_EDITED",
         categoryId: id,
         categoryName: updatedCategory.name,
-        message: `Category name changed from "${oldCategory?.name}" to "${updatedCategory.name}"`,
+        message: `Category name changed from "${
+          oldCategory?.name ?? "(unknown)"
+        }" to "${updatedCategory.name}"`,
         details: {
-          oldName: oldCategory?.name || "",
+          oldName: oldCategory?.name ?? "",
           newName: updatedCategory.name,
         },
       });
@@ -113,15 +115,16 @@ export async function deleteCategory(
     });
 
     // Log the deletion
+    const categoryName = categoryData?.name ?? "(unknown)";
+    const subcategoryCount = categoryData?.subcategories.length ?? 0;
+
     await logActivity(user.id, {
       type: "CATEGORY_DELETED",
       categoryId: id,
-      categoryName: categoryData?.name || "",
-      message: `Category "${categoryData?.name}" was deleted along with ${
-        categoryData?.subcategories.length || 0
-      } subcategory(ies)`,
+      categoryName: categoryName,
+      message: `Category "${categoryName}" was deleted along with ${subcategoryCount} subcategory(ies)`,
       details: {
-        subcategoriesDeleted: categoryData?.subcategories.length || 0,
+        subcategoriesDeleted: subcategoryCount,
       },
     });
 
