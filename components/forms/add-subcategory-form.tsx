@@ -2,6 +2,8 @@
 
 import { useState, FormEvent } from "react";
 import { createSubcategory } from "@/lib/actions/subcategories";
+import MessageBanner from "@/components/common/message-banner";
+import { useMessage } from "@/lib/hooks/useMessage";
 import {
   SUBCATEGORY_LIMITS,
   UI_CONSTANTS,
@@ -16,19 +18,22 @@ export default function AddSubcategoryForm({
 }) {
   const [name, setName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState({ type: "", text: "" });
+  const { message, showSuccess, showError, clearMessage } = useMessage({
+    autoClose: true,
+    timeout: UI_CONSTANTS.MESSAGE_TIMEOUT,
+  });
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const error = validateSubcategoryName(name);
     if (error) {
-      setMessage({ type: "error", text: error });
+      showError(error);
       return;
     }
 
     setIsSubmitting(true);
-    setMessage({ type: "", text: "" });
+    clearMessage();
 
     try {
       const formData = new FormData();
@@ -39,25 +44,12 @@ export default function AddSubcategoryForm({
 
       if (response.success) {
         setName("");
-        setMessage({
-          type: "success",
-          text: "Subcategory added successfully!",
-        });
-        setTimeout(
-          () => setMessage({ type: "", text: "" }),
-          UI_CONSTANTS.MESSAGE_TIMEOUT
-        );
+        showSuccess("Subcategory added successfully!");
       } else {
-        setMessage({
-          type: "error",
-          text: response.error || "Failed to add subcategory",
-        });
+        showError(response.error || "Failed to add subcategory");
       }
     } catch (error) {
-      setMessage({
-        type: "error",
-        text: formatErrorMessage(error),
-      });
+      showError(formatErrorMessage(error));
     } finally {
       setIsSubmitting(false);
     }
@@ -80,7 +72,7 @@ export default function AddSubcategoryForm({
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
-                setMessage({ type: "", text: "" });
+                clearMessage();
               }}
               placeholder="e.g., Winter Jackets"
               className={`flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition ${
@@ -99,17 +91,7 @@ export default function AddSubcategoryForm({
               {isSubmitting ? "Adding..." : "Add"}
             </button>
           </div>
-          {message.text && (
-            <div
-              className={`text-xs p-2 rounded mt-2 ${
-                message.type === "error"
-                  ? "bg-red-50 text-red-700 border border-red-200"
-                  : "bg-green-50 text-green-700 border border-green-200"
-              }`}
-            >
-              {message.text}
-            </div>
-          )}
+          <MessageBanner message={message} />
           <div className="flex justify-between mt-2">
             {message.text === "" && (
               <span className="text-xs text-gray-400">
