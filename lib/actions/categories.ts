@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "../auth/auth";
 import prisma from "../db/prisma";
 import { parseCategoryData } from "../schemas/categories";
@@ -33,6 +34,9 @@ export async function createCategory(
       categoryName: createdCategory.name,
       message: `Category "${createdCategory.name}" was created`,
     });
+
+    // Revalidate affected pages
+    revalidatePath("/categories");
 
     return {
       success: true,
@@ -83,6 +87,10 @@ export async function editCategory(
       });
     }
 
+    // Revalidate affected pages
+    revalidatePath("/categories");
+    revalidatePath(`/categories/${id}`);
+
     return {
       success: true,
     };
@@ -127,6 +135,10 @@ export async function deleteCategory(
         subcategoriesDeleted: subcategoryCount,
       },
     });
+
+    // Revalidate affected pages
+    revalidatePath("/categories");
+    revalidatePath(`/categories/${id}`);
 
     return {
       success: true,
