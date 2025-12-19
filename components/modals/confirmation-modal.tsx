@@ -32,13 +32,13 @@ export default function ConfirmationModal({
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black/10 z-40 transition-opacity duration-300"
+        className="fixed inset-0 bg-black/10 z-9999 transition-opacity duration-300 pointer-events-auto"
         onClick={onClose}
       />
 
       {/* Modal */}
       <div
-        className="fixed right-0 top-0 h-full w-full sm:w-96 bg-white shadow-lg z-50 
+        className="fixed right-0 top-0 h-full w-full sm:w-96 bg-white shadow-lg z-10000 
                    transform transition-transform duration-700 ease-in-out overflow-hidden"
         style={{
           transform: isOpen ? "translateX(0)" : "translateX(100%)",
