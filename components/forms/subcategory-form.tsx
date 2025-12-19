@@ -190,6 +190,7 @@ export default function SubcategoryForm({
               <DeleteSubcategoryButton
                 subcategoryId={subcategory.id}
                 categoryId={categoryId}
+                subcategoryName={subcategory.name}
               />
             </div>
           </div>
