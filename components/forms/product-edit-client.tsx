@@ -73,8 +73,16 @@ export default function ProductEditClient({
     if (!form) return;
     formRef.current = form;
 
-    const handleFormChange = () => {
-      setIsDirty(true);
+    const handleFormChange = (e: Event) => {
+      // Only mark as dirty if the change comes from actual form inputs, not other elements
+      const target = e.target as HTMLElement;
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLSelectElement ||
+        target instanceof HTMLTextAreaElement
+      ) {
+        setIsDirty(true);
+      }
     };
 
     form.addEventListener("change", handleFormChange);
