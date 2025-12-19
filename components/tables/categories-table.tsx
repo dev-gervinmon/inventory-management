@@ -27,6 +27,33 @@ interface CategoriesTableProps {
 
 const ITEMS_PER_PAGE = 10;
 
+// Determine product status based on count
+function getProductStatus(count: number): {
+  label: string;
+  bgColor: string;
+  textColor: string;
+} {
+  if (count === 0) {
+    return {
+      label: "Empty",
+      bgColor: "bg-red-100",
+      textColor: "text-red-700",
+    };
+  } else if (count < 5) {
+    return {
+      label: "Low",
+      bgColor: "bg-yellow-100",
+      textColor: "text-yellow-700",
+    };
+  } else {
+    return {
+      label: "Healthy",
+      bgColor: "bg-green-100",
+      textColor: "text-green-700",
+    };
+  }
+}
+
 export default function CategoriesTable({ categories }: CategoriesTableProps) {
   const { showSuccess, showError } = useMessage();
   const [isPending, startTransition] = useTransition();
@@ -228,9 +255,17 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
                   </Link>
                 </td>
                 <td className="px-6 py-4">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
-                    {category._count.products}
-                  </span>
+                  {(() => {
+                    const status = getProductStatus(category._count.products);
+                    return (
+                      <span
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${status.bgColor} ${status.textColor}`}
+                      >
+                        {category._count.products}
+                        <span className="text-xs">({status.label})</span>
+                      </span>
+                    );
+                  })()}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-700">
                   {category.subcategories.length}
