@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { SerializedProduct } from "@/app/src/utils/product";
 import { bulkDeleteProducts } from "@/lib/actions/products";
-import EmptyState from "@/components/layout/empty-state";
 import { useSearch } from "@/lib/hooks/useSearch";
 import { useSelection } from "@/lib/hooks/useSelection";
 import { usePagination } from "@/lib/hooks/usePagination";
