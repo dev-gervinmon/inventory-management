@@ -44,8 +44,9 @@ export default function CategoryForm() {
       if (response.success) {
         setName("");
         showSuccess("Category created successfully!");
+        // Reload page to show new category in list
         setTimeout(() => {
-          window.location.href = "/categories";
+          window.location.reload();
         }, 1500);
       } else {
         showError(response.error || "Failed to create category");
