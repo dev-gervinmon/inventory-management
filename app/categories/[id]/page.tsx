@@ -1,14 +1,11 @@
 "use server";
 
 import SideBar from "@/components/layout/sidebar";
-import SubcategoryForm from "@/components/subcategory-form";
+import SubcategoriesList from "@/components/forms/subcategories-list";
+import AddSubcategoryForm from "@/components/forms/add-subcategory-form";
 import DeleteCategoryButton from "@/components/buttons/delete/delete-category-button";
 import { editCategory } from "@/lib/actions/categories";
-import {
-  createSubcategory,
-  editSubcategory,
-  deleteSubcategory,
-} from "@/lib/actions/subcategories";
+import { editSubcategory } from "@/lib/actions/subcategories";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
 import { redirect } from "next/navigation";
@@ -112,18 +109,11 @@ export default async function EditCategoryPage({
                   No subcategories yet. Create one below.
                 </p>
               ) : (
-                <div className="space-y-3">
-                  {category.subcategories.map((sub: typeof category.subcategories[0]) => (
-                    <SubcategoryForm
-                      key={sub.id}
-                      subcategory={sub}
-                      categoryId={category.id}
-                      categoryName={category.name}
-                      formAction={editSubcategory}
-                      deleteAction={deleteSubcategory}
-                    />
-                  ))}
-                </div>
+                <SubcategoriesList
+                  subcategories={category.subcategories}
+                  categoryId={category.id}
+                  formAction={editSubcategory}
+                />
               )}
             </div>
 
@@ -132,33 +122,7 @@ export default async function EditCategoryPage({
               <h2 className="text-lg font-semibold text-gray-900 mb-6">
                 Add New Subcategory
               </h2>
-              <form action={createSubcategory} className="space-y-4">
-                <input type="hidden" name="categoryId" value={category.id} />
-                <div>
-                  <label
-                    htmlFor="new-subcategory"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Subcategory Name *
-                  </label>
-                  <div className="flex gap-3">
-                    <input
-                      type="text"
-                      id="new-subcategory"
-                      name="name"
-                      required
-                      placeholder="e.g., Winter Jackets"
-                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                    />
-                    <button
-                      type="submit"
-                      className="px-6 py-3 bg-linear-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-800 active:from-purple-800 active:to-purple-900 transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-100 whitespace-nowrap cursor-pointer"
-                    >
-                      Add
-                    </button>
-                  </div>
-                </div>
-              </form>
+              <AddSubcategoryForm categoryId={category.id} />
             </div>
           </div>
         </div>
