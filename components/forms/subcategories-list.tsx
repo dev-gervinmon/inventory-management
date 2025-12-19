@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import SubcategoryTableRow from "./subcategory-table-row";
+import EditSubcategoryModal from "./edit-subcategory-modal";
 import FormButton from "@/components/buttons/form-button";
 import ConfirmationModal from "@/components/modals/confirmation-modal";
 import MessageBanner from "@/components/common/message-banner";
@@ -33,6 +34,9 @@ export default function SubcategoriesList({
 }: SubcategoriesListProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
+  const [selectedSubcategory, setSelectedSubcategory] =
+    useState<Subcategory | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { message, showSuccess, showError, clearMessage } = useMessage({
     autoClose: true,
     timeout: UI_CONSTANTS.MESSAGE_TIMEOUT,
@@ -213,11 +217,9 @@ export default function SubcategoriesList({
                     ) {
                       return;
                     }
-                    // Find and trigger the modal from the SubcategoryTableRow
-                    const nameCell = (
-                      e.currentTarget as HTMLElement
-                    ).querySelector("[data-edit-trigger]") as HTMLElement;
-                    nameCell?.click();
+                    // Open the edit modal with the selected subcategory
+                    setSelectedSubcategory(sub);
+                    setIsEditModalOpen(true);
                   }}
                 >
                   <td className="px-6 py-4">
@@ -232,7 +234,10 @@ export default function SubcategoriesList({
                   <SubcategoryTableRow
                     subcategory={sub}
                     categoryId={categoryId}
-                    formAction={formAction}
+                    onEdit={() => {
+                      setSelectedSubcategory(sub);
+                      setIsEditModalOpen(true);
+                    }}
                   />
                 </tr>
               ))}
@@ -293,6 +298,19 @@ export default function SubcategoriesList({
         confirmLabel="Delete All"
         isLoading={isDeleting}
       />
+
+      {selectedSubcategory && (
+        <EditSubcategoryModal
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedSubcategory(null);
+          }}
+          subcategory={selectedSubcategory}
+          categoryId={categoryId}
+          formAction={formAction}
+        />
+      )}
     </div>
   );
 }
