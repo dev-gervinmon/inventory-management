@@ -1,0 +1,112 @@
+"use client";
+
+import { useState, FormEvent } from "react";
+import { createCategory } from "@/lib/actions/categories";
+import FormButton from "@/components/buttons/form-button";
+import MessageBanner from "@/components/common/message-banner";
+import { useMessage } from "@/lib/hooks/useMessage";
+import { formatErrorMessage } from "@/lib/utils/subcategories";
+import { UI_CONSTANTS } from "@/lib/utils/subcategories";
+
+const CATEGORY_LIMITS = {
+  NAME_MAX: 50,
+};
+
+export default function CategoryForm() {
+  const [name, setName] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { message, showSuccess, showError, clearMessage } = useMessage({
+    autoClose: true,
+    timeout: UI_CONSTANTS.MESSAGE_TIMEOUT,
+  });
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!name.trim()) {
+      showError("Category name is required");
+      return;
+    }
+
+    if (name.length > CATEGORY_LIMITS.NAME_MAX) {
+      showError(
+        `Category name must be ${CATEGORY_LIMITS.NAME_MAX} characters or less`
+      );
+      return;
+    }
+
+    setIsSubmitting(true);
+    clearMessage();
+
+    try {
+      const formData = new FormData();
+      formData.append("name", name);
+
+      const response = await createCategory(formData);
+
+      if (response.success) {
+        setName("");
+        showSuccess("Category created successfully!");
+        // Optionally redirect after success
+        setTimeout(() => {
+          window.location.href = "/categories";
+        }, 1500);
+      } else {
+        showError(response.error || "Failed to create category");
+      }
+    } catch (error) {
+      showError(formatErrorMessage(error));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div>
+        <label
+          htmlFor="name"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
+          Category Name *
+        </label>
+        <input
+          type="text"
+          id="name"
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value);
+            clearMessage();
+          }}
+          placeholder="Enter category name"
+          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition ${
+            message.type === "error"
+              ? "border-red-300 focus:ring-red-500"
+              : "border-gray-300 focus:ring-purple-500"
+          }`}
+          maxLength={CATEGORY_LIMITS.NAME_MAX}
+          disabled={isSubmitting}
+        />
+        <div className="flex justify-between mt-2">
+          {message.text === "" && (
+            <span className="text-xs text-gray-400">
+              {name.length}/{CATEGORY_LIMITS.NAME_MAX}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <MessageBanner message={message} />
+
+      <div className="flex gap-4 pt-2">
+        <FormButton
+          type="submit"
+          label={isSubmitting ? "Creating..." : "Create Category"}
+          variant="primary"
+          size="lg"
+          disabled={isSubmitting}
+        />
+      </div>
+    </form>
+  );
+}
