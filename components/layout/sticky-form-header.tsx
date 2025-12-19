@@ -96,12 +96,13 @@ export default function StickyFormHeader({
               disabled={isLoading}
               onClick={handleSubmit}
             />
-            {isDirty && onReset && (
+            {onReset && (
               <FormButton
                 type="button"
                 label="Reset"
                 variant="secondary"
                 size={isSticky ? "sm" : "md"}
+                disabled={!isDirty}
                 onClick={onReset}
               />
             )}
