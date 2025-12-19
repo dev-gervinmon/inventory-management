@@ -2,7 +2,8 @@
 
 import { formatPrice, formatProductDate } from "@/lib/utils/products";
 import { getStockStatus } from "@/lib/utils/products";
-import { Copy, Trash2 } from "lucide-react";
+import FormButton from "@/components/buttons/form-button";
+import { Copy } from "lucide-react";
 import { useState } from "react";
 
 interface ProductInfoSidebarProps {
@@ -88,7 +89,7 @@ export default function ProductInfoSidebar({
           </code>
           <button
             onClick={() => copyToClipboard(productId, "id")}
-            className="p-1.5 hover:bg-gray-100 rounded transition"
+            className="p-1.5 hover:bg-gray-100 rounded transition cursor-pointer"
             title="Copy product ID"
           >
             <Copy
@@ -112,7 +113,7 @@ export default function ProductInfoSidebar({
             </code>
             <button
               onClick={() => copyToClipboard(sku, "sku")}
-              className="p-1.5 hover:bg-gray-100 rounded transition"
+              className="p-1.5 hover:bg-gray-100 rounded transition cursor-pointer"
               title="Copy SKU"
             >
               <Copy
@@ -146,14 +147,15 @@ export default function ProductInfoSidebar({
       </div>
 
       {/* Delete Button */}
-      <button
-        onClick={onDelete}
+      <FormButton
+        type="button"
+        label={isDeleting ? "Deleting..." : "Delete Product"}
+        variant="delete"
+        size="lg"
         disabled={isDeleting}
-        className="w-full px-4 py-3 bg-red-50 text-red-700 border border-red-200 rounded-lg hover:bg-red-100 hover:border-red-300 font-medium transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-      >
-        <Trash2 className="w-4 h-4" />
-        {isDeleting ? "Deleting..." : "Delete Product"}
-      </button>
+        onClick={onDelete}
+        className="w-full"
+      />
     </div>
   );
 }
