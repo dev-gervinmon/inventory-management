@@ -4,7 +4,9 @@ import { useState } from "react";
 import SubcategoryTableRow from "./subcategory-table-row";
 import FormButton from "@/components/buttons/form-button";
 import ConfirmationModal from "@/components/modals/confirmation-modal";
+import MessageBanner from "@/components/common/message-banner";
 import { deleteBulkSubcategories } from "@/lib/actions/subcategories";
+import { useMessage } from "@/lib/hooks/useMessage";
 import { UI_CONSTANTS } from "@/lib/utils/subcategories";
 
 interface Subcategory {
@@ -29,7 +31,10 @@ export default function SubcategoriesList({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
   const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
-  const [message, setMessage] = useState({ type: "", text: "" });
+  const { message, showSuccess, showError, clearMessage } = useMessage({
+    autoClose: true,
+    timeout: UI_CONSTANTS.MESSAGE_TIMEOUT,
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -74,10 +79,7 @@ export default function SubcategoriesList({
 
   const handleBulkDelete = async () => {
     if (selectedIds.size === 0) {
-      setMessage({
-        type: "error",
-        text: "Please select at least one subcategory to delete",
-      });
+      showError("Please select at least one subcategory to delete");
       return;
     }
 
@@ -86,7 +88,7 @@ export default function SubcategoriesList({
 
   const handleConfirmBulkDelete = async () => {
     setIsDeleting(true);
-    setMessage({ type: "", text: "" });
+    clearMessage();
 
     try {
       const formData = new FormData();
@@ -96,30 +98,18 @@ export default function SubcategoriesList({
       const response = await deleteBulkSubcategories(formData);
 
       if (response.success) {
-        setMessage({
-          type: "success",
-          text: `Successfully deleted ${response.deletedCount} subcategory(ies)!`,
-        });
+        showSuccess(
+          `Successfully deleted ${response.deletedCount} subcategory(ies)!`
+        );
         setSelectedIds(new Set());
         setIsBulkDeleteModalOpen(false);
-        setTimeout(
-          () => setMessage({ type: "", text: "" }),
-          UI_CONSTANTS.MESSAGE_TIMEOUT
-        );
       } else {
-        setMessage({
-          type: "error",
-          text: response.error || "Failed to delete subcategories",
-        });
+        showError(response.error || "Failed to delete subcategories");
       }
     } catch (error) {
-      setMessage({
-        type: "error",
-        text:
-          error instanceof Error
-            ? error.message
-            : "An unexpected error occurred",
-      });
+      showError(
+        error instanceof Error ? error.message : "An unexpected error occurred"
+      );
     } finally {
       setIsDeleting(false);
     }
@@ -127,17 +117,7 @@ export default function SubcategoriesList({
 
   return (
     <div className="space-y-4">
-      {message.text && (
-        <div
-          className={`text-sm p-3 rounded-lg ${
-            message.type === "error"
-              ? "bg-red-50 text-red-700 border border-red-200"
-              : "bg-green-50 text-green-700 border border-green-200"
-          }`}
-        >
-          {message.text}
-        </div>
-      )}
+      <MessageBanner message={message} />
 
       {/* Search Input */}
       <div className="relative">
