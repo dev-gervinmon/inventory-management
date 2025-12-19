@@ -3,6 +3,7 @@
 import { useState } from "react";
 import SubcategoryTableRow from "./subcategory-table-row";
 import FormButton from "@/components/buttons/form-button";
+import ConfirmationModal from "@/components/modals/confirmation-modal";
 import { deleteBulkSubcategories } from "@/lib/actions/subcategories";
 import { UI_CONSTANTS } from "@/lib/utils/subcategories";
 
@@ -27,13 +28,31 @@ export default function SubcategoriesList({
 }: SubcategoriesListProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Filter subcategories based on search query
   const filteredSubcategories = subcategories.filter((sub) =>
     sub.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredSubcategories.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedSubcategories = filteredSubcategories.slice(
+    startIndex,
+    endIndex
+  );
+
+  // Reset to page 1 when search query changes
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -62,14 +81,10 @@ export default function SubcategoriesList({
       return;
     }
 
-    if (
-      !confirm(
-        `Are you sure you want to delete ${selectedIds.size} subcategory(ies)? This action cannot be undone.`
-      )
-    ) {
-      return;
-    }
+    setIsBulkDeleteModalOpen(true);
+  };
 
+  const handleConfirmBulkDelete = async () => {
     setIsDeleting(true);
     setMessage({ type: "", text: "" });
 
@@ -86,6 +101,7 @@ export default function SubcategoriesList({
           text: `Successfully deleted ${response.deletedCount} subcategory(ies)!`,
         });
         setSelectedIds(new Set());
+        setIsBulkDeleteModalOpen(false);
         setTimeout(
           () => setMessage({ type: "", text: "" }),
           UI_CONSTANTS.MESSAGE_TIMEOUT
@@ -129,12 +145,12 @@ export default function SubcategoriesList({
           type="text"
           placeholder="Search subcategories..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => handleSearchChange(e.target.value)}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
         />
         {searchQuery && (
           <button
-            onClick={() => setSearchQuery("")}
+            onClick={() => handleSearchChange("")}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             title="Clear search"
           >
@@ -204,7 +220,7 @@ export default function SubcategoriesList({
               </tr>
             </thead>
             <tbody>
-              {filteredSubcategories.map((sub) => (
+              {paginatedSubcategories.map((sub) => (
                 <tr
                   key={sub.id}
                   className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition"
@@ -246,6 +262,61 @@ export default function SubcategoriesList({
           </table>
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {filteredSubcategories.length > 0 && totalPages > 1 && (
+        <div className="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="text-sm text-gray-600">
+            Showing {startIndex + 1} to{" "}
+            {Math.min(endIndex, filteredSubcategories.length)} of{" "}
+            {filteredSubcategories.length} items
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition cursor-pointer"
+            >
+              ← Previous
+            </button>
+            <div className="flex items-center gap-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (pageNum) => (
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`w-10 h-10 rounded-lg font-medium transition cursor-pointer ${
+                      currentPage === pageNum
+                        ? "bg-purple-600 text-white"
+                        : "border border-gray-300 hover:bg-purple-50 hover:border-purple-300 hover:scale-105"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                )
+              )}
+            </div>
+            <button
+              onClick={() =>
+                setCurrentPage(Math.min(totalPages, currentPage + 1))
+              }
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition cursor-pointer"
+            >
+              Next →
+            </button>
+          </div>
+        </div>
+      )}
+      <ConfirmationModal
+        isOpen={isBulkDeleteModalOpen}
+        onClose={() => setIsBulkDeleteModalOpen(false)}
+        onConfirm={handleConfirmBulkDelete}
+        title="Delete Subcategories"
+        message={`Are you sure you want to delete ${selectedIds.size} subcategory(ies)? This action cannot be undone.`}
+        confirmLabel="Delete All"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }
