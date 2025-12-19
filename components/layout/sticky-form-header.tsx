@@ -65,7 +65,9 @@ export default function StickyFormHeader({
           <div className="flex items-center gap-3 flex-1">
             <button
               type="button"
-              onClick={() => onBack ? onBack(backHref) : window.location.href = backHref}
+              onClick={() =>
+                onBack ? onBack(backHref) : (window.location.href = backHref)
+              }
               className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <ChevronLeft className="w-5 h-5" />
