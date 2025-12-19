@@ -3,6 +3,8 @@
 import { deleteSubcategory } from "@/lib/actions/subcategories";
 import FormButton from "@/components/buttons/form-button";
 import ConfirmationModal from "@/components/modals/confirmation-modal";
+import MessageBanner from "@/components/common/message-banner";
+import { useMessage } from "@/lib/hooks/useMessage";
 import { useState } from "react";
 import { formatErrorMessage } from "@/lib/utils/subcategories";
 
@@ -17,11 +19,13 @@ export default function DeleteSubcategoryButton({
 }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [message, setMessage] = useState({ type: "", text: "" });
+  const { message, showSuccess, showError, clearMessage } = useMessage({
+    autoClose: false,
+  });
 
   const handleConfirmDelete = async () => {
     setIsDeleting(true);
-    setMessage({ type: "", text: "" });
+    clearMessage();
 
     try {
       const formData = new FormData();
@@ -31,22 +35,13 @@ export default function DeleteSubcategoryButton({
       const response = await deleteSubcategory(formData);
 
       if (response.success) {
-        setMessage({
-          type: "success",
-          text: "Subcategory deleted successfully!",
-        });
+        showSuccess("Subcategory deleted successfully!");
         setIsModalOpen(false);
       } else {
-        setMessage({
-          type: "error",
-          text: response.error || "Failed to delete subcategory",
-        });
+        showError(response.error || "Failed to delete subcategory");
       }
     } catch (error) {
-      setMessage({
-        type: "error",
-        text: formatErrorMessage(error),
-      });
+      showError(formatErrorMessage(error));
     } finally {
       setIsDeleting(false);
     }
@@ -71,17 +66,7 @@ export default function DeleteSubcategoryButton({
         confirmLabel="Delete"
         isLoading={isDeleting}
       />
-      {message.text && (
-        <div
-          className={`text-sm p-2 rounded-lg ${
-            message.type === "error"
-              ? "bg-red-50 text-red-700 border border-red-200"
-              : "bg-green-50 text-green-700 border border-green-200"
-          }`}
-        >
-          {message.text}
-        </div>
-      )}
+      <MessageBanner message={message} />
     </div>
   );
 }
