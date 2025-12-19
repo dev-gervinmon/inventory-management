@@ -3,6 +3,8 @@
 import { useState } from "react";
 import FormButton from "@/components/buttons/form-button";
 import CloseButton from "@/components/buttons/close-button";
+import MessageBanner from "@/components/common/message-banner";
+import { useMessage } from "@/lib/hooks/useMessage";
 import {
   SUBCATEGORY_LIMITS,
   UI_CONSTANTS,
@@ -33,23 +35,20 @@ export default function EditSubcategoryModal({
   const [name, setName] = useState(subcategory.name);
   const [nameError, setNameError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState({ type: "", text: "" });
+  const { message, setMessage, showSuccess, showError, clearMessage } =
+    useMessage({ autoClose: false });
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setName(value);
     setNameError(validateSubcategoryName(value));
-    setMessage({ type: "", text: "" });
+    clearMessage();
   };
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     if (nameError) {
-      setMessage({
-        type: "error",
-        text: "Please fix the errors above",
-      });
+      showError("Please fix the errors above");
       return;
     }
 
@@ -59,7 +58,7 @@ export default function EditSubcategoryModal({
     }
 
     setIsSubmitting(true);
-    setMessage({ type: "", text: "" });
+    clearMessage();
 
     try {
       const formData = new FormData();
@@ -70,30 +69,19 @@ export default function EditSubcategoryModal({
       const response = await formAction(formData);
 
       if (response.success) {
-        setMessage({
-          type: "success",
-          text: "Subcategory updated successfully!",
-        });
+        showSuccess("Subcategory updated successfully!");
         setTimeout(() => {
           onClose();
           setName(subcategory.name);
           setNameError("");
-          setMessage({ type: "", text: "" });
         }, UI_CONSTANTS.MESSAGE_TIMEOUT);
       } else {
-        setMessage({
-          type: "error",
-          text: response.error || "Failed to update subcategory",
-        });
+        showError(response.error || "Failed to update subcategory");
       }
     } catch (error) {
-      setMessage({
-        type: "error",
-        text:
-          error instanceof Error
-            ? error.message
-            : "An unexpected error occurred",
-      });
+      showError(
+        error instanceof Error ? error.message : "An unexpected error occurred"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -168,17 +156,7 @@ export default function EditSubcategoryModal({
             {nameError && <p className="text-xs text-red-500">{nameError}</p>}
           </div>
 
-          {message.text && (
-            <div
-              className={`text-sm p-3 rounded-lg ${
-                message.type === "error"
-                  ? "bg-red-50 text-red-700 border border-red-200"
-                  : "bg-green-50 text-green-700 border border-green-200"
-              }`}
-            >
-              {message.text}
-            </div>
-          )}
+          <MessageBanner message={message} />
 
           {/* Actions */}
           <div className="flex gap-3 pt-4">
