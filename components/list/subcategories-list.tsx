@@ -11,6 +11,8 @@ import { useMessage } from "@/lib/hooks/useMessage";
 import { usePagination } from "@/lib/hooks/usePagination";
 import { useSearch } from "@/lib/hooks/useSearch";
 import { useSelection } from "@/lib/hooks/useSelection";
+import { useSort } from "@/lib/hooks/useSort";
+import SortableHeader from "@/components/common/sortable-header";
 import { UI_CONSTANTS } from "@/lib/utils/subcategories";
 
 interface Subcategory {
@@ -50,6 +52,18 @@ export default function SubcategoriesList({
     filteredItems: filteredSubcategories,
   } = useSearch(subcategories, { searchableFields: ["name"] });
 
+  // Sort hook
+  const {
+    sortKey,
+    sortDirection,
+    toggleSort,
+    sortedItems: sortedSubcategories,
+  } = useSort({
+    items: filteredSubcategories,
+    initialSortKey: "createdAt",
+    initialDirection: "desc",
+  });
+
   // Pagination hook
   const {
     currentPage,
@@ -58,7 +72,7 @@ export default function SubcategoriesList({
     paginatedItems: paginatedSubcategories,
     startIndex,
     endIndex,
-  } = usePagination(filteredSubcategories, { itemsPerPage: 10 });
+  } = usePagination(sortedSubcategories, { itemsPerPage: 10 });
 
   // Selection hook
   const { selectedIds, toggle, selectAll, deselectAll, count } = useSelection();
@@ -71,7 +85,7 @@ export default function SubcategoriesList({
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      selectAll(filteredSubcategories.map((sub) => sub.id));
+      selectAll(sortedSubcategories.map((sub) => sub.id));
     } else {
       deselectAll();
     }
@@ -160,7 +174,7 @@ export default function SubcategoriesList({
 
       {/* Search Results Info */}
       {searchQuery && (
-        <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200 px-4 py-3 flex items-center justify-between">
+        <div className="bg-linear-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200 px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <svg
               className="w-4 h-4 text-purple-600"
@@ -176,7 +190,7 @@ export default function SubcategoriesList({
               />
             </svg>
             <span className="text-xs text-gray-700 font-medium">
-              Found <strong>{filteredSubcategories.length}</strong> of{" "}
+              Found <strong>{sortedSubcategories.length}</strong> of{" "}
               <strong>{subcategories.length}</strong> subcategor
               {subcategories.length !== 1 ? "ies" : "y"} matching &quot;
               <strong className="text-purple-700">{searchQuery}</strong>&quot;
@@ -202,7 +216,7 @@ export default function SubcategoriesList({
       )}
 
       <div className="overflow-x-auto border border-gray-200 rounded-lg">
-        {filteredSubcategories.length === 0 ? (
+        {sortedSubcategories.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
             {searchQuery ? (
               <div>
@@ -222,19 +236,27 @@ export default function SubcategoriesList({
                     type="checkbox"
                     id="select-all"
                     checked={
-                      count === filteredSubcategories.length &&
-                      filteredSubcategories.length > 0
+                      count === sortedSubcategories.length &&
+                      sortedSubcategories.length > 0
                     }
                     onChange={(e) => handleSelectAll(e.target.checked)}
                     className="w-4 h-4 cursor-pointer"
                   />
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                  Created
-                </th>
+                <SortableHeader
+                  label="Name"
+                  sortKey="name"
+                  currentSortKey={sortKey}
+                  sortDirection={sortDirection}
+                  onSort={toggleSort}
+                />
+                <SortableHeader
+                  label="Created"
+                  sortKey="createdAt"
+                  currentSortKey={sortKey}
+                  sortDirection={sortDirection}
+                  onSort={toggleSort}
+                />
               </tr>
             </thead>
             <tbody>
@@ -281,12 +303,12 @@ export default function SubcategoriesList({
       </div>
 
       {/* Pagination Controls */}
-      {filteredSubcategories.length > 0 && totalPages > 1 && (
+      {sortedSubcategories.length > 0 && totalPages > 1 && (
         <div className="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
           <div className="text-sm text-gray-600">
             Showing {startIndex + 1} to{" "}
-            {Math.min(endIndex, filteredSubcategories.length)} of{" "}
-            {filteredSubcategories.length} items
+            {Math.min(endIndex, sortedSubcategories.length)} of{" "}
+            {sortedSubcategories.length} items
           </div>
           <div className="flex gap-2">
             <button
