@@ -42,7 +42,7 @@ export default function FormField({
 
       {error && (
         <p className="mt-1.5 text-sm text-red-600 flex items-center gap-1">
-          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <AlertCircle className="w-4 h-4 shrink-0" />
           {error}
         </p>
       )}
