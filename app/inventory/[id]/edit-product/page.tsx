@@ -3,10 +3,10 @@
 import SideBar from "@/components/layout/sidebar";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
-import { editProduct } from "@/lib/actions/products";
-import ProductForm from "@/components/forms/product-form";
+import { editProduct, deleteProduct } from "@/lib/actions/products";
 import { redirect } from "next/navigation";
-import { SecondaryButton } from "@/components/buttons/nav-button";
+import ProductEditClient from "@/components/forms/product-edit-client";
+import ProductForm from "@/components/forms/product-form";
 
 export default async function EditProductPage({
   params,
@@ -24,6 +24,15 @@ export default async function EditProductPage({
     },
   });
 
+  const categories = await prisma.category.findMany({
+    include: {
+      subcategories: {
+        orderBy: { name: "asc" },
+      },
+    },
+    orderBy: { name: "asc" },
+  });
+
   if (!product) {
     redirect("/inventory");
   }
@@ -35,38 +44,39 @@ export default async function EditProductPage({
   return (
     <div className="min-h-screen bg-gray-50">
       <SideBar currentPath={`/inventory/${product.id}/edit-product`} />
-      <main className="ml-64 p-8">
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <SecondaryButton
-              href="/inventory"
-              label="← Back"
-              variant="subtle"
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Edit Product</h1>
-              <p className="text-base text-gray-600 mt-2">
-                Update product details and inventory information
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <ProductForm
-          id={product.id}
-          name={product.name}
-          price={Number(product.price)}
-          quantity={product.quantity}
-          sku={product.sku}
-          lowStockAt={product.lowStockAt}
-          image={product.imageUrl}
-          categoryIds={product.categories.map((c: typeof product.categories[number]) => c.id)}
-          subcategoryIds={product.subcategories.map((s: typeof product.subcategories[number]) => s.id)}
-          btnAction="Edit"
+      <main className="ml-64">
+        <ProductEditClient
+          product={{
+            id: product.id,
+            name: product.name,
+            price: Number(product.price),
+            quantity: product.quantity,
+            sku: product.sku,
+            lowStockAt: product.lowStockAt,
+            imageUrl: product.imageUrl,
+            createdAt: product.createdAt,
+            updatedAt: product.updatedAt,
+            categories: product.categories,
+            subcategories: product.subcategories,
+          }}
           formAction={editProduct}
-        />
+          deleteAction={deleteProduct}
+        >
+          <ProductForm
+            id={product.id}
+            name={product.name}
+            price={Number(product.price)}
+            quantity={product.quantity}
+            sku={product.sku}
+            lowStockAt={product.lowStockAt}
+            image={product.imageUrl}
+            categoryIds={product.categories.map((c) => c.id)}
+            subcategoryIds={product.subcategories.map((s) => s.id)}
+            btnAction="Edit"
+            formAction={editProduct}
+            categories={categories}
+          />
+        </ProductEditClient>
       </main>
     </div>
   );
