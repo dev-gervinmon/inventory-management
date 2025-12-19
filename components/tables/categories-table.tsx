@@ -6,10 +6,12 @@ import { useMessage } from "@/lib/hooks/useMessage";
 import { useSelection } from "@/lib/hooks/useSelection";
 import { useSearch } from "@/lib/hooks/useSearch";
 import { usePagination } from "@/lib/hooks/usePagination";
+import { useSort } from "@/lib/hooks/useSort";
 import { deleteBulkCategories } from "@/lib/actions/categories";
 import { formatCategoryDate } from "@/lib/utils/categories";
 import ConfirmationModal from "@/components/modals/confirmation-modal";
 import FormButton from "@/components/buttons/form-button";
+import SortableHeader from "@/components/common/sortable-header";
 
 interface Category {
   id: string;
@@ -70,6 +72,18 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
     filteredItems: filteredCategories,
   } = useSearch(categories, { searchableFields: ["name"] });
 
+  // Sort hook
+  const {
+    sortKey,
+    sortDirection,
+    toggleSort,
+    sortedItems: sortedCategories,
+  } = useSort({
+    items: filteredCategories,
+    initialSortKey: "createdAt",
+    initialDirection: "desc",
+  });
+
   // Pagination hook
   const {
     currentPage,
@@ -78,7 +92,7 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
     paginatedItems: paginatedCategories,
     startIndex,
     endIndex,
-  } = usePagination(filteredCategories, { itemsPerPage: ITEMS_PER_PAGE });
+  } = usePagination(sortedCategories, { itemsPerPage: ITEMS_PER_PAGE });
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
@@ -87,7 +101,7 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      selectAll(filteredCategories.map((c) => c.id));
+      selectAll(sortedCategories.map((c) => c.id));
     } else {
       deselectAll();
     }
@@ -177,7 +191,7 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
               />
             </svg>
             <span className="text-xs text-gray-700 font-medium">
-              Found <strong>{filteredCategories.length}</strong> of{" "}
+              Found <strong>{sortedCategories.length}</strong> of{" "}
               <strong>{categories.length}</strong> categor
               {categories.length !== 1 ? "ies" : "y"} matching &quot;
               <strong className="text-purple-700">{searchQuery}</strong>&quot;
@@ -212,24 +226,40 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
                   id="select-all"
                   className="w-4 h-4 cursor-pointer"
                   checked={
-                    filteredCategories.length > 0 &&
-                    count === filteredCategories.length
+                    sortedCategories.length > 0 &&
+                    count === sortedCategories.length
                   }
                   onChange={(e) => handleSelectAll(e.target.checked)}
                 />
               </th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                Category Name
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                Products
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                Subcategories
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                Created
-              </th>
+              <SortableHeader
+                label="Category Name"
+                sortKey="name"
+                currentSortKey={sortKey}
+                sortDirection={sortDirection}
+                onSort={toggleSort}
+              />
+              <SortableHeader
+                label="Products"
+                sortKey="_count.products"
+                currentSortKey={sortKey}
+                sortDirection={sortDirection}
+                onSort={toggleSort}
+              />
+              <SortableHeader
+                label="Subcategories"
+                sortKey="subcategories"
+                currentSortKey={sortKey}
+                sortDirection={sortDirection}
+                onSort={toggleSort}
+              />
+              <SortableHeader
+                label="Created"
+                sortKey="createdAt"
+                currentSortKey={sortKey}
+                sortDirection={sortDirection}
+                onSort={toggleSort}
+              />
             </tr>
           </thead>
           <tbody>
@@ -280,12 +310,12 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
       </div>
 
       {/* Pagination Controls */}
-      {filteredCategories.length > 0 && totalPages > 1 && (
+      {sortedCategories.length > 0 && totalPages > 1 && (
         <div className="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
           <div className="text-sm text-gray-600">
             Showing {startIndex + 1} to{" "}
-            {Math.min(endIndex, filteredCategories.length)} of{" "}
-            {filteredCategories.length} categories
+            {Math.min(endIndex, sortedCategories.length)} of{" "}
+            {sortedCategories.length} categories
           </div>
           <div className="flex gap-2">
             <button
