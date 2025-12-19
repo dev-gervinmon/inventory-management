@@ -6,7 +6,9 @@ import StickyFormHeader from "@/components/layout/sticky-form-header";
 import ProductInfoSidebar from "@/components/layout/product-info-sidebar";
 import ConfirmationModal from "@/components/modals/confirmation-modal";
 import { useMessage } from "@/lib/hooks/useMessage";
+import { useFormErrors } from "@/lib/hooks/useFormErrors";
 import MessageBanner from "@/components/common/message-banner";
+import { ProductFormContext } from "@/lib/contexts/product-form-context";
 
 interface Category {
   id: string;
@@ -49,6 +51,11 @@ export default function ProductEditClient({
     autoClose: true,
     timeout: 5000,
   });
+  const {
+    errors: formErrors,
+    clearErrors: clearFormErrors,
+    setAllErrors: setAllFormErrors,
+  } = useFormErrors();
 
   const [isDeletingOpen, setIsDeletingOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -57,6 +64,7 @@ export default function ProductEditClient({
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(
     null
   );
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
 
   // Track form changes
@@ -137,6 +145,24 @@ export default function ProductEditClient({
     if (formRef.current) {
       formRef.current.reset();
       setIsDirty(false);
+      clearFormErrors();
+    }
+  };
+
+  const handleFormSubmit = async (formData: FormData) => {
+    clearFormErrors();
+    setIsSubmitting(true);
+
+    try {
+      await formAction(formData);
+      showSuccess("Product updated successfully");
+      setIsDirty(false);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to update product";
+      showError(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -161,7 +187,9 @@ export default function ProductEditClient({
           {/* Left Column: Form */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
-              {children}
+              <ProductFormContext.Provider value={{ formErrors, isSubmitting }}>
+                {children}
+              </ProductFormContext.Provider>
             </div>
           </div>
 
