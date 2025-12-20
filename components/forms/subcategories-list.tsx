@@ -11,7 +11,7 @@ import { useMessage } from "@/lib/hooks/useMessage";
 import { usePagination } from "@/lib/hooks/usePagination";
 import { useSearch } from "@/lib/hooks/useSearch";
 import { useSelection } from "@/lib/hooks/useSelection";
-import { UI_CONSTANTS } from "@/lib/utils/subcategories";
+import { UI_TIMING } from "@/lib/constants/forms";
 
 interface Subcategory {
   id: string;
@@ -39,7 +39,7 @@ export default function SubcategoriesList({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { message, showSuccess, showError, clearMessage } = useMessage({
     autoClose: true,
-    timeout: UI_CONSTANTS.MESSAGE_TIMEOUT,
+    timeout: UI_TIMING.MESSAGE_TIMEOUT_MS,
   });
 
   // Search hook
