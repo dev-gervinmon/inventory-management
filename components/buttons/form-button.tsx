@@ -1,9 +1,12 @@
+import { Loader2 } from "lucide-react";
+
 interface FormButtonProps {
   type: "submit" | "button" | "reset";
   label: string;
   variant?: "primary" | "secondary" | "edit" | "delete";
   size?: "sm" | "md" | "lg";
   disabled?: boolean;
+  isLoading?: boolean;
   onClick?: () => void;
   className?: string;
 }
@@ -14,6 +17,7 @@ export default function FormButton({
   variant = "primary",
   size = "md",
   disabled = false,
+  isLoading = false,
   onClick,
   className = "",
 }: FormButtonProps) {
@@ -36,11 +40,12 @@ export default function FormButton({
   return (
     <button
       type={type}
-      disabled={disabled}
+      disabled={disabled || isLoading}
       onClick={onClick}
-      className={`font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-100 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-md cursor-pointer ${sizeClass[size]} ${variantClass[variant]} ${className}`}
+      className={`font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-100 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-md cursor-pointer flex items-center justify-center gap-2 ${sizeClass[size]} ${variantClass[variant]} ${className}`}
     >
-      {label}
+      {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+      <span>{label}</span>
     </button>
   );
 }
