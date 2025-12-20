@@ -68,6 +68,7 @@ export default function ProductForm({
 
   return (
     <form
+      id="product-form"
       onSubmit={onSubmit ? handleSubmit : undefined}
       action={onSubmit ? undefined : formAction}
       className="space-y-8"
