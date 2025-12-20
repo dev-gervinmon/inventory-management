@@ -2,23 +2,15 @@
 
 import FormField from "./form-field";
 import { useProductFormContext } from "@/lib/contexts/product-form-context";
+import { CategoryWithSubcategories } from "@/lib/types/category";
 
-interface Category {
-  id: string;
-  name: string;
-  subcategories: Array<{
-    id: string;
-    name: string;
-  }>;
+interface AddProductFormProps {
+  categories?: CategoryWithSubcategories[];
 }
 
 export default function AddProductForm({
-  formAction,
   categories = [],
-}: {
-  formAction: (formData: FormData) => void | Promise<void>;
-  categories?: Category[];
-}) {
+}: AddProductFormProps) {
   const { formErrors, isSubmitting, onSubmit } = useProductFormContext();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -33,7 +25,6 @@ export default function AddProductForm({
     <form
       id="product-form"
       onSubmit={onSubmit ? handleSubmit : undefined}
-      action={onSubmit ? undefined : formAction}
       className="space-y-8"
     >
       {/* Basic Information Section */}
