@@ -5,15 +5,20 @@ import CategorySubcategorySelector from "./category-subcategory-selector";
 import Tabs, { TabPanel } from "@/components/common/tabs";
 import FormField from "./form-field";
 import { useProductFormContext } from "@/lib/contexts/product-form-context";
+import { CategoryWithSubcategories } from "@/lib/types/category";
 import { Package, DollarSign, Tag, Image as ImageIcon } from "lucide-react";
 
-interface Category {
-  id: string;
-  name: string;
-  subcategories: Array<{
-    id: string;
-    name: string;
-  }>;
+interface ProductFormProps {
+  id?: string;
+  name?: string | null;
+  price?: number | null;
+  quantity?: number | null;
+  sku?: string | null;
+  lowStockAt?: number | null;
+  image?: string | null;
+  categoryIds?: string[];
+  subcategoryIds?: string[];
+  categories?: CategoryWithSubcategories[];
 }
 
 export default function ProductForm({
@@ -26,21 +31,8 @@ export default function ProductForm({
   image = null,
   categoryIds = [],
   subcategoryIds = [],
-  formAction,
   categories = [],
-}: {
-  id?: string;
-  name?: string | null;
-  price?: number | null;
-  quantity?: number | null;
-  sku?: string | null;
-  lowStockAt?: number | null;
-  image?: string | null;
-  categoryIds?: string[];
-  subcategoryIds?: string[];
-  formAction: (formData: FormData) => void | Promise<void>;
-  categories?: Category[];
-}) {
+}: ProductFormProps) {
   const { formErrors, isSubmitting, onSubmit } = useProductFormContext();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -70,7 +62,6 @@ export default function ProductForm({
     <form
       id="product-form"
       onSubmit={onSubmit ? handleSubmit : undefined}
-      action={onSubmit ? undefined : formAction}
       className="space-y-8"
     >
       {id && <input type="hidden" name="id" value={id} />}
