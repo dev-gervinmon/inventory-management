@@ -163,13 +163,22 @@ export default function ProductEditClient({
 
     try {
       await formAction(formData);
+      // If we reach here without redirect, show success
       showSuccess("Product updated successfully");
       setIsDirty(false);
     } catch (error) {
+      // Next.js redirect throws with name 'NEXT_REDIRECT' - re-throw it
+      if (
+        error instanceof Error &&
+        (error.message === "NEXT_REDIRECT" || error.name === "RedirectError")
+      ) {
+        throw error;
+      }
+
+      // Handle actual errors
       const errorMessage =
         error instanceof Error ? error.message : "Failed to update product";
       showError(errorMessage);
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -183,6 +192,7 @@ export default function ProductEditClient({
         subtitle={`${product.name} • Product ID: ${product.id}`}
         backHref="/inventory"
         isDirty={isDirty}
+        isLoading={isSubmitting}
         onReset={handleReset}
         onBack={handleNavigationBlock}
       />
@@ -195,7 +205,9 @@ export default function ProductEditClient({
           {/* Left Column: Form */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
-              <ProductFormContext.Provider value={{ formErrors, isSubmitting }}>
+              <ProductFormContext.Provider
+                value={{ formErrors, isSubmitting, onSubmit: handleFormSubmit }}
+              >
                 {children}
               </ProductFormContext.Provider>
             </div>
