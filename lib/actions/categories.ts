@@ -203,3 +203,30 @@ export async function deleteBulkCategories(
     return { success: false, error: errorMessage };
   }
 }
+
+/**
+ * Get all categories with their subcategories
+ */
+export async function getAllCategories() {
+  try {
+    const categories = await prisma.category.findMany({
+      include: {
+        subcategories: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      orderBy: {
+        name: "asc",
+      },
+    });
+
+    return categories;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to fetch categories";
+    throw new Error(errorMessage);
+  }
+}
