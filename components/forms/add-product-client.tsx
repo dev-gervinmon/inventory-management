@@ -10,7 +10,6 @@ import { useFormErrors } from "@/lib/hooks/useFormErrors";
 import MessageBanner from "@/components/common/message-banner";
 import { ProductFormContext } from "@/lib/contexts/product-form-context";
 import SuccessModal from "@/components/modals/success-modal";
-import Link from "next/link";
 
 interface Category {
   id: string;
