@@ -230,7 +230,7 @@ export default function ProductEditClient({
       {/* Add padding for sticky header */}
       <div className="pt-20" />
 
-      <div className="max-w-6xl">
+      <div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column: Form */}
           <div className="lg:col-span-2">
