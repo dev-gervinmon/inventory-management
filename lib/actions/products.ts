@@ -134,6 +134,8 @@ export async function createProduct(formData: FormData) {
         quantity: createdProduct.quantity,
       },
     });
+
+    return { success: true, productId: createdProduct.id };
   } catch (error) {
     console.error("Create product error:", error);
     if (error instanceof Error) {
@@ -141,7 +143,6 @@ export async function createProduct(formData: FormData) {
     }
     throw new Error("Failed to create product.");
   }
-  redirect(INVENTORY_PATH);
 }
 
 /**
