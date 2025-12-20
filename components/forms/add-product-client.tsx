@@ -1,28 +1,22 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import AddProductForm from "./add-product-form";
 import ProductFormSidebar from "./product-form-sidebar";
 import StickyFormHeader from "@/components/layout/sticky-form-header";
 import { useMessage } from "@/lib/hooks/useMessage";
 import { useFormErrors } from "@/lib/hooks/useFormErrors";
-import MessageBanner from "@/components/common/message-banner";
 import { ProductFormContext } from "@/lib/contexts/product-form-context";
 import SuccessModal from "@/components/modals/success-modal";
-
-interface Category {
-  id: string;
-  name: string;
-  subcategories: Array<{
-    id: string;
-    name: string;
-  }>;
-}
+import { CategoryWithSubcategories } from "@/lib/types/category";
+import { UI_TIMING, getEditProductPath } from "@/lib/constants/forms";
 
 interface AddProductClientProps {
-  formAction: (formData: FormData) => void | Promise<void>;
-  categories: Category[];
+  formAction: (
+    formData: FormData
+  ) => Promise<{ productId: string } | undefined>;
+  categories: CategoryWithSubcategories[];
 }
 
 export default function AddProductClient({
@@ -30,15 +24,16 @@ export default function AddProductClient({
   categories,
 }: AddProductClientProps) {
   const router = useRouter();
-  const { message, showSuccess, showError, clearMessage } = useMessage({
+  const { showError } = useMessage({
     autoClose: true,
-    timeout: 5000,
+    timeout: UI_TIMING.ERROR_MESSAGE_TIMEOUT_MS,
   });
   const { errors: formErrors, clearErrors: clearFormErrors } = useFormErrors();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [createdProductId, setCreatedProductId] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement | null>(null);
   const successTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleFormSubmit = async (formData: FormData) => {
@@ -47,18 +42,14 @@ export default function AddProductClient({
 
     try {
       const result = await formAction(formData);
-      // If action returns a result with productId, use it
-      if (
-        result !== undefined &&
-        result !== null &&
-        typeof result === "object" &&
-        "productId" in result
-      ) {
-        setCreatedProductId((result as { productId: string }).productId);
+
+      // Extract product ID from result
+      if (result && typeof result === "object" && "productId" in result) {
+        setCreatedProductId(result.productId);
       }
+
       triggerSuccessFlow();
     } catch (error) {
-      // Handle actual errors
       const errorMessage =
         error instanceof Error ? error.message : "Failed to create product";
       showError(errorMessage);
@@ -66,46 +57,38 @@ export default function AddProductClient({
     }
   };
 
+  const redirectToEditPage = useCallback(() => {
+    if (createdProductId) {
+      router.push(getEditProductPath(createdProductId));
+      router.refresh();
+    }
+  }, [createdProductId, router]);
+
   const triggerSuccessFlow = () => {
     setIsSubmitting(false);
     setIsSuccessModalOpen(true);
-    // Auto-close modal after 3.5 seconds to emphasize success
     successTimeoutRef.current = setTimeout(() => {
       setIsSuccessModalOpen(false);
-      // Redirect to edit page of newly created product
-      if (createdProductId) {
-        router.push(`/inventory/${createdProductId}/edit-product`);
-        router.refresh();
-      }
-    }, 3500);
+      redirectToEditPage();
+    }, UI_TIMING.SUCCESS_MODAL_DELAY_MS);
   };
 
   const handleSuccessModalClose = () => {
-    // Clear the timeout if user closes manually
     if (successTimeoutRef.current) {
       clearTimeout(successTimeoutRef.current);
     }
     setIsSuccessModalOpen(false);
-    // Redirect immediately if user closes manually
-    if (createdProductId) {
-      router.push(`/inventory/${createdProductId}/edit-product`);
-      router.refresh();
-    }
+    redirectToEditPage();
   };
 
-  const handleReset = () => {
-    const form = document.querySelector("form");
-    if (form) {
-      form.reset();
-      clearFormErrors();
-    }
-  };
+  const handleReset = useCallback(() => {
+    formRef.current?.reset();
+    clearFormErrors();
+  }, [clearFormErrors]);
 
   return (
     <div className="min-h-screen bg-gray-50">
       <main className="ml-64 p-8">
-        <MessageBanner message={message} />
-
         {/* Success Modal */}
         <SuccessModal
           isOpen={isSuccessModalOpen}
@@ -128,30 +111,21 @@ export default function AddProductClient({
         {/* Add padding for sticky header */}
         <div className="pt-20" />
 
-        <div>
+        <ProductFormContext.Provider
+          value={{ formErrors, isSubmitting, onSubmit: handleFormSubmit }}
+        >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Left Column: Form Sections */}
             <div className="space-y-8">
-              <ProductFormContext.Provider
-                value={{ formErrors, isSubmitting, onSubmit: handleFormSubmit }}
-              >
-                <AddProductForm
-                  formAction={formAction}
-                  categories={categories}
-                />
-              </ProductFormContext.Provider>
+              <AddProductForm categories={categories} />
             </div>
 
             {/* Right Column: Image, Categories */}
             <div className="space-y-8">
-              <ProductFormContext.Provider
-                value={{ formErrors, isSubmitting, onSubmit: handleFormSubmit }}
-              >
-                <ProductFormSidebar categories={categories} />
-              </ProductFormContext.Provider>
+              <ProductFormSidebar categories={categories} />
             </div>
           </div>
-        </div>
+        </ProductFormContext.Provider>
       </main>
     </div>
   );
