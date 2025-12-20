@@ -1,7 +1,5 @@
 "use client";
 
-import ImageUploadField from "@/components/common/image-upload-field";
-import CategorySubcategorySelector from "./category-subcategory-selector";
 import FormField from "./form-field";
 import { useProductFormContext } from "@/lib/contexts/product-form-context";
 
