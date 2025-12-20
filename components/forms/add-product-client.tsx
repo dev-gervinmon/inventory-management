@@ -38,6 +38,7 @@ export default function AddProductClient({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [createdProductId, setCreatedProductId] = useState<string | null>(null);
   const successTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleFormSubmit = async (formData: FormData) => {
@@ -45,19 +46,18 @@ export default function AddProductClient({
     setIsSubmitting(true);
 
     try {
-      await formAction(formData);
-      // redirect() throws, so we shouldn't reach here - but kept as fallback
+      const result = await formAction(formData);
+      // If action returns a result with productId, use it
+      if (
+        result !== undefined &&
+        result !== null &&
+        typeof result === "object" &&
+        "productId" in result
+      ) {
+        setCreatedProductId((result as { productId: string }).productId);
+      }
       triggerSuccessFlow();
     } catch (error) {
-      // Next.js redirect throws with name 'NEXT_REDIRECT' - this means success!
-      if (
-        error instanceof Error &&
-        (error.message === "NEXT_REDIRECT" || error.name === "RedirectError")
-      ) {
-        triggerSuccessFlow();
-        return;
-      }
-
       // Handle actual errors
       const errorMessage =
         error instanceof Error ? error.message : "Failed to create product";
@@ -69,13 +69,15 @@ export default function AddProductClient({
   const triggerSuccessFlow = () => {
     setIsSubmitting(false);
     setIsSuccessModalOpen(true);
-    // Auto-close modal after 2.5 seconds
+    // Auto-close modal after 3.5 seconds to emphasize success
     successTimeoutRef.current = setTimeout(() => {
       setIsSuccessModalOpen(false);
-      // Redirect to inventory after modal closes
-      router.push("/inventory");
-      router.refresh();
-    }, 2500);
+      // Redirect to edit page of newly created product
+      if (createdProductId) {
+        router.push(`/inventory/${createdProductId}/edit-product`);
+        router.refresh();
+      }
+    }, 3500);
   };
 
   const handleSuccessModalClose = () => {
@@ -85,8 +87,10 @@ export default function AddProductClient({
     }
     setIsSuccessModalOpen(false);
     // Redirect immediately if user closes manually
-    router.push("/inventory");
-    router.refresh();
+    if (createdProductId) {
+      router.push(`/inventory/${createdProductId}/edit-product`);
+      router.refresh();
+    }
   };
 
   const handleReset = () => {
