@@ -41,7 +41,15 @@ export default function ProductForm({
   formAction: (formData: FormData) => void | Promise<void>;
   categories?: Category[];
 }) {
-  const { formErrors, isSubmitting } = useProductFormContext();
+  const { formErrors, isSubmitting, onSubmit } = useProductFormContext();
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (onSubmit) {
+      const formData = new FormData(e.currentTarget);
+      await onSubmit(formData);
+    }
+  };
 
   const tabs = [
     { id: "basic", label: "Basic Info", icon: <Package className="w-4 h-4" /> },
@@ -59,7 +67,11 @@ export default function ProductForm({
   ];
 
   return (
-    <form action={formAction} className="space-y-8">
+    <form
+      onSubmit={onSubmit ? handleSubmit : undefined}
+      action={onSubmit ? undefined : formAction}
+      className="space-y-8"
+    >
       {id && <input type="hidden" name="id" value={id} />}
 
       <Tabs tabs={tabs} defaultTabId="basic">
