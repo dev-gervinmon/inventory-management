@@ -10,15 +10,7 @@ import { useMessage } from "@/lib/hooks/useMessage";
 import { useFormErrors } from "@/lib/hooks/useFormErrors";
 import MessageBanner from "@/components/common/message-banner";
 import { ProductFormContext } from "@/lib/contexts/product-form-context";
-
-interface Category {
-  id: string;
-  name: string;
-  subcategories: Array<{
-    id: string;
-    name: string;
-  }>;
-}
+import { CategoryWithSubcategories } from "@/lib/types/category";
 
 interface Product {
   id: string;
@@ -120,7 +112,7 @@ export default function ProductEditClient({
       setTimeout(() => {
         router.push("/inventory");
         router.refresh();
-      }, 1500);
+      }, UI_TIMING.DELETE_REDIRECT_DELAY_MS);
     } catch (error) {
       showError(
         error instanceof Error ? error.message : "Failed to delete product"
