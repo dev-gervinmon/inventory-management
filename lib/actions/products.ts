@@ -241,8 +241,6 @@ export async function editProduct(formData: FormData) {
     }
     throw new Error("Failed to update product.");
   }
-
-  redirect(INVENTORY_PATH);
 }
 
 /**
