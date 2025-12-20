@@ -5,8 +5,8 @@ import { createCategory } from "@/lib/actions/categories";
 import FormButton from "@/components/buttons/form-button";
 import MessageBanner from "@/components/common/message-banner";
 import { useMessage } from "@/lib/hooks/useMessage";
+import { UI_TIMING } from "@/lib/constants/forms";
 import { formatErrorMessage } from "@/lib/utils/subcategories";
-import { UI_CONSTANTS } from "@/lib/utils/subcategories";
 import { CATEGORY_LIMITS } from "@/lib/utils/categories";
 
 export default function CategoryForm() {
@@ -14,7 +14,7 @@ export default function CategoryForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { message, showSuccess, showError, clearMessage } = useMessage({
     autoClose: true,
-    timeout: UI_CONSTANTS.MESSAGE_TIMEOUT,
+    timeout: UI_TIMING.MESSAGE_TIMEOUT_MS,
   });
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
