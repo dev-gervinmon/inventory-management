@@ -10,6 +10,8 @@ interface StickyFormHeaderProps {
   backHref: string;
   isLoading?: boolean;
   isDirty?: boolean;
+  submitLabel?: string;
+  alwaysShowReset?: boolean;
   onReset?: () => void;
   onBack?: (href: string) => void;
 }
@@ -20,6 +22,8 @@ export default function StickyFormHeader({
   backHref,
   isLoading = false,
   isDirty = false,
+  submitLabel = "Save changes",
+  alwaysShowReset = false,
   onReset,
   onBack,
 }: StickyFormHeaderProps) {
@@ -90,7 +94,11 @@ export default function StickyFormHeader({
           <div className="flex items-center gap-3">
             <FormButton
               type="submit"
-              label={isLoading ? "Saving..." : "Save changes"}
+              label={
+                isLoading
+                  ? `${submitLabel.replace("changes", "").trim()}...`
+                  : submitLabel
+              }
               variant="primary"
               size={isSticky ? "sm" : "lg"}
               isLoading={isLoading}
@@ -103,7 +111,7 @@ export default function StickyFormHeader({
                 label="Reset"
                 variant="secondary"
                 size={isSticky ? "sm" : "md"}
-                disabled={!isDirty || isLoading}
+                disabled={alwaysShowReset ? isLoading : !isDirty || isLoading}
                 onClick={onReset}
               />
             )}
