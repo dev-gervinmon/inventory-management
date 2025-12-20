@@ -4,6 +4,7 @@ import { FieldError } from "@/lib/utils/form-validation";
 interface ProductFormContextType {
   formErrors: FieldError;
   isSubmitting: boolean;
+  onSubmit?: (formData: FormData) => Promise<void>;
 }
 
 export const ProductFormContext = createContext<
@@ -13,9 +14,12 @@ export const ProductFormContext = createContext<
 export function useProductFormContext() {
   const context = useContext(ProductFormContext);
   if (!context) {
-    throw new Error(
-      "useProductFormContext must be used within ProductEditClient"
-    );
+    // Return defaults if context is not available (fallback for development/testing)
+    return {
+      formErrors: {},
+      isSubmitting: false,
+      onSubmit: undefined,
+    };
   }
   return context;
 }
