@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import StickyFormHeader from "@/components/layout/sticky-form-header";
 import ProductInfoSidebar from "@/components/layout/product-info-sidebar";
 import ConfirmationModal from "@/components/modals/confirmation-modal";
+import SuccessModal from "@/components/modals/success-modal";
 import { useMessage } from "@/lib/hooks/useMessage";
 import { useFormErrors } from "@/lib/hooks/useFormErrors";
 import MessageBanner from "@/components/common/message-banner";
@@ -65,7 +66,9 @@ export default function ProductEditClient({
     null
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
+  const successTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Track form changes
   useEffect(() => {
@@ -163,16 +166,18 @@ export default function ProductEditClient({
 
     try {
       await formAction(formData);
-      // If we reach here without redirect, show success
-      showSuccess("Product updated successfully");
+      // redirect() throws, so we shouldn't reach here - but kept as fallback
       setIsDirty(false);
+      triggerSuccessFlow();
     } catch (error) {
-      // Next.js redirect throws with name 'NEXT_REDIRECT' - re-throw it
+      // Next.js redirect throws with name 'NEXT_REDIRECT' - this means success!
       if (
         error instanceof Error &&
         (error.message === "NEXT_REDIRECT" || error.name === "RedirectError")
       ) {
-        throw error;
+        setIsDirty(false);
+        triggerSuccessFlow();
+        return;
       }
 
       // Handle actual errors
@@ -183,9 +188,34 @@ export default function ProductEditClient({
     }
   };
 
+  const triggerSuccessFlow = () => {
+    setIsSubmitting(false);
+    setIsSuccessModalOpen(true);
+    // Auto-close modal after 2.5 seconds
+    successTimeoutRef.current = setTimeout(() => {
+      setIsSuccessModalOpen(false);
+    }, 2500);
+  };
+
+  const handleSuccessModalClose = () => {
+    // Clear the timeout if user closes manually
+    if (successTimeoutRef.current) {
+      clearTimeout(successTimeoutRef.current);
+    }
+    setIsSuccessModalOpen(false);
+  };
+
   return (
     <div className="p-8 space-y-6">
       <MessageBanner message={message} />
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={isSuccessModalOpen}
+        title="Product Saved"
+        subtitle="Your changes have been successfully saved."
+        onClose={handleSuccessModalClose}
+      />
 
       <StickyFormHeader
         title="Edit Product"
