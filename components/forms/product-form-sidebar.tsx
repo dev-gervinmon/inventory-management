@@ -3,27 +3,21 @@
 import ImageUploadField from "@/components/common/image-upload-field";
 import CategorySubcategorySelector from "./category-subcategory-selector";
 import { useProductFormContext } from "@/lib/contexts/product-form-context";
+import { CategoryWithSubcategories } from "@/lib/types/category";
 
-interface Category {
-  id: string;
-  name: string;
-  subcategories: Array<{
-    id: string;
-    name: string;
-  }>;
-}
-
-export default function ProductFormSidebar({
-  image = null,
-  categoryIds = [],
-  subcategoryIds = [],
-  categories = [],
-}: {
+interface ProductFormSidebarProps {
   image?: string | null;
   categoryIds?: string[];
   subcategoryIds?: string[];
-  categories?: Category[];
-}) {
+  categories: CategoryWithSubcategories[];
+}
+
+export default function ProductFormSidebar({
+  image,
+  categoryIds,
+  subcategoryIds,
+  categories,
+}: ProductFormSidebarProps) {
   const { isSubmitting } = useProductFormContext();
 
   return (
