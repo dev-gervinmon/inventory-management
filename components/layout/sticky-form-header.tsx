@@ -90,9 +90,10 @@ export default function StickyFormHeader({
           <div className="flex items-center gap-3">
             <FormButton
               type="submit"
-              label="Save changes"
+              label={isLoading ? "Saving..." : "Save changes"}
               variant="primary"
               size={isSticky ? "sm" : "lg"}
+              isLoading={isLoading}
               disabled={isLoading}
               onClick={handleSubmit}
             />
@@ -102,7 +103,7 @@ export default function StickyFormHeader({
                 label="Reset"
                 variant="secondary"
                 size={isSticky ? "sm" : "md"}
-                disabled={!isDirty}
+                disabled={!isDirty || isLoading}
                 onClick={onReset}
               />
             )}
