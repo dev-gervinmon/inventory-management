@@ -30,28 +30,19 @@ export default function ConfirmationModal({
 
   return (
     <>
-      {/* Overlay */}
-      <div
-        className="fixed inset-0 bg-black/10 z-9999 transition-opacity duration-300 pointer-events-auto"
-        onClick={onClose}
-      />
+      {/* Overlay - blocks all interactions */}
+      <div className="fixed inset-0 bg-black/50 z-50" onClick={onClose} />
 
-      {/* Modal */}
-      <div
-        className="fixed right-0 top-0 h-full w-full sm:w-96 bg-white shadow-lg z-10000 
-                   transform transition-transform duration-700 ease-in-out overflow-hidden"
-        style={{
-          transform: isOpen ? "translateX(0)" : "translateX(100%)",
-        }}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
-          <CloseButton onClick={onClose} />
-        </div>
+      {/* Modal Container */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative animate-in fade-in zoom-in duration-300 pointer-events-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
+            <CloseButton onClick={onClose} />
+          </div>
 
-        {/* Content */}
-        <div className="p-6">
+          {/* Content */}
           <p className="text-gray-700 text-base leading-relaxed mb-6">
             {message}
           </p>
