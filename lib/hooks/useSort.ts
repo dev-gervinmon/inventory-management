@@ -8,6 +8,33 @@ interface UseSortOptions<T> {
   initialDirection?: SortDirection;
 }
 
+// Helper function to get nested property values
+function getNestedValue(obj: unknown, path: string): unknown {
+  return path.split(".").reduce((current, part) => {
+    if (current === null || current === undefined) return undefined;
+    return (current as Record<string, unknown>)[part];
+  }, obj);
+}
+
+// Helper function to get sortable value from an item
+function getSortValue(item: Record<string, unknown>, key: string): unknown {
+  // Handle special cases for array lengths
+  if (key === "subcategories") {
+    const subcategories = item.subcategories;
+    if (Array.isArray(subcategories)) {
+      return subcategories.length;
+    }
+  }
+
+  // Handle nested keys like "_count.products"
+  if (key.includes(".")) {
+    return getNestedValue(item, key);
+  }
+
+  // Handle regular keys
+  return item[key];
+}
+
 export function useSort<T extends object>({
   items,
   initialSortKey,
@@ -41,8 +68,8 @@ export function useSort<T extends object>({
     if (!sortKey || !sortDirection) return items;
 
     const sorted = [...items].sort((a, b) => {
-      const aValue = (a as Record<string, unknown>)[sortKey];
-      const bValue = (b as Record<string, unknown>)[sortKey];
+      const aValue = getSortValue(a as Record<string, unknown>, sortKey);
+      const bValue = getSortValue(b as Record<string, unknown>, sortKey);
 
       // Handle null/undefined values
       if (aValue === null || aValue === undefined) return 1;
