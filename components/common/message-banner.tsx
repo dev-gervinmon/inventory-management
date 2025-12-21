@@ -14,7 +14,7 @@ export default function MessageBanner({ message }: MessageBannerProps) {
 
   return (
     <div
-      className={`text-sm p-3 rounded-lg border transition-all duration-300 ${
+      className={`text-sm p-3 rounded-lg border transition-all duration-300 mt-3 ${
         isError
           ? "bg-red-50 text-red-700 border-red-200"
           : isSuccess
