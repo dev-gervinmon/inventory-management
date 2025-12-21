@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import React, { useState, useTransition, useRef } from "react";
 import Link from "next/link";
 import { useMessage } from "@/lib/hooks/useMessage";
 import { useSelection } from "@/lib/hooks/useSelection";
@@ -9,7 +9,9 @@ import { usePagination } from "@/lib/hooks/usePagination";
 import { useSort } from "@/lib/hooks/useSort";
 import { deleteBulkCategories } from "@/lib/actions/categories";
 import { formatCategoryDate } from "@/lib/utils/categories";
+import { UI_TIMING } from "@/lib/constants/forms";
 import ConfirmationModal from "@/components/modals/confirmation-modal";
+import SuccessModal from "@/components/modals/success-modal";
 import FormButton from "@/components/buttons/form-button";
 import SortableHeader from "@/components/common/sortable-header";
 
@@ -57,12 +59,16 @@ function getProductStatus(count: number): {
 }
 
 export default function CategoriesTable({ categories }: CategoriesTableProps) {
-  const { showSuccess, showError } = useMessage();
+  const { showError } = useMessage();
   const [isPending, startTransition] = useTransition();
   const { selectedIds, selectAll, deselectAll, toggle, isSelected, count } =
     useSelection();
 
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
+  const [deletedCount, setDeletedCount] = useState(0);
+  const [displayCategories, setDisplayCategories] = useState(categories);
+  const successTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Search hook
   const {
@@ -70,7 +76,7 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
     setSearch,
     clearSearch,
     filteredItems: filteredCategories,
-  } = useSearch(categories, { searchableFields: ["name"] });
+  } = useSearch(displayCategories, { searchableFields: ["name"] });
 
   // Sort hook
   const {
@@ -107,6 +113,15 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
     }
   };
 
+  // Cleanup timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (successTimeoutRef.current) {
+        clearTimeout(successTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleDeleteSelected = async () => {
     if (count === 0) return;
 
@@ -122,14 +137,22 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
           return;
         }
 
-        showSuccess(
-          `${result.deletedCount} category(ies) deleted successfully`
+        // Remove deleted categories from display
+        const updatedCategories = displayCategories.filter(
+          (cat) => !selectedIds.has(cat.id)
         );
-        deselectAll();
-        setShowConfirm(false);
+        setDisplayCategories(updatedCategories);
+        setDeletedCount(result.deletedCount || count);
 
-        // Reload page to get fresh data
-        window.location.reload();
+        // Show success modal
+        setShowConfirm(false);
+        setShowDeleteSuccess(true);
+        deselectAll();
+
+        // Auto-close modal after delay
+        successTimeoutRef.current = setTimeout(() => {
+          setShowDeleteSuccess(false);
+        }, UI_TIMING.DELETE_SUCCESS_MODAL_DELAY_MS);
       } catch {
         showError("An error occurred while deleting categories");
       }
@@ -364,6 +387,15 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
           count === 1 ? "y" : "ies"
         }? This action cannot be undone.`}
         isLoading={isPending}
+      />
+
+      <SuccessModal
+        isOpen={showDeleteSuccess}
+        onClose={() => setShowDeleteSuccess(false)}
+        title="Categories Deleted"
+        subtitle={`${deletedCount} categor${
+          deletedCount === 1 ? "y" : "ies"
+        } deleted successfully`}
       />
     </div>
   );
