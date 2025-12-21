@@ -7,6 +7,8 @@
 export const UI_TIMING = {
   /** Delay before success modal auto-closes after product creation */
   SUCCESS_MODAL_DELAY_MS: 3500,
+  /** Delay before success modal auto-closes after category/subcategory deletion */
+  DELETE_SUCCESS_MODAL_DELAY_MS: 4000,
   /** Delay before redirecting after product deletion */
   DELETE_REDIRECT_DELAY_MS: 1500,
   /** Timeout for message notifications */
