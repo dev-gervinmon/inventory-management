@@ -2,7 +2,6 @@ import SideBar from "@/components/layout/sidebar";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
 import { getEmptyStateMessage } from "@/lib/utils/categories";
-import Link from "next/link";
 import CategoriesTable from "@/components/tables/categories-table";
 import CategoryForm from "@/components/forms/category-form";
 
