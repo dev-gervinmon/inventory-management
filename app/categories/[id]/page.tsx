@@ -5,10 +5,10 @@ import SubcategoriesList from "@/components/list/subcategories-list";
 import AddSubcategoryForm from "@/components/forms/add-subcategory-form";
 import EditCategoryForm from "@/components/forms/edit-category-form";
 import DeleteCategoryButton from "@/components/buttons/delete/delete-category-button";
+import CategoryNotFound from "@/components/layout/category-not-found";
 import { editSubcategory } from "@/lib/actions/subcategories";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
-import { redirect } from "next/navigation";
 import { SecondaryButton } from "@/components/buttons/nav-button";
 
 export default async function EditCategoryPage({
@@ -29,7 +29,7 @@ export default async function EditCategoryPage({
   });
 
   if (!category) {
-    redirect("/categories");
+    return <CategoryNotFound categoryId={id} />;
   }
 
   return (
