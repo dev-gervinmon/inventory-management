@@ -113,9 +113,21 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
     }
   };
 
-  // Cleanup timeout on unmount
+  // Cleanup timeout on unmount and listen for new categories
   React.useEffect(() => {
+    // Handle new category creation
+    const handleCategoryCreated = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const newCategory = customEvent.detail;
+
+      // Add new category to the top of the list
+      setDisplayCategories((prev) => [newCategory, ...prev]);
+    };
+
+    window.addEventListener("categoryCreated", handleCategoryCreated);
+
     return () => {
+      window.removeEventListener("categoryCreated", handleCategoryCreated);
       if (successTimeoutRef.current) {
         clearTimeout(successTimeoutRef.current);
       }
