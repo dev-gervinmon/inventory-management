@@ -5,6 +5,7 @@ import FormButton from "@/components/buttons/form-button";
 import ConfirmationModal from "@/components/modals/confirmation-modal";
 import MessageBanner from "@/components/common/message-banner";
 import { useMessage } from "@/lib/hooks/useMessage";
+import { UI_TIMING } from "@/lib/constants/forms";
 import { useState } from "react";
 import { formatErrorMessage } from "@/lib/utils/subcategories";
 
@@ -18,7 +19,8 @@ export default function DeleteCategoryButton({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { message, showSuccess, showError, clearMessage } = useMessage({
-    autoClose: false,
+    autoClose: true,
+    timeout: UI_TIMING.MESSAGE_TIMEOUT_MS,
   });
 
   const handleConfirmDelete = async () => {
@@ -32,8 +34,10 @@ export default function DeleteCategoryButton({
       const response = await deleteCategory(formData);
 
       if (response.success) {
-        showSuccess("Category deleted successfully!");
         setIsModalOpen(false);
+        showSuccess("Category deleted successfully!");
+        // Store the deleted category ID in sessionStorage for detection on page reload
+        sessionStorage.setItem("deletedCategoryId", categoryId);
       } else {
         showError(response.error || "Failed to delete category");
       }
