@@ -136,10 +136,6 @@ export async function deleteCategory(
       },
     });
 
-    // Revalidate affected pages
-    revalidatePath("/categories");
-    revalidatePath(`/categories/${id}`);
-
     return {
       success: true,
     };
