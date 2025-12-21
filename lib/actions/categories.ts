@@ -11,6 +11,7 @@ import { logActivity } from "./activities";
 type ActionResponse = {
   success: boolean;
   error?: string;
+  data?: unknown;
 };
 
 /**
@@ -25,6 +26,16 @@ export async function createCategory(
   try {
     const createdCategory = await prisma.category.create({
       data,
+      include: {
+        subcategories: {
+          orderBy: { createdAt: "desc" },
+        },
+        _count: {
+          select: {
+            products: true,
+          },
+        },
+      },
     });
 
     // Log the activity
@@ -40,6 +51,7 @@ export async function createCategory(
 
     return {
       success: true,
+      data: createdCategory,
     };
   } catch (error) {
     const message = handlePrismaActionError(error, "Category");
