@@ -44,6 +44,14 @@ export default function CategoryForm() {
       if (response.success) {
         setName("");
         showSuccess("Category created successfully!");
+
+        // Dispatch custom event with the new category data
+        if (response.data) {
+          const event = new CustomEvent("categoryCreated", {
+            detail: response.data,
+          });
+          window.dispatchEvent(event);
+        }
       } else {
         showError(response.error || "Failed to create category");
       }
