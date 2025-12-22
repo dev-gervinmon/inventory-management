@@ -5,6 +5,7 @@ interface QuickActionButtonProps {
   label: string;
   icon: React.ReactNode;
   variant?: "primary" | "secondary";
+  className?: string;
 }
 
 export default function QuickActionButton({
@@ -12,6 +13,7 @@ export default function QuickActionButton({
   label,
   icon,
   variant = "secondary",
+  className = "",
 }: QuickActionButtonProps) {
   const baseClass =
     "inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg";
@@ -24,7 +26,10 @@ export default function QuickActionButton({
   };
 
   return (
-    <Link href={href} className={`${baseClass} ${variantClass[variant]}`}>
+    <Link
+      href={href}
+      className={`${baseClass} ${variantClass[variant]} ${className}`}
+    >
       {icon}
       {label}
     </Link>
