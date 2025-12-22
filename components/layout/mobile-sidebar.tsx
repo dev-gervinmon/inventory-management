@@ -89,7 +89,7 @@ export default function MobileSidebar({
       {/* Mobile Drawer Overlay */}
       {isOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-20"
+          className="md:hidden fixed inset-0 bg-black/20 z-20"
           onClick={() => setIsOpen(false)}
         />
       )}
