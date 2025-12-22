@@ -224,7 +224,7 @@ export default async function DashboardPage() {
                 New Products Per Week
               </h2>
             </div>
-            <div className="w-full h-48 md:h-64 min-w-0">
+            <div className="w-full h-48 md:h-64 min-w-0 min-h-0">
               <ProductChart data={weeklyProductsData} />
             </div>
           </div>
