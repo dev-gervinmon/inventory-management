@@ -12,10 +12,10 @@ export default function AddProductButton({
   className = "",
 }: AddProductButtonProps) {
   const baseClass =
-    "inline-flex items-center gap-2 bg-linear-to-r from-purple-600 to-purple-700 text-white rounded-lg font-medium hover:from-purple-700 hover:to-purple-800 transition-all duration-200 shadow-lg hover:shadow-xl";
+    "inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg font-medium hover:from-purple-700 hover:to-purple-800 transition-all duration-200 shadow-lg hover:shadow-xl min-h-[44px]";
 
   const sizeClass = {
-    sm: "px-4 py-2",
+    sm: "px-4 py-2.5",
     md: "px-6 py-3",
   };
 
