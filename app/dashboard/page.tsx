@@ -3,6 +3,7 @@ import MobileSidebar from "@/components/layout/mobile-sidebar";
 import AlertsActivityTabs from "@/components/layout/alerts-activity-tabs";
 import AddProductButton from "@/components/buttons/add-product-button";
 import QuickActionButton from "@/components/buttons/quick-action-button";
+import DashboardErrorState from "@/components/layout/dashboard-error-state";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
 import {
@@ -11,33 +12,77 @@ import {
   getCriticalStockItems,
   DASHBOARD_LIMITS,
 } from "@/lib/utils/dashboard";
+import { Decimal } from "@prisma/client/runtime/client";
 
 export default async function DashboardPage() {
-  const user = await getCurrentUser();
-  const userId = user.id;
+  interface Product {
+    id: string;
+    price: Decimal;
+    quantity: number;
+    lowStockAt: number | null;
+    createdAt: Date;
+    sku: string | null;
+    name: string;
+  }
 
-  const [totalProducts, allProducts, activities] = await Promise.all([
-    prisma.product.count({ where: { userId } }),
+  interface Activity {
+    id: string;
+    type: string;
+    message: string;
+    createdAt: Date;
+  }
 
-    prisma.product.findMany({
-      where: { userId },
-      select: {
-        id: true,
-        price: true,
-        quantity: true,
-        lowStockAt: true,
-        createdAt: true,
-        sku: true,
-        name: true,
-      },
-    }),
+  let totalProducts = 0;
+  let allProducts: Product[] = [];
+  let activities: Activity[] = [];
+  let fetchError: Error | null = null;
 
-    prisma.activity.findMany({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-      take: DASHBOARD_LIMITS.ACTIVITY_FEED,
-    }),
-  ]);
+  try {
+    const user = await getCurrentUser();
+    const userId = user.id;
+
+    const [products, allProds, acts] = await Promise.all([
+      prisma.product.count({ where: { userId } }),
+
+      prisma.product.findMany({
+        where: { userId },
+        select: {
+          id: true,
+          price: true,
+          quantity: true,
+          lowStockAt: true,
+          createdAt: true,
+          sku: true,
+          name: true,
+        },
+      }),
+
+      prisma.activity.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+        take: DASHBOARD_LIMITS.ACTIVITY_FEED,
+      }),
+    ]);
+
+    totalProducts = products;
+    allProducts = allProds;
+    activities = acts;
+  } catch (error) {
+    fetchError =
+      error instanceof Error
+        ? error
+        : new Error("Failed to load dashboard data");
+
+    // Log error for debugging
+    console.error("Dashboard error:", fetchError.message, error);
+  }
+
+  // If there was a fetch error, show error state
+  if (fetchError) {
+    return (
+      <DashboardErrorState message="We're having trouble loading your dashboard at the moment. Please try again." />
+    );
+  }
 
   // Calculate stock statistics
   const stockStats = calculateStockStats(allProducts);
