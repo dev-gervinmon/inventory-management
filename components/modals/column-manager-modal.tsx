@@ -221,9 +221,6 @@ export default function ColumnManagerModal({
                                     {column.description}
                                   </p>
                                 )}
-                                <span className="text-xs text-gray-400 font-medium inline-block mt-0.5">
-                                  Always shown
-                                </span>
                               </div>
                             </label>
                           ))}
