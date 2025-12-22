@@ -78,15 +78,17 @@ export function getActivityIcon(type: string): string {
 /**
  * Calculate inventory statistics from products
  */
-export function calculateStockStats(products: Array<{ quantity: number; lowStockAt: number | null }>) {
+export function calculateStockStats(
+  products: Array<{ quantity: number; lowStockAt: number | null }>
+) {
   const total = products.length;
 
-  const inStockCount = products.filter((p) => p.quantity > STOCK_THRESHOLDS.IN_STOCK_MIN).length;
+  const inStockCount = products.filter(
+    (p) => p.quantity > STOCK_THRESHOLDS.IN_STOCK_MIN
+  ).length;
   const lowStockCount = products.filter(
     (p) =>
-      p.lowStockAt !== null &&
-      p.quantity <= p.lowStockAt &&
-      p.quantity >= 1
+      p.lowStockAt !== null && p.quantity <= p.lowStockAt && p.quantity >= 1
   ).length;
   const outOfStockCount = products.filter((p) => p.quantity === 0).length;
 
@@ -121,9 +123,10 @@ export function generateWeeklyProductData(
     weekEnd.setDate(weekEnd.getDate() + 6);
     weekEnd.setHours(23, 59, 59, 999);
 
-    const weekLabel = `${String(weekStart.getMonth() + 1).padStart(2, "0")}/${String(
-      weekStart.getDate()
-    ).padStart(2, "0")}`;
+    const weekLabel = `${String(weekStart.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}/${String(weekStart.getDate()).padStart(2, "0")}`;
 
     const weekProducts = products.filter((product) => {
       const productDate = new Date(product.createdAt);
@@ -142,12 +145,15 @@ export function generateWeeklyProductData(
 /**
  * Filter and sort critical stock items
  */
-export function getCriticalStockItems<T extends { quantity: number; lowStockAt: number | null }>(
-  products: T[],
-  limit: number = DASHBOARD_LIMITS.CRITICAL_ITEMS
-): T[] {
+export function getCriticalStockItems<
+  T extends { quantity: number; lowStockAt: number | null }
+>(products: T[], limit: number = DASHBOARD_LIMITS.CRITICAL_ITEMS): T[] {
   return products
-    .filter((p) => p.quantity === 0 || p.quantity <= (p.lowStockAt || STOCK_THRESHOLDS.LOW_STOCK_DEFAULT))
+    .filter(
+      (p) =>
+        p.quantity === 0 ||
+        p.quantity <= (p.lowStockAt || STOCK_THRESHOLDS.LOW_STOCK_DEFAULT)
+    )
     .sort((a, b) => a.quantity - b.quantity)
     .slice(0, limit);
 }
