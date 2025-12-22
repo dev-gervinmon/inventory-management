@@ -185,40 +185,94 @@ export default function ColumnManagerModal({
               </button>
             </div>
 
-            {/* Column List */}
-            <div className="space-y-1.5 max-h-80 overflow-y-auto pr-2">
+            {/* Column List - Grouped by Essential/Optional */}
+            <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
               {hasSearchResults ? (
-                displayColumns.map((column) => (
-                  <label
-                    key={column.id}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 ${
-                      column.essential
-                        ? "opacity-60 cursor-not-allowed"
-                        : "hover:bg-purple-50 cursor-pointer"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={column.visible}
-                      onChange={() =>
-                        !column.essential && onToggleColumn(column.id)
-                      }
-                      disabled={column.essential}
-                      className="w-4 h-4 rounded-md border-gray-300 text-purple-600 checked:bg-purple-600 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 accent-purple-600"
-                      aria-label={`Toggle ${column.label} column visibility`}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-gray-900 truncate">
-                        {column.label}
+                <>
+                  {/* Essential Columns Group */}
+                  {displayColumns.some((col) => col.essential) && (
+                    <div className="space-y-2">
+                      <div className="px-3 py-1.5">
+                        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                          Essential
+                        </h3>
                       </div>
-                      {column.essential && (
-                        <span className="text-xs text-gray-400 font-medium">
-                          Always shown
-                        </span>
-                      )}
+                      <div className="space-y-1.5">
+                        {displayColumns
+                          .filter((col) => col.essential)
+                          .map((column) => (
+                            <label
+                              key={column.id}
+                              className="flex items-start gap-3 px-3 py-2.5 rounded-lg opacity-60 cursor-not-allowed"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={column.visible}
+                                disabled={true}
+                                className="w-4 h-4 rounded-md border-gray-300 text-purple-600 checked:bg-purple-600 cursor-not-allowed disabled:opacity-40 accent-purple-600 mt-0.5"
+                                aria-label={`Toggle ${column.label} column visibility`}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-medium text-gray-900">
+                                  {column.label}
+                                </div>
+                                {column.description && (
+                                  <p className="text-xs text-gray-500 mt-0.5">
+                                    {column.description}
+                                  </p>
+                                )}
+                                <span className="text-xs text-gray-400 font-medium inline-block mt-0.5">
+                                  Always shown
+                                </span>
+                              </div>
+                            </label>
+                          ))}
+                      </div>
                     </div>
-                  </label>
-                ))
+                  )}
+
+                  {/* Optional Columns Group */}
+                  {displayColumns.some((col) => !col.essential) && (
+                    <div className="space-y-2">
+                      <div className="px-3 py-1.5">
+                        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                          Optional
+                        </h3>
+                      </div>
+                      <div className="space-y-1.5">
+                        {displayColumns
+                          .filter((col) => !col.essential)
+                          .map((column) => (
+                            <label
+                              key={column.id}
+                              className="flex items-start gap-3 px-3 py-2.5 rounded-lg hover:bg-purple-50 cursor-pointer"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={column.visible}
+                                onChange={() =>
+                                  !column.essential && onToggleColumn(column.id)
+                                }
+                                disabled={column.essential}
+                                className="w-4 h-4 rounded-md border-gray-300 text-purple-600 checked:bg-purple-600 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 accent-purple-600 mt-0.5"
+                                aria-label={`Toggle ${column.label} column visibility`}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-medium text-gray-900">
+                                  {column.label}
+                                </div>
+                                {column.description && (
+                                  <p className="text-xs text-gray-500 mt-0.5">
+                                    {column.description}
+                                  </p>
+                                )}
+                              </div>
+                            </label>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="text-center py-8">
                   <p className="text-sm text-gray-500">
