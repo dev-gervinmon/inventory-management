@@ -7,6 +7,7 @@ import { useSelection } from "@/lib/hooks/useSelection";
 import { useSearch } from "@/lib/hooks/useSearch";
 import { usePagination } from "@/lib/hooks/usePagination";
 import { useSort } from "@/lib/hooks/useSort";
+import { type ColumnVisibility } from "@/lib/hooks/useColumnVisibility";
 import { deleteBulkCategories } from "@/lib/actions/categories";
 import { formatCategoryDate } from "@/lib/utils/categories";
 import { UI_TIMING } from "@/lib/constants/forms";
@@ -28,6 +29,7 @@ interface Category {
 
 interface CategoriesTableProps {
   categories: Category[];
+  visibleColumns: ColumnVisibility[];
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -59,7 +61,10 @@ function getProductStatus(count: number): {
   }
 }
 
-export default function CategoriesTable({ categories }: CategoriesTableProps) {
+export default function CategoriesTable({
+  categories,
+  visibleColumns,
+}: CategoriesTableProps) {
   const { showError } = useMessage();
   const [isPending, startTransition] = useTransition();
   const { selectedIds, selectAll, deselectAll, toggle, isSelected, count } =
@@ -174,11 +179,12 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
 
   return (
     <div className="space-y-4">
-      {/* Search Input */}
-      <div className="relative">
-        <div className="relative flex items-center">
+      {/* Search and Controls Row */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+        {/* Search Input */}
+        <div className="relative flex-1 min-w-0">
           <svg
-            className="absolute left-3 sm:left-4 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 pointer-events-none"
+            className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 pointer-events-none"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -283,22 +289,24 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
                 sortDirection={sortDirection}
                 onSort={toggleSort}
               />
-              <SortableHeader
-                label="Subcategories"
-                sortKey="subcategories"
-                currentSortKey={sortKey}
-                sortDirection={sortDirection}
-                onSort={toggleSort}
-                className="hidden md:table-cell"
-              />
-              <SortableHeader
-                label="Created"
-                sortKey="createdAt"
-                currentSortKey={sortKey}
-                sortDirection={sortDirection}
-                onSort={toggleSort}
-                className="hidden sm:table-cell"
-              />
+              {visibleColumns.find((col) => col.id === "subcategories") && (
+                <SortableHeader
+                  label="Subcategories"
+                  sortKey="subcategories"
+                  currentSortKey={sortKey}
+                  sortDirection={sortDirection}
+                  onSort={toggleSort}
+                />
+              )}
+              {visibleColumns.find((col) => col.id === "created") && (
+                <SortableHeader
+                  label="Created"
+                  sortKey="createdAt"
+                  currentSortKey={sortKey}
+                  sortDirection={sortDirection}
+                  onSort={toggleSort}
+                />
+              )}
             </tr>
           </thead>
           <tbody>
@@ -338,12 +346,16 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
                     );
                   })()}
                 </td>
-                <td className="hidden md:table-cell px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm text-gray-700">
-                  {category.subcategories.length}
-                </td>
-                <td className="hidden sm:table-cell px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm text-gray-600">
-                  {formatCategoryDate(category.createdAt)}
-                </td>
+                {visibleColumns.find((col) => col.id === "subcategories") && (
+                  <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm text-gray-700">
+                    {category.subcategories.length}
+                  </td>
+                )}
+                {visibleColumns.find((col) => col.id === "created") && (
+                  <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm text-gray-600">
+                    {formatCategoryDate(category.createdAt)}
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
