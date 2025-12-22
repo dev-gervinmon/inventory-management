@@ -1,9 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import { AlertCircle, Activity } from "lucide-react";
 import { formatActivityTime, getActivityIcon } from "@/lib/utils/dashboard";
+import {
+  useSwipeGesture,
+  type SwipeDirection,
+} from "@/lib/hooks/useSwipeGesture";
 import {
   EmptyAlertsState,
   EmptyActivityState,
@@ -33,6 +37,28 @@ export default function AlertsActivityTabs({
   activities,
 }: AlertsActivityTabsProps) {
   const [activeTab, setActiveTab] = useState<"alerts" | "activity">("alerts");
+
+  /**
+   * Handle swipe gesture to switch between tabs
+   * Swipe left -> go to Activity (next tab)
+   * Swipe right -> go to Alerts (previous tab)
+   */
+  const handleSwipe = useCallback((direction: SwipeDirection) => {
+    setActiveTab((prevTab) => {
+      if (direction === "left" && prevTab === "alerts") {
+        return "activity";
+      } else if (direction === "right" && prevTab === "activity") {
+        return "alerts";
+      }
+      return prevTab;
+    });
+  }, []);
+
+  const { containerRef } = useSwipeGesture({
+    onSwipe: handleSwipe,
+    threshold: 50,
+    enabled: true,
+  });
 
   return (
     <>
@@ -181,8 +207,11 @@ export default function AlertsActivityTabs({
         </div>
       </div>
 
-      {/* Mobile/Tablet View - Tabs */}
-      <div className="lg:hidden bg-white rounded-lg border border-gray-200">
+      {/* Mobile/Tablet View - Tabs with Swipe Support */}
+      <div
+        ref={containerRef}
+        className="lg:hidden bg-white rounded-lg border border-gray-200 touch-pan-y"
+      >
         {/* Tab Navigation */}
         <div className="flex border-b border-gray-200">
           <button
@@ -214,8 +243,8 @@ export default function AlertsActivityTabs({
           </button>
         </div>
 
-        {/* Tab Content */}
-        <div className="p-4 md:p-6">
+        {/* Tab Content with Smooth Transitions */}
+        <div className="p-4 md:p-6 transition-opacity duration-300 ease-in-out">
           {/* Alerts Tab */}
           {activeTab === "alerts" && (
             <div>
