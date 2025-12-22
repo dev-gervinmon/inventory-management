@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { X, Eye, EyeOff, Search } from "lucide-react";
+import { X, Eye, EyeOff, Search, Star } from "lucide-react";
 import { ColumnVisibility } from "@/lib/hooks/useColumnVisibility";
 
 interface ColumnManagerModalProps {
@@ -10,15 +10,18 @@ interface ColumnManagerModalProps {
   columns: ColumnVisibility[];
   onToggleColumn: (columnId: string) => void;
   onToggleAllColumns: () => void;
+  onToggleFavorite: (columnId: string) => void;
   hiddenCount: number;
 }
 
 /**
  * Column Manager Modal
- * Allows users to show/hide table columns with search functionality
+ * Allows users to show/hide table columns with search and favorites
  *
  * Features:
  * - Search/filter columns by name (case-insensitive)
+ * - Star/favorite columns for quick access (favorites sort first)
+ * - Track toggle frequency to understand user patterns
  * - Toggle individual columns
  * - Show All / Hide All toggle (shows only essentials when all hidden)
  * - Backdrop click to close
@@ -35,6 +38,7 @@ export default function ColumnManagerModal({
   columns,
   onToggleColumn,
   onToggleAllColumns,
+  onToggleFavorite,
   hiddenCount,
 }: ColumnManagerModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -61,17 +65,47 @@ export default function ColumnManagerModal({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Filter columns based on search query
-  const filteredColumns = useCallback(() => {
-    if (!searchQuery.trim()) return columns;
-    const lowerQuery = searchQuery.toLowerCase();
-    return columns.filter((col) =>
-      col.label.toLowerCase().includes(lowerQuery)
-    );
+  // Filter columns based on search query and organize into sections
+  const filteredAndGroupedColumns = useCallback(() => {
+    let filtered = columns;
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const lowerQuery = searchQuery.toLowerCase();
+      filtered = filtered.filter((col) =>
+        col.label.toLowerCase().includes(lowerQuery)
+      );
+    }
+
+    // Separate into three groups
+    const favorites = filtered
+      .filter((col) => col.isFavorited)
+      .sort((a, b) => {
+        // Within favorites, sort by toggle count, then alphabetically
+        const countDiff = (b.toggleCount ?? 0) - (a.toggleCount ?? 0);
+        if (countDiff !== 0) return countDiff;
+        return a.label.localeCompare(b.label);
+      });
+
+    const essentials = filtered
+      .filter((col) => !col.isFavorited && col.essential)
+      .sort((a, b) => a.label.localeCompare(b.label));
+
+    const optional = filtered
+      .filter((col) => !col.isFavorited && !col.essential)
+      .sort((a, b) => {
+        // Within optional, sort by toggle count, then alphabetically
+        const countDiff = (b.toggleCount ?? 0) - (a.toggleCount ?? 0);
+        if (countDiff !== 0) return countDiff;
+        return a.label.localeCompare(b.label);
+      });
+
+    return { favorites, essentials, optional, allColumns: filtered };
   }, [columns, searchQuery]);
 
-  const displayColumns = filteredColumns();
-  const hasSearchResults = displayColumns.length > 0;
+  const { favorites, essentials, optional, allColumns } =
+    filteredAndGroupedColumns();
+  const hasSearchResults = allColumns.length > 0;
 
   if (!isOpen) return null;
 
@@ -185,12 +219,71 @@ export default function ColumnManagerModal({
               </button>
             </div>
 
-            {/* Column List - Grouped by Essential/Optional */}
+            {/* Column List - Organized by Favorites / Essential / Optional */}
             <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
               {hasSearchResults ? (
                 <>
+                  {/* Favorites Section */}
+                  {favorites.length > 0 && (
+                    <div className="space-y-2">
+                      <div className="px-3 py-1.5">
+                        <h3 className="text-xs font-semibold text-yellow-600 uppercase tracking-wide flex items-center gap-1.5">
+                          <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                          Favorites
+                        </h3>
+                      </div>
+                      <div className="space-y-1.5">
+                        {favorites.map((column) => (
+                          <div
+                            key={column.id}
+                            className="flex items-start gap-3 px-3 py-2.5 rounded-lg hover:bg-yellow-50 group"
+                          >
+                            {!column.essential && (
+                              <input
+                                type="checkbox"
+                                checked={column.visible}
+                                onChange={() => onToggleColumn(column.id)}
+                                className="w-4 h-4 rounded-md border-gray-300 text-purple-600 checked:bg-purple-600 cursor-pointer accent-purple-600 mt-0.5"
+                                aria-label={`Toggle ${column.label} column visibility`}
+                              />
+                            )}
+                            {column.essential && (
+                              <div className="w-4 h-4 rounded-md border border-gray-300 bg-purple-100 flex items-center justify-center mt-0.5">
+                                <div className="w-2 h-2 bg-purple-600 rounded" />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium text-gray-900">
+                                {column.label}
+                              </div>
+                              {column.description && (
+                                <p className="text-xs text-gray-500 mt-0.5">
+                                  {column.description}
+                                </p>
+                              )}
+                              {column.essential && (
+                                <p className="text-xs text-gray-400 mt-0.5">
+                                  Always visible
+                                </p>
+                              )}
+                            </div>
+                            <button
+                              onClick={() => onToggleFavorite(column.id)}
+                              className="p-1.5 rounded-md transition-colors duration-150 hover:bg-yellow-100 cursor-pointer shrink-0"
+                              title="Remove from favorites"
+                              aria-label={`Remove ${column.label} from favorites`}
+                              type="button"
+                            >
+                              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Essential Columns Group */}
-                  {displayColumns.some((col) => col.essential) && (
+                  {essentials.length > 0 && (
                     <div className="space-y-2">
                       <div className="px-3 py-1.5">
                         <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
@@ -198,38 +291,45 @@ export default function ColumnManagerModal({
                         </h3>
                       </div>
                       <div className="space-y-1.5">
-                        {displayColumns
-                          .filter((col) => col.essential)
-                          .map((column) => (
-                            <label
-                              key={column.id}
-                              className="flex items-start gap-3 px-3 py-2.5 rounded-lg opacity-60 cursor-not-allowed"
-                            >
-                              <input
-                                type="checkbox"
-                                checked={column.visible}
-                                disabled={true}
-                                className="w-4 h-4 rounded-md border-gray-300 text-purple-600 checked:bg-purple-600 cursor-not-allowed disabled:opacity-40 accent-purple-600 mt-0.5"
-                                aria-label={`Toggle ${column.label} column visibility`}
-                              />
-                              <div className="flex-1 min-w-0">
-                                <div className="text-sm font-medium text-gray-900">
-                                  {column.label}
-                                </div>
-                                {column.description && (
-                                  <p className="text-xs text-gray-500 mt-0.5">
-                                    {column.description}
-                                  </p>
-                                )}
+                        {essentials.map((column) => (
+                          <label
+                            key={column.id}
+                            className="flex items-start gap-3 px-3 py-2.5 rounded-lg opacity-60 cursor-not-allowed"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={column.visible}
+                              disabled={true}
+                              className="w-4 h-4 rounded-md border-gray-300 text-purple-600 checked:bg-purple-600 cursor-not-allowed disabled:opacity-40 accent-purple-600 mt-0.5"
+                              aria-label={`Toggle ${column.label} column visibility`}
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium text-gray-900">
+                                {column.label}
                               </div>
-                            </label>
-                          ))}
+                              {column.description && (
+                                <p className="text-xs text-gray-500 mt-0.5">
+                                  {column.description}
+                                </p>
+                              )}
+                            </div>
+                            <button
+                              onClick={() => onToggleFavorite(column.id)}
+                              className="p-1.5 rounded-md transition-colors duration-150 hover:bg-purple-100 cursor-pointer shrink-0"
+                              title="Add to favorites"
+                              aria-label={`Add ${column.label} to favorites`}
+                              type="button"
+                            >
+                              <Star className="w-4 h-4 text-gray-400" />
+                            </button>
+                          </label>
+                        ))}
                       </div>
                     </div>
                   )}
 
                   {/* Optional Columns Group */}
-                  {displayColumns.some((col) => !col.essential) && (
+                  {optional.length > 0 && (
                     <div className="space-y-2">
                       <div className="px-3 py-1.5">
                         <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
@@ -237,35 +337,39 @@ export default function ColumnManagerModal({
                         </h3>
                       </div>
                       <div className="space-y-1.5">
-                        {displayColumns
-                          .filter((col) => !col.essential)
-                          .map((column) => (
-                            <label
-                              key={column.id}
-                              className="flex items-start gap-3 px-3 py-2.5 rounded-lg hover:bg-purple-50 cursor-pointer"
-                            >
-                              <input
-                                type="checkbox"
-                                checked={column.visible}
-                                onChange={() =>
-                                  !column.essential && onToggleColumn(column.id)
-                                }
-                                disabled={column.essential}
-                                className="w-4 h-4 rounded-md border-gray-300 text-purple-600 checked:bg-purple-600 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 accent-purple-600 mt-0.5"
-                                aria-label={`Toggle ${column.label} column visibility`}
-                              />
-                              <div className="flex-1 min-w-0">
-                                <div className="text-sm font-medium text-gray-900">
-                                  {column.label}
-                                </div>
-                                {column.description && (
-                                  <p className="text-xs text-gray-500 mt-0.5">
-                                    {column.description}
-                                  </p>
-                                )}
+                        {optional.map((column) => (
+                          <div
+                            key={column.id}
+                            className="flex items-start gap-3 px-3 py-2.5 rounded-lg hover:bg-purple-50 group"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={column.visible}
+                              onChange={() => onToggleColumn(column.id)}
+                              className="w-4 h-4 rounded-md border-gray-300 text-purple-600 checked:bg-purple-600 cursor-pointer accent-purple-600 mt-0.5"
+                              aria-label={`Toggle ${column.label} column visibility`}
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium text-gray-900">
+                                {column.label}
                               </div>
-                            </label>
-                          ))}
+                              {column.description && (
+                                <p className="text-xs text-gray-500 mt-0.5">
+                                  {column.description}
+                                </p>
+                              )}
+                            </div>
+                            <button
+                              onClick={() => onToggleFavorite(column.id)}
+                              className="p-1.5 rounded-md transition-colors duration-150 hover:bg-purple-100 cursor-pointer shrink-0"
+                              title="Add to favorites"
+                              aria-label={`Add ${column.label} to favorites`}
+                              type="button"
+                            >
+                              <Star className="w-4 h-4 text-gray-400" />
+                            </button>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   )}
