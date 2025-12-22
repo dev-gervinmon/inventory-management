@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import ColumnManagerButton from "@/components/buttons/column-manager-button";
 import ColumnManagerModal from "@/components/modals/column-manager-modal";
 import {
@@ -66,11 +66,25 @@ export default function CategoriesPageContent({
     },
   ];
 
-  const { columns, visibleColumns, toggleColumn, showAll, isCustomized } =
-    useColumnVisibility({
-      tableId: "categories",
-      defaultColumns,
-    });
+  const {
+    columns,
+    visibleColumns,
+    toggleColumn,
+    showAll,
+    isCustomized,
+    toggleFavorite,
+  } = useColumnVisibility({
+    tableId: "categories",
+    defaultColumns,
+  });
+
+  // Use useSyncExternalStore to safely handle localStorage without hydration mismatch
+  // Server will always return false, client will read from localStorage
+  const isCustomizedWithHydration = useSyncExternalStore(
+    () => () => {}, // no subscription needed, value is static per session
+    () => isCustomized, // client: read from hook
+    () => false // server: default to false
+  );
 
   // Toggle between Show All and Hide All (show only essentials)
   const handleToggleAllColumns = () => {
@@ -100,7 +114,7 @@ export default function CategoriesPageContent({
         </h2>
         <ColumnManagerButton
           onClick={() => setShowColumnManager(true)}
-          isCustomized={isCustomized}
+          isCustomized={isCustomizedWithHydration}
         />
       </div>
       {initialCategories.length === 0 ? (
@@ -122,6 +136,7 @@ export default function CategoriesPageContent({
         columns={columns}
         onToggleColumn={toggleColumn}
         onToggleAllColumns={handleToggleAllColumns}
+        onToggleFavorite={toggleFavorite}
         hiddenCount={columns.filter((col) => !col.visible).length}
       />
     </>
