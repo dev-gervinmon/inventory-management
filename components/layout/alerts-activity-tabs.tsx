@@ -182,7 +182,7 @@ export default function AlertsActivityTabs({
       </div>
 
       {/* Mobile/Tablet View - Tabs */}
-      <div className="lg:hidden bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="lg:hidden bg-white rounded-lg border border-gray-200">
         {/* Tab Navigation */}
         <div className="flex border-b border-gray-200">
           <button
@@ -306,9 +306,22 @@ export default function AlertsActivityTabs({
                 {activities.length > 0 && (
                   <Link
                     href="/activities"
-                    className="text-blue-600 hover:text-blue-700 text-xs md:text-sm font-medium whitespace-nowrap"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs md:text-sm font-semibold rounded-lg transition-colors"
                   >
-                    See All →
+                    See All
+                    <svg
+                      className="w-3.5 h-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 7l5 5m0 0l-5 5m5-5H6"
+                      />
+                    </svg>
                   </Link>
                 )}
               </div>
