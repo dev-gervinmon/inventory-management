@@ -15,7 +15,7 @@ export function EmptyAlertsState() {
   return (
     <EmptyState
       icon={
-        <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-green-50 to-green-100 rounded-full animate-pulse">
+        <div className="flex items-center justify-center w-full h-full bg-linear-to-br from-green-50 to-green-100 rounded-full animate-pulse">
           <svg
             className="w-3/5 h-3/5 text-green-500"
             fill="none"
