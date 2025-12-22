@@ -1,6 +1,6 @@
 "use server";
 
-import SideBar from "@/components/layout/sidebar";
+import MobileSidebar from "@/components/layout/mobile-sidebar";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
 import { editProduct, deleteProduct } from "@/lib/actions/products";
@@ -43,8 +43,8 @@ export default async function EditProductPage({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <SideBar currentPath={`/inventory/${product.id}/edit-product`} />
-      <main className="ml-64">
+      <MobileSidebar currentPath="/inventory" />
+      <main className="md:ml-64 p-4 md:p-8 pt-20 md:pt-8">
         <ProductEditClient
           product={{
             id: product.id,
