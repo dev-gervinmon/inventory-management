@@ -3,21 +3,53 @@
 /**
  * Pull-to-Refresh Container Component
  * Wraps dashboard content and handles pull-to-refresh interactions
- * Enhanced with Priority 1 visual feedback:
- * - Arrow icon with rotation feedback
- * - Color transition (gray → purple when ready)
- * - Checkmark animation on completion
+ * Features:
+ * - Arrow icon with rotation feedback based on pull distance
+ * - Color transition (gray → purple → green)
+ * - Checkmark animation with ping effect on completion
+ * - Progress bar during pull gesture
+ * - Smooth transitions and mobile-optimized performance
  */
 
 import React, { ReactNode, useState, useEffect, useRef } from "react";
 import { usePullToRefresh } from "@/lib/hooks/usePullToRefresh";
 import { RefreshCw, ArrowDown, Check } from "lucide-react";
 
+// Constants for pull-to-refresh behavior and styling
+const PTR_CONFIG = {
+  CONTAINER_HEIGHT: 80, // pixels
+  CONTAINER_PADDING: "12px 0",
+  CHECKMARK_DISPLAY_MS: 1000, // how long to show checkmark
+  ICON_SIZE: 40, // pixels (w-10 h-10)
+  ARROW_ROTATION_MULTIPLIER: 1.8, // rotation degrees per 1% progress
+} as const;
+
 interface PullToRefreshContainerProps {
   children: ReactNode;
   onRefresh: () => Promise<void> | void;
   triggerDistance?: number;
   isLoading?: boolean;
+}
+
+/**
+ * Get status text based on current pull-to-refresh state
+ */
+function getStatusText(state: {
+  showCheckmark: boolean;
+  isLoading: boolean;
+  isRefreshing: boolean;
+  shouldTrigger: boolean;
+  isPulling: boolean;
+}): string {
+  const { showCheckmark, isLoading, isRefreshing, shouldTrigger, isPulling } =
+    state;
+
+  if (showCheckmark) return "Refreshed!";
+  if (isLoading) return "Loading data...";
+  if (isRefreshing) return "Refreshing...";
+  if (shouldTrigger) return "Release to refresh";
+  if (isPulling) return "Pull to refresh";
+  return "";
 }
 
 export default function PullToRefreshContainer({
@@ -32,7 +64,6 @@ export default function PullToRefreshContainer({
       triggerDistance,
     });
 
-  const prevIsRefreshingRef = useRef(false);
   const prevIsLoadingRef = useRef(false);
   const checkmarkTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -50,14 +81,13 @@ export default function PullToRefreshContainer({
       // Defer state update using setTimeout to avoid cascading renders
       checkmarkTimeoutRef.current = setTimeout(() => {
         setShowCheckmark(true);
-        // Hide after 1000ms for better visibility
+        // Hide after configured delay for better visibility
         setTimeout(() => {
           setShowCheckmark(false);
-        }, 1000);
+        }, PTR_CONFIG.CHECKMARK_DISPLAY_MS);
       }, 0);
     }
 
-    prevIsRefreshingRef.current = isRefreshing;
     prevIsLoadingRef.current = isLoading;
 
     return () => {
@@ -75,11 +105,11 @@ export default function PullToRefreshContainer({
         style={{
           maxHeight:
             isPulling || isRefreshing || isLoading || showCheckmark
-              ? "80px"
+              ? `${PTR_CONFIG.CONTAINER_HEIGHT}px`
               : "0",
           padding:
             isPulling || isRefreshing || isLoading || showCheckmark
-              ? "12px 0"
+              ? PTR_CONFIG.CONTAINER_PADDING
               : "0",
           opacity:
             isPulling || isRefreshing || isLoading || showCheckmark ? 1 : 0,
@@ -89,7 +119,13 @@ export default function PullToRefreshContainer({
       >
         <div className="flex flex-col items-center gap-3 py-2">
           {/* Icon Container with enhanced animations */}
-          <div className="relative w-10 h-10 flex items-center justify-center">
+          <div
+            className="relative flex items-center justify-center"
+            style={{
+              width: PTR_CONFIG.ICON_SIZE,
+              height: PTR_CONFIG.ICON_SIZE,
+            }}
+          >
             {/* Arrow Icon - During pulling (hidden during refresh/success) */}
             <ArrowDown
               className={`absolute w-6 h-6 transition-all duration-300 ${
@@ -105,7 +141,7 @@ export default function PullToRefreshContainer({
                     ? 0
                     : shouldTrigger
                     ? 180
-                    : progress * 1.8
+                    : progress * PTR_CONFIG.ARROW_ROTATION_MULTIPLIER
                 }deg)`,
               }}
             />
@@ -139,20 +175,13 @@ export default function PullToRefreshContainer({
                   : "text-gray-600 scale-90"
               }`}
             >
-              {showCheckmark && "Refreshed!"}
-              {isLoading && !showCheckmark && "Loading data..."}
-              {isRefreshing && !isLoading && !showCheckmark && "Refreshing..."}
-              {!isRefreshing &&
-                !isLoading &&
-                !showCheckmark &&
-                shouldTrigger &&
-                "Release to refresh"}
-              {!isRefreshing &&
-                !isLoading &&
-                !showCheckmark &&
-                !shouldTrigger &&
-                isPulling &&
-                "Pull to refresh"}
+              {getStatusText({
+                showCheckmark,
+                isLoading,
+                isRefreshing,
+                shouldTrigger,
+                isPulling,
+              })}
             </div>
 
             {/* Progress indicator during pull */}
