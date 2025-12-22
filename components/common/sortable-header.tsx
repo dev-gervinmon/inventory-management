@@ -29,7 +29,7 @@ export default function SortableHeader({
         <span className="text-xs md:text-sm font-semibold text-gray-900">
           {label}
         </span>
-        <div className="w-4 h-4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+        <div className="w-4 h-4 flex items-center justify-center transition">
           {isSorted ? (
             <>
               {sortDirection === "asc" ? (
@@ -39,7 +39,7 @@ export default function SortableHeader({
               )}
             </>
           ) : (
-            <ArrowUpDown className="w-4 h-4 text-gray-400" />
+            <ArrowUpDown className="w-4 h-4 text-gray-300" />
           )}
         </div>
       </div>
