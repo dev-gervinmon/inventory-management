@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { X, Eye, EyeOff, RotateCcw } from "lucide-react";
+import { X, Eye, EyeOff } from "lucide-react";
 import { ColumnVisibility } from "@/lib/hooks/useColumnVisibility";
 
 interface ColumnManagerModalProps {
@@ -9,9 +9,7 @@ interface ColumnManagerModalProps {
   onClose: () => void;
   columns: ColumnVisibility[];
   onToggleColumn: (columnId: string) => void;
-  onShowAll: () => void;
-  onHideNonEssential: () => void;
-  onResetDefaults: () => void;
+  onToggleAllColumns: () => void;
   hiddenCount: number;
 }
 
@@ -21,7 +19,7 @@ interface ColumnManagerModalProps {
  *
  * Features:
  * - Toggle individual columns
- * - Quick actions (Show All, Hide Non-Essential, Reset)
+ * - Show All / Hide All toggle (shows only essentials when all hidden)
  * - Backdrop click to close
  * - Prevents background scroll/interaction when open
  * - Mobile-responsive
@@ -33,9 +31,7 @@ export default function ColumnManagerModal({
   onClose,
   columns,
   onToggleColumn,
-  onShowAll,
-  onHideNonEssential,
-  onResetDefaults,
+  onToggleAllColumns,
   hiddenCount,
 }: ColumnManagerModalProps) {
   // Prevent body scroll when modal is open
@@ -50,6 +46,13 @@ export default function ColumnManagerModal({
   }, [isOpen]);
 
   if (!isOpen) return null;
+
+  // Determine if we should show "Show All" or "Hide All"
+  const nonEssentialColumns = columns.filter((col) => !col.essential);
+  const allNonEssentialVisible = nonEssentialColumns.every(
+    (col) => col.visible
+  );
+  const showShowAllButton = hiddenCount > 0;
 
   return (
     <>
@@ -97,36 +100,33 @@ export default function ColumnManagerModal({
 
           {/* Content */}
           <div className="p-5 sm:p-6">
-            {/* Quick Actions - Horizontal Pills */}
-            <div className="flex gap-2 mb-5 pb-5 border-b border-gray-100">
+            {/* Quick Action - Show All / Hide All Toggle */}
+            <div className="mb-5 pb-5 border-b border-gray-100">
               <button
-                onClick={onShowAll}
-                className="flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 hover:border-gray-300 transition-colors duration-200 cursor-pointer"
-                title="Show all columns"
+                onClick={onToggleAllColumns}
+                className={`w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors duration-200 cursor-pointer ${
+                  showShowAllButton
+                    ? "text-gray-700 bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300"
+                    : "text-purple-600 bg-purple-50 border border-purple-200 hover:bg-purple-100 hover:border-purple-300"
+                }`}
+                title={
+                  showShowAllButton
+                    ? "Show all columns"
+                    : "Hide optional columns"
+                }
                 type="button"
               >
-                <Eye className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Show All</span>
-                <span className="sm:hidden">All</span>
-              </button>
-              <button
-                onClick={onHideNonEssential}
-                className="flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 hover:border-gray-300 transition-colors duration-200 cursor-pointer"
-                title="Show only essential columns"
-                type="button"
-              >
-                <EyeOff className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Essential</span>
-                <span className="sm:hidden">Ess.</span>
-              </button>
-              <button
-                onClick={onResetDefaults}
-                className="flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 hover:border-gray-300 transition-colors duration-200 cursor-pointer"
-                title="Reset to default layout"
-                type="button"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Reset</span>
+                {showShowAllButton ? (
+                  <>
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>Show All</span>
+                  </>
+                ) : (
+                  <>
+                    <EyeOff className="w-3.5 h-3.5" />
+                    <span>Hide All</span>
+                  </>
+                )}
               </button>
             </div>
 
