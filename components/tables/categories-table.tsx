@@ -1,6 +1,11 @@
 "use client";
 
-import React, { useState, useTransition, useRef } from "react";
+import React, {
+  useState,
+  useTransition,
+  useRef,
+  useSyncExternalStore,
+} from "react";
 import Link from "next/link";
 import { useMessage } from "@/lib/hooks/useMessage";
 import { useSelection } from "@/lib/hooks/useSelection";
@@ -75,6 +80,20 @@ export default function CategoriesTable({
   const [deletedCount, setDeletedCount] = useState(0);
   const [displayCategories, setDisplayCategories] = useState(categories);
   const successTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Use useSyncExternalStore to safely check visible columns without hydration mismatch
+  // Server always returns false for optional columns, client uses actual visibleColumns
+  const showSubcategoriesColumn = useSyncExternalStore(
+    () => () => {},
+    () => !!visibleColumns.find((col) => col.id === "subcategories")?.visible,
+    () => false
+  );
+
+  const showCreatedColumn = useSyncExternalStore(
+    () => () => {},
+    () => !!visibleColumns.find((col) => col.id === "created")?.visible,
+    () => false
+  );
 
   // Search hook
   const {
@@ -289,7 +308,7 @@ export default function CategoriesTable({
                 sortDirection={sortDirection}
                 onSort={toggleSort}
               />
-              {visibleColumns.find((col) => col.id === "subcategories") && (
+              {showSubcategoriesColumn && (
                 <SortableHeader
                   label="Subcategories"
                   sortKey="subcategories"
@@ -298,7 +317,7 @@ export default function CategoriesTable({
                   onSort={toggleSort}
                 />
               )}
-              {visibleColumns.find((col) => col.id === "created") && (
+              {showCreatedColumn && (
                 <SortableHeader
                   label="Created"
                   sortKey="createdAt"
@@ -346,12 +365,12 @@ export default function CategoriesTable({
                     );
                   })()}
                 </td>
-                {visibleColumns.find((col) => col.id === "subcategories") && (
+                {showSubcategoriesColumn && (
                   <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm text-gray-700">
                     {category.subcategories.length}
                   </td>
                 )}
-                {visibleColumns.find((col) => col.id === "created") && (
+                {showCreatedColumn && (
                   <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm text-gray-600">
                     {formatCategoryDate(category.createdAt)}
                   </td>
