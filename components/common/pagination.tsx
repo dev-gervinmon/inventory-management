@@ -166,7 +166,7 @@ export default function Pagination({
                 onClick={() => handlePageClick(pageNum)}
                 className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 ${
                   isCurrentPage
-                    ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-md hover:shadow-lg"
+                    ? "bg-linear-to-r from-purple-600 to-purple-700 text-white shadow-md hover:shadow-lg"
                     : "text-gray-700 bg-white border border-gray-300 hover:bg-purple-50 hover:border-purple-300 hover:shadow-sm active:bg-purple-100 shadow-sm cursor-pointer"
                 }`}
                 aria-label={`Go to page ${pageNum}`}
