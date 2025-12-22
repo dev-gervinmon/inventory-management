@@ -9,6 +9,7 @@ export interface ColumnVisibility {
   label: string;
   visible: boolean;
   essential: boolean; // Always show on mobile if true
+  description?: string; // Help text for the column
   mobileHidden?: boolean; // Default hidden on mobile
   sortable?: boolean;
   resizable?: boolean;
