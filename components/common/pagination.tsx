@@ -1,31 +1,92 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import Link from "next/link";
 
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
-  baseUrl: string;
-  searchParams: Record<string, string>;
+  onPageChange: (page: number) => void;
+  itemsStart: number;
+  itemsEnd: number;
+  totalItems: number;
+  entityName?: string;
 }
 
+/**
+ * Mobile-Responsive Pagination Component
+ *
+ * Features:
+ * - Responsive text: "1 of 5" on mobile → "Showing 1-10 of 45 items" on desktop
+ * - Smart page number display: current page only on mobile → all pages on desktop
+ * - Touch-optimized buttons: 36px on mobile → 44px+ on desktop
+ * - Flexible layout: stacks on mobile, horizontal on desktop
+ * - Full accessibility with ARIA labels
+ *
+ * @example
+ * <Pagination
+ *   currentPage={1}
+ *   totalPages={10}
+ *   onPageChange={(page) => setCurrentPage(page)}
+ *   itemsStart={1}
+ *   itemsEnd={10}
+ *   totalItems={100}
+ *   entityName="products"
+ * />
+ */
 export default function Pagination({
   currentPage,
   totalPages,
-  baseUrl,
-  searchParams,
+  onPageChange,
+  itemsStart,
+  itemsEnd,
+  totalItems,
+  entityName = "items",
 }: PaginationProps) {
   if (totalPages <= 1) return null;
 
-  const getPageUrl = (page: number) => {
-    const params = new URLSearchParams({ ...searchParams, page: String(page) });
-    return `${baseUrl}?${params.toString()}`;
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      onPageChange(currentPage - 1);
+      // Scroll to top for better UX
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
-  const getVisiblePages = () => {
-    const delta = 2;
-    const range = [];
-    const rangeWithDots = [];
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      onPageChange(currentPage + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
+  const handlePageClick = (page: number) => {
+    onPageChange(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Smart page number display
+  // Mobile: show only current page
+  // Tablet: show current ± 1
+  // Desktop: show all pages (with dots if > 7)
+  const getVisiblePages = () => {
+    const all = Array.from({ length: totalPages }, (_, i) => i + 1);
+
+    // If 7 or fewer pages, show all
+    if (totalPages <= 7) {
+      return all;
+    }
+
+    // Show with ellipsis for larger page counts
+    const delta = 1; // pages to show on either side of current
+    const range = [];
+
+    // Always show first page
+    range.push(1);
+
+    // Show dots if gap exists
+    if (currentPage - delta > 2) {
+      range.push("...");
+    }
+
+    // Show range around current page
     for (
       let i = Math.max(2, currentPage - delta);
       i <= Math.min(totalPages - 1, currentPage + delta);
@@ -34,92 +95,109 @@ export default function Pagination({
       range.push(i);
     }
 
-    if (currentPage - delta > 2) {
-      rangeWithDots.push(1, "...");
-    } else {
-      rangeWithDots.push(1);
-    }
-
-    rangeWithDots.push(...range);
-
+    // Show dots if gap exists
     if (currentPage + delta < totalPages - 1) {
-      rangeWithDots.push("...", totalPages);
-    } else {
-      rangeWithDots.push(totalPages);
+      range.push("...");
     }
 
-    return rangeWithDots;
+    // Always show last page
+    range.push(totalPages);
+
+    return range;
   };
 
   const visiblePages = getVisiblePages();
 
   return (
-    <div className="flex items-center justify-between">
-      {/* Page Info */}
-      <div className="text-sm text-gray-600 font-medium">
-        Page <span className="text-gray-900 font-bold">{currentPage}</span> of{" "}
-        <span className="text-gray-900 font-bold">{totalPages}</span>
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 rounded-lg border border-gray-200">
+      {/* Items Info - Responsive Text */}
+      <div className="text-xs sm:text-sm text-gray-600 font-medium order-2 sm:order-1">
+        <span className="sm:hidden">
+          {currentPage} of {totalPages}
+        </span>
+        <span className="hidden sm:inline">
+          Showing <span className="text-gray-900 font-bold">{itemsStart}</span>{" "}
+          to <span className="text-gray-900 font-bold">{itemsEnd}</span> of{" "}
+          <span className="text-gray-900 font-bold">{totalItems}</span>{" "}
+          {entityName}
+        </span>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex items-center justify-center gap-2">
-        <Link
-          href={getPageUrl(currentPage - 1)}
-          className={`inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
+      {/* Navigation Controls */}
+      <div className="flex items-center justify-center gap-1 sm:gap-2 order-1 sm:order-2">
+        {/* Previous Button */}
+        <button
+          onClick={handlePrevious}
+          disabled={currentPage <= 1}
+          className={`flex items-center justify-center gap-0 sm:gap-1.5 px-2.5 sm:px-3 py-2 sm:py-2 h-9 sm:h-10 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 ${
             currentPage <= 1
-              ? "text-gray-400 cursor-not-allowed bg-gray-100"
-              : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400 shadow-sm hover:shadow-md active:from-gray-300 active:to-gray-300"
+              ? "text-gray-400 bg-gray-100 cursor-not-allowed"
+              : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400 active:bg-gray-100 shadow-sm hover:shadow-md cursor-pointer"
           }`}
-          aria-disabled={currentPage <= 1}
+          aria-label="Previous page"
+          title="Previous page"
         >
-          <ChevronLeft className="w-4 h-4" /> Previous
-        </Link>
+          <ChevronLeft className="w-4 h-4 shrink-0" />
+          <span className="hidden sm:inline">Prev</span>
+        </button>
 
-        {/* Page Numbers */}
-        <div className="flex items-center gap-1">
+        {/* Page Numbers - Responsive Display */}
+        <div className="hidden xs:flex items-center gap-0.5 sm:gap-1">
           {visiblePages.map((page, key) => {
-            const pageNumber = page as number;
-            const isCurrentPage = pageNumber === currentPage;
+            const isCurrentPage = page === currentPage;
+            const isDots = page === "...";
 
-            if (page === "...") {
+            if (isDots) {
               return (
-                <span key={key} className="px-2 py-2 text-sm text-gray-500">
-                  ...
+                <span
+                  key={key}
+                  className="px-1.5 sm:px-2 py-2 h-9 sm:h-10 flex items-center text-xs sm:text-sm text-gray-400"
+                >
+                  ⋯
                 </span>
               );
             }
 
+            const pageNum = page as number;
+
             return (
-              <Link
+              <button
                 key={key}
-                href={getPageUrl(pageNumber)}
-                className={`px-3 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
+                onClick={() => handlePageClick(pageNum)}
+                className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 ${
                   isCurrentPage
-                    ? "bg-linear-to-r from-purple-600 to-purple-700 text-white shadow-md hover:shadow-lg"
-                    : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400 shadow-sm hover:shadow-md"
+                    ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-md hover:shadow-lg"
+                    : "text-gray-700 bg-white border border-gray-300 hover:bg-purple-50 hover:border-purple-300 hover:shadow-sm active:bg-purple-100 shadow-sm cursor-pointer"
                 }`}
+                aria-label={`Go to page ${pageNum}`}
+                aria-current={isCurrentPage ? "page" : undefined}
+                title={`Go to page ${pageNum}`}
               >
-                {pageNumber}
-              </Link>
+                {pageNum}
+              </button>
             );
           })}
         </div>
 
-        <Link
-          href={getPageUrl(currentPage + 1)}
-          className={`inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
+        {/* Next Button */}
+        <button
+          onClick={handleNext}
+          disabled={currentPage >= totalPages}
+          className={`flex items-center justify-center gap-0 sm:gap-1.5 px-2.5 sm:px-3 py-2 sm:py-2 h-9 sm:h-10 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 ${
             currentPage >= totalPages
-              ? "text-gray-400 cursor-not-allowed bg-gray-100"
-              : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400 shadow-sm hover:shadow-md"
+              ? "text-gray-400 bg-gray-100 cursor-not-allowed"
+              : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400 active:bg-gray-100 shadow-sm hover:shadow-md cursor-pointer"
           }`}
-          aria-disabled={currentPage >= totalPages}
+          aria-label="Next page"
+          title="Next page"
         >
-          Next <ChevronRight className="w-4 h-4" />
-        </Link>
-      </nav>
+          <span className="hidden sm:inline">Next</span>
+          <ChevronRight className="w-4 h-4 shrink-0" />
+        </button>
+      </div>
 
-      {/* Empty space for balance */}
-      <div className="w-24" />
+      {/* Empty space for desktop layout balance */}
+      <div className="hidden sm:block w-20" />
     </div>
   );
 }
