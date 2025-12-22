@@ -54,3 +54,5 @@ next-env.d.ts
 **/LICENSE
 *.example.*
 .example
+**/empty_states_implementation*
+**/skeleton_implementation*
