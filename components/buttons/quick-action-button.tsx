@@ -20,7 +20,7 @@ export default function QuickActionButton({
 
   const variantClass = {
     primary:
-      "bg-linear-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800",
+      "bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800",
     secondary:
       "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400",
   };
