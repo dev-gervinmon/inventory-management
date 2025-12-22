@@ -177,7 +177,7 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
       <div className="relative">
         <div className="relative flex items-center">
           <svg
-            className="absolute left-4 w-5 h-5 text-gray-400 pointer-events-none"
+            className="absolute left-3 sm:left-4 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 pointer-events-none"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -194,7 +194,7 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
             placeholder="Search categories..."
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full pl-12 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+            className="w-full pl-10 sm:pl-12 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
           />
           {searchQuery && (
             <button
@@ -210,10 +210,10 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
 
       {/* Search Results Info */}
       {searchQuery && (
-        <div className="bg-linear-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200 px-4 py-3 flex items-center justify-between">
+        <div className="bg-linear-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200 px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <svg
-              className="w-4 h-4 text-purple-600"
+              className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600 shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -225,7 +225,7 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
               />
             </svg>
-            <span className="text-xs text-gray-700 font-medium">
+            <span className="text-xs sm:text-sm text-gray-700 font-medium">
               Found <strong>{sortedCategories.length}</strong> of{" "}
               <strong>{categories.length}</strong> categor
               {categories.length !== 1 ? "ies" : "y"} matching &quot;
@@ -236,26 +236,27 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
       )}
 
       {count > 0 && (
-        <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
-          <span className="text-sm font-medium text-blue-900">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between p-2 sm:p-3 bg-blue-50 rounded-lg border border-blue-200 gap-2">
+          <span className="text-xs sm:text-sm font-medium text-blue-900 py-1 sm:py-0">
             {count} categor{count === 1 ? "y" : "ies"} selected
           </span>
           <FormButton
             type="button"
-            label={`Delete Selected (${count})`}
+            label={`Delete (${count})`}
             variant="delete"
             size="sm"
             disabled={isPending}
             onClick={() => setShowConfirm(true)}
+            className="w-full sm:w-auto"
           />
         </div>
       )}
 
       <div className="overflow-x-auto border border-gray-200 rounded-lg">
-        <table className="w-full">
+        <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="px-6 py-3 text-left">
+              <th className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left">
                 <input
                   type="checkbox"
                   id="select-all"
@@ -268,7 +269,7 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
                 />
               </th>
               <SortableHeader
-                label="Category Name"
+                label="Name"
                 sortKey="name"
                 currentSortKey={sortKey}
                 sortDirection={sortDirection}
@@ -287,6 +288,7 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
                 currentSortKey={sortKey}
                 sortDirection={sortDirection}
                 onSort={toggleSort}
+                className="hidden md:table-cell"
               />
               <SortableHeader
                 label="Created"
@@ -294,6 +296,7 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
                 currentSortKey={sortKey}
                 sortDirection={sortDirection}
                 onSort={toggleSort}
+                className="hidden sm:table-cell"
               />
             </tr>
           </thead>
@@ -303,7 +306,7 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
                 key={category.id}
                 className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
               >
-                <td className="px-6 py-4">
+                <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4">
                   <input
                     type="checkbox"
                     className="w-4 h-4 cursor-pointer"
@@ -311,31 +314,33 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
                     onChange={() => toggle(category.id)}
                   />
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4">
                   <Link
                     href={`/categories/${category.id}`}
-                    className="text-sm font-medium text-purple-600 hover:text-purple-700"
+                    className="text-xs sm:text-sm font-medium text-purple-600 hover:text-purple-700"
                   >
                     {category.name}
                   </Link>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4">
                   {(() => {
                     const status = getProductStatus(category._count.products);
                     return (
                       <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${status.bgColor} ${status.textColor}`}
+                        className={`inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${status.bgColor} ${status.textColor}`}
                       >
                         {category._count.products}
-                        <span className="text-xs">({status.label})</span>
+                        <span className="hidden sm:inline text-xs">
+                          ({status.label})
+                        </span>
                       </span>
                     );
                   })()}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-700">
+                <td className="hidden md:table-cell px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm text-gray-700">
                   {category.subcategories.length}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-600">
+                <td className="hidden sm:table-cell px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm text-gray-600">
                   {formatCategoryDate(category.createdAt)}
                 </td>
               </tr>
