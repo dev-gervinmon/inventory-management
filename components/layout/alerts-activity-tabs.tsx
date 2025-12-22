@@ -4,6 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { AlertCircle, Activity } from "lucide-react";
 import { formatActivityTime, getActivityIcon } from "@/lib/utils/dashboard";
+import {
+  EmptyAlertsState,
+  EmptyActivityState,
+} from "@/components/empty-states";
 
 interface Product {
   id: string;
@@ -85,11 +89,7 @@ export default function AlertsActivityTabs({
               })}
             </div>
           ) : (
-            <div className="text-center py-8">
-              <p className="text-sm text-gray-500">
-                ✓ All items are well stocked!
-              </p>
-            </div>
+            <EmptyAlertsState />
           )}
         </div>
 
@@ -127,11 +127,7 @@ export default function AlertsActivityTabs({
               ))}
             </div>
           ) : (
-            <div className="text-center py-8">
-              <p className="text-sm text-gray-500">
-                No activity yet. Start by adding a product!
-              </p>
-            </div>
+            <EmptyActivityState />
           )}
         </div>
       </div>
@@ -216,11 +212,7 @@ export default function AlertsActivityTabs({
                   })}
                 </div>
               ) : (
-                <div className="text-center py-8">
-                  <p className="text-sm text-gray-500">
-                    ✓ All items are well stocked!
-                  </p>
-                </div>
+                <EmptyAlertsState />
               )}
             </div>
           )}
@@ -255,11 +247,7 @@ export default function AlertsActivityTabs({
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8">
-                  <p className="text-sm text-gray-500">
-                    No activity yet. Start by adding a product!
-                  </p>
-                </div>
+                <EmptyActivityState />
               )}
             </div>
           )}
