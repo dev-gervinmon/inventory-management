@@ -63,11 +63,11 @@ export default function CategoryForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
       <div>
         <label
           htmlFor="name"
-          className="block text-sm font-medium text-gray-700 mb-2"
+          className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
         >
           Category Name *
         </label>
@@ -80,7 +80,7 @@ export default function CategoryForm() {
             clearMessage();
           }}
           placeholder="Enter category name"
-          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition ${
+          className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg text-sm focus:ring-2 focus:border-transparent transition ${
             message.type === "error"
               ? "border-red-300 focus:ring-red-500"
               : "border-gray-300 focus:ring-purple-500"
@@ -88,7 +88,7 @@ export default function CategoryForm() {
           maxLength={CATEGORY_LIMITS.NAME_MAX}
           disabled={isSubmitting}
         />
-        <div className="flex justify-between mt-2">
+        <div className="flex justify-between mt-1.5 sm:mt-2">
           {message.text === "" && (
             <span className="text-xs text-gray-400">
               {name.length}/{CATEGORY_LIMITS.NAME_MAX}
@@ -99,7 +99,7 @@ export default function CategoryForm() {
 
       <MessageBanner message={message} />
 
-      <div className="flex gap-4 pt-2">
+      <div className="flex gap-2 sm:gap-4 pt-2 sm:pt-4">
         <FormButton
           type="submit"
           label={isSubmitting ? "Creating..." : "Create Category"}
