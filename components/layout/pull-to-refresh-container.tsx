@@ -71,18 +71,23 @@ export default function PullToRefreshContainer({
     <div ref={containerRef} className="w-full">
       {/* Pull-to-Refresh Indicator - Always visible when pulling/refreshing/loading */}
       <div
-        className="h-16 flex items-center justify-center bg-linear-to-b from-purple-50 to-transparent overflow-hidden"
+        className="flex items-center justify-center bg-linear-to-b from-purple-50 to-transparent overflow-hidden"
         style={{
           maxHeight:
             isPulling || isRefreshing || isLoading || showCheckmark
-              ? "64px"
+              ? "80px"
+              : "0",
+          padding:
+            isPulling || isRefreshing || isLoading || showCheckmark
+              ? "12px 0"
               : "0",
           opacity:
             isPulling || isRefreshing || isLoading || showCheckmark ? 1 : 0,
-          transition: "opacity 0.2s ease, max-height 0.3s ease",
+          transition:
+            "opacity 0.2s ease, max-height 0.3s ease, padding 0.3s ease",
         }}
       >
-        <div className="flex flex-col items-center gap-3">
+        <div className="flex flex-col items-center gap-3 py-2">
           {/* Icon Container with enhanced animations */}
           <div className="relative w-10 h-10 flex items-center justify-center">
             {/* Arrow Icon - During pulling (hidden during refresh/success) */}
