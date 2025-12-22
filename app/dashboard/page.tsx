@@ -63,6 +63,22 @@ export default async function DashboardPage() {
   // Get critical stock items
   const criticalStockItems = getCriticalStockItems(allProducts);
 
+  // Serialize critical items for client component (convert Decimal to number)
+  const serializedCriticalStockItems = criticalStockItems.map((item) => ({
+    id: item.id,
+    name: item.name,
+    quantity: item.quantity,
+    sku: item.sku,
+  }));
+
+  // Serialize activities for client component
+  const serializedActivities = activities.map((activity) => ({
+    id: activity.id,
+    type: activity.type,
+    message: activity.message,
+    createdAt: activity.createdAt,
+  }));
+
   return (
     <div className="min-h-screen bg-gray-50">
       <MobileSidebar currentPath="/dashboard" />
@@ -221,20 +237,20 @@ export default async function DashboardPage() {
 
         {/** Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8 mb-8">
-          {/** Weekly Products Chart - 2 cols */}
+          {/** Weekly Products Chart - Full width on tablet, 2 cols on desktop */}
           <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-4 md:p-6">
             <div className="flex items-center justify-between mb-4 md:mb-6">
               <h2 className="text-base md:text-lg font-semibold text-gray-900">
                 New Products Per Week
               </h2>
             </div>
-            <div className="w-full h-48 md:h-64 min-w-0 min-h-0">
+            <div className="w-full h-48 md:h-80 lg:h-64 min-w-0 min-h-0">
               <ProductChart data={weeklyProductsData} />
             </div>
           </div>
 
-          {/** Stock Distribution */}
-          <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
+          {/** Stock Distribution - Hidden on tablet, visible on desktop */}
+          <div className="hidden lg:block bg-white rounded-lg border border-gray-200 p-4 md:p-6">
             <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-4 md:mb-6">
               Stock Status
             </h2>
@@ -304,8 +320,8 @@ export default async function DashboardPage() {
 
         {/** Critical Items & Recent Products */}
         <AlertsActivityTabs
-          criticalStockItems={criticalStockItems}
-          activities={activities}
+          criticalStockItems={serializedCriticalStockItems}
+          activities={serializedActivities}
         />
       </main>
     </div>
