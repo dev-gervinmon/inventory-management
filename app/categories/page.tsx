@@ -2,8 +2,7 @@ import MobileSidebar from "@/components/layout/mobile-sidebar";
 import DashboardContentWrapper from "@/components/layout/dashboard-content-wrapper";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
-import { getEmptyStateMessage } from "@/lib/utils/categories";
-import CategoriesTable from "@/components/tables/categories-table";
+import CategoriesPageContent from "./categories-content";
 import CategoryForm from "@/components/forms/category-form";
 
 export default async function CategoriesPage() {
@@ -54,18 +53,7 @@ export default async function CategoriesPage() {
             {/* Right Column: Categories List */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:border-gray-300 hover:shadow-sm transition-all duration-200">
-                <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-4 md:mb-6">
-                  Categories ({categories.length})
-                </h2>
-                {categories.length === 0 ? (
-                  <div className="text-center">
-                    <p className="text-gray-500">
-                      {getEmptyStateMessage("categories")}
-                    </p>
-                  </div>
-                ) : (
-                  <CategoriesTable categories={categories} />
-                )}
+                <CategoriesPageContent initialCategories={categories} />
               </div>
             </div>
           </div>
