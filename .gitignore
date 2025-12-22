@@ -42,3 +42,15 @@ next-env.d.ts
 
 /app/generated/prisma
 /prisma/migrations
+
+# Exclude example files, docs, and readmes from libraries
+**/EXAMPLES.*
+**/EXAMPLES/
+**/examples/
+**/docs/
+**/README.md
+!README.md
+**/CHANGELOG.md
+**/LICENSE
+*.example.*
+.example
