@@ -22,9 +22,9 @@ export default function FormButton({
   className = "",
 }: FormButtonProps) {
   const sizeClass = {
-    sm: "px-4 py-2 text-sm",
-    md: "px-6 py-3",
-    lg: "px-8 py-3",
+    sm: "px-3 py-2.5 text-sm", // ~40x44px (meets touch target)
+    md: "px-4 py-3 text-base", // ~44x44px (ideal touch target)
+    lg: "px-6 py-3 text-base", // ~48x44px+ (spacious)
   };
 
   const variantClass = {
