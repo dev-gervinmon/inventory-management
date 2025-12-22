@@ -1,6 +1,8 @@
 "use client";
 
 import { deleteProduct } from "@/lib/actions/products";
+import TouchOptimizedIconButton from "@/components/buttons/touch-optimized-icon-button";
+import { Trash2 } from "lucide-react";
 import { FormEvent } from "react";
 
 export default function DeleteProductButton({
@@ -21,12 +23,12 @@ export default function DeleteProductButton({
   return (
     <form onSubmit={handleDelete} className="inline">
       <input type="hidden" name="id" value={productId} />
-      <button
-        formAction={handleDeleteAction}
-        className="text-red-600 hover:text-red-900 font-medium"
-      >
-        Delete
-      </button>
+      <TouchOptimizedIconButton
+        icon={<Trash2 className="w-4 h-4" />}
+        label="Delete product"
+        variant="delete"
+        size="md"
+      />
     </form>
   );
 }
