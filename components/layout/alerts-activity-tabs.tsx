@@ -41,16 +41,40 @@ export default function AlertsActivityTabs({
         {/* Alerts Section */}
         <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
           <div className="flex items-center justify-between mb-4 md:mb-6">
-            <h2 className="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-red-600" />
-              Critical Stock Alerts
-            </h2>
+            <div>
+              <h2 className="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-red-600" />
+                Critical Stock Alerts
+              </h2>
+            </div>
             {criticalStockItems.length > 0 && (
-              <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full">
-                {criticalStockItems.length} items
-              </span>
+              <Link
+                href="/inventory?filter=critical-stock"
+                className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 text-xs md:text-sm font-semibold rounded-lg transition-colors"
+              >
+                See All
+                <svg
+                  className="w-3.5 h-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
+                </svg>
+              </Link>
             )}
           </div>
+          {criticalStockItems.length > 0 && (
+            <span className="text-xs text-gray-500 font-medium block mb-4">
+              {criticalStockItems.length} item
+              {criticalStockItems.length !== 1 ? "s" : ""} need attention
+            </span>
+          )}
 
           {criticalStockItems.length > 0 ? (
             <div className="space-y-3">
@@ -96,14 +120,39 @@ export default function AlertsActivityTabs({
         {/* Activity Section */}
         <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
           <div className="flex items-center justify-between mb-4 md:mb-6">
-            <h2 className="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <Activity className="w-5 h-5 text-blue-600" />
-              Recent Activity
-            </h2>
+            <div>
+              <h2 className="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <Activity className="w-5 h-5 text-blue-600" />
+                Recent Activity
+              </h2>
+            </div>
+            {activities.length > 0 && (
+              <Link
+                href="/activities"
+                className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs md:text-sm font-semibold rounded-lg transition-colors"
+              >
+                See All
+                <svg
+                  className="w-3.5 h-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
+                </svg>
+              </Link>
+            )}
+          </div>
+          {activities.length > 0 && (
             <span className="text-xs text-gray-500 font-medium">
               Latest {activities.length}
             </span>
-          </div>
+          )}
 
           {activities.length > 0 ? (
             <div className="space-y-3">
@@ -170,10 +219,39 @@ export default function AlertsActivityTabs({
           {/* Alerts Tab */}
           {activeTab === "alerts" && (
             <div>
-              <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-red-600" />
-                Critical Stock Alerts
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5 text-red-600" />
+                  Critical Stock Alerts
+                </h2>
+                {criticalStockItems.length > 0 && (
+                  <Link
+                    href="/inventory?filter=critical-stock"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 text-xs md:text-sm font-semibold rounded-lg transition-colors"
+                  >
+                    See All
+                    <svg
+                      className="w-3.5 h-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 7l5 5m0 0l-5 5m5-5H6"
+                      />
+                    </svg>
+                  </Link>
+                )}
+              </div>
+              {criticalStockItems.length > 0 && (
+                <span className="text-xs text-gray-500 font-medium block mb-4">
+                  {criticalStockItems.length} item
+                  {criticalStockItems.length !== 1 ? "s" : ""} need attention
+                </span>
+              )}
 
               {criticalStockItems.length > 0 ? (
                 <div className="space-y-3">
@@ -220,10 +298,20 @@ export default function AlertsActivityTabs({
           {/* Activity Tab */}
           {activeTab === "activity" && (
             <div>
-              <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Activity className="w-5 h-5 text-blue-600" />
-                Recent Activity
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-blue-600" />
+                  Recent Activity
+                </h2>
+                {activities.length > 0 && (
+                  <Link
+                    href="/activities"
+                    className="text-blue-600 hover:text-blue-700 text-xs md:text-sm font-medium whitespace-nowrap"
+                  >
+                    See All →
+                  </Link>
+                )}
+              </div>
 
               {activities.length > 0 ? (
                 <div className="space-y-3">
