@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import SideBar from "@/components/layout/sidebar";
+import MobileSidebar from "@/components/layout/mobile-sidebar";
 import SubcategoriesList from "@/components/list/subcategories-list";
 import AddSubcategoryForm from "@/components/forms/add-subcategory-form";
 import EditCategoryForm from "@/components/forms/edit-category-form";
@@ -68,7 +68,7 @@ export default function EditCategoryWrapper({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <SideBar currentPath="/categories" />
+      <MobileSidebar currentPath="/categories" />
       <main className="ml-64 p-8">
         <div className="mb-8">
           <div className="mb-4">

@@ -1,4 +1,4 @@
-import SideBar from "@/components/layout/sidebar";
+import MobileSidebar from "@/components/layout/mobile-sidebar";
 import { getCurrentUser } from "@/lib/auth/auth";
 import { AccountSettings } from "@stackframe/stack";
 
@@ -7,7 +7,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <SideBar currentPath="/settings" />
+      <MobileSidebar currentPath="/settings" />
       <main className="ml-64 p-8">
         <div className="mb-8">
           <div className="flex items-center justify-between">

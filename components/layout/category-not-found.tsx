@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import SideBar from "@/components/layout/sidebar";
+import MobileSidebar from "@/components/layout/mobile-sidebar";
 import { SecondaryButton } from "@/components/buttons/nav-button";
 import { UI_TIMING } from "@/lib/constants/forms";
 
@@ -78,7 +78,7 @@ export default function CategoryNotFound({
       role="button"
       tabIndex={wasDeleted ? 0 : -1}
     >
-      <SideBar currentPath="/categories" />
+      <MobileSidebar currentPath="/categories" />
       <main className="flex-1 overflow-y-auto">
         <div className="h-screen flex items-center justify-center">
           <div className="text-center">

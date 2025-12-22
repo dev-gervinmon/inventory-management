@@ -1,4 +1,4 @@
-import SideBar from "@/components/layout/sidebar";
+import MobileSidebar from "@/components/layout/mobile-sidebar";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
 import { getEmptyStateMessage } from "@/lib/utils/categories";
@@ -24,7 +24,7 @@ export default async function CategoriesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <SideBar currentPath="/categories" />
+      <MobileSidebar currentPath="/categories" />
       <main className="ml-64 p-8">
         <div className="mb-8">
           <div>

@@ -1,6 +1,6 @@
 import ProductTable from "@/components/tables/product-table";
 import AddProductButton from "@/components/buttons/add-product-button";
-import SideBar from "@/components/layout/sidebar";
+import MobileSidebar from "@/components/layout/mobile-sidebar";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
 import { serializeProduct } from "../src/utils/product";
@@ -30,7 +30,7 @@ export default async function InventoryPage() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
-      <SideBar currentPath="/inventory" />
+      <MobileSidebar currentPath="/inventory" />
       <main className="ml-64 p-8">
         {/* Header Section */}
         <div className="mb-8">
