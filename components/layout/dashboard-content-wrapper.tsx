@@ -2,8 +2,13 @@
 
 /**
  * Dashboard Content Wrapper
- * Client component that wraps dashboard content with pull-to-refresh
- * Tracks loading state during data refresh
+ * Client component that wraps dashboard content with pull-to-refresh functionality
+ * Handles async data refresh with loading state tracking via useTransition hook
+ *
+ * @example
+ * <DashboardContentWrapper>
+ *   <DashboardContent />
+ * </DashboardContentWrapper>
  */
 
 import React, { ReactNode, useTransition } from "react";
@@ -22,6 +27,7 @@ export default function DashboardContentWrapper({
 
   const handleRefresh = async () => {
     // Wrap router.refresh in startTransition to track loading state
+    // This allows parent components to know when data refresh is complete
     startTransition(() => {
       router.refresh();
     });
