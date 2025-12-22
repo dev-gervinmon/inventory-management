@@ -10,6 +10,8 @@ export interface ColumnVisibility {
   visible: boolean;
   essential: boolean; // Always show on mobile if true
   description?: string; // Help text for the column
+  isFavorited?: boolean; // Whether column is starred as favorite
+  toggleCount?: number; // Track how many times toggled
   mobileHidden?: boolean; // Default hidden on mobile
   sortable?: boolean;
   resizable?: boolean;
@@ -59,6 +61,21 @@ export function useColumnVisibility({
     }
 
     const storedConfig = localStorage.getItem(`${storageKey}_${tableId}`);
+    const storedMetadata = localStorage.getItem(
+      `${storageKey}_metadata_${tableId}`
+    );
+
+    let metadata: Record<
+      string,
+      { isFavorited?: boolean; toggleCount?: number }
+    > = {};
+    if (storedMetadata) {
+      try {
+        metadata = JSON.parse(storedMetadata);
+      } catch (error) {
+        console.error("Failed to parse column metadata:", error);
+      }
+    }
 
     if (storedConfig) {
       try {
@@ -70,14 +87,24 @@ export function useColumnVisibility({
             parsedConfig[col.id] !== undefined
               ? parsedConfig[col.id]
               : col.visible,
+          isFavorited: metadata[col.id]?.isFavorited ?? false,
+          toggleCount: metadata[col.id]?.toggleCount ?? 0,
         }));
       } catch (error) {
         console.error("Failed to parse column visibility config:", error);
-        return defaultColumns;
+        return defaultColumns.map((col) => ({
+          ...col,
+          isFavorited: metadata[col.id]?.isFavorited ?? false,
+          toggleCount: metadata[col.id]?.toggleCount ?? 0,
+        }));
       }
     }
 
-    return defaultColumns;
+    return defaultColumns.map((col) => ({
+      ...col,
+      isFavorited: metadata[col.id]?.isFavorited ?? false,
+      toggleCount: metadata[col.id]?.toggleCount ?? 0,
+    }));
   });
   const [isLoading] = useState(false);
 
@@ -90,10 +117,24 @@ export function useColumnVisibility({
       }
 
       const config: Record<string, boolean> = {};
+      const metadata: Record<
+        string,
+        { isFavorited?: boolean; toggleCount?: number }
+      > = {};
+
       newColumns.forEach((col) => {
         config[col.id] = col.visible;
+        metadata[col.id] = {
+          isFavorited: col.isFavorited,
+          toggleCount: col.toggleCount,
+        };
       });
+
       localStorage.setItem(`${storageKey}_${tableId}`, JSON.stringify(config));
+      localStorage.setItem(
+        `${storageKey}_metadata_${tableId}`,
+        JSON.stringify(metadata)
+      );
     },
     [tableId, storageKey]
   );
@@ -103,7 +144,13 @@ export function useColumnVisibility({
     (columnId: string) => {
       setColumns((prev) => {
         const updated = prev.map((col) =>
-          col.id === columnId ? { ...col, visible: !col.visible } : col
+          col.id === columnId
+            ? {
+                ...col,
+                visible: !col.visible,
+                toggleCount: (col.toggleCount ?? 0) + 1,
+              }
+            : col
         );
         saveToStorage(updated);
         return updated;
@@ -133,12 +180,27 @@ export function useColumnVisibility({
     });
   }, [saveToStorage]);
 
+  // Toggle favorite/star status of a column
+  const toggleFavorite = useCallback(
+    (columnId: string) => {
+      setColumns((prev) => {
+        const updated = prev.map((col) =>
+          col.id === columnId ? { ...col, isFavorited: !col.isFavorited } : col
+        );
+        saveToStorage(updated);
+        return updated;
+      });
+    },
+    [saveToStorage]
+  );
+
   // Reset to defaults
   const resetDefaults = useCallback(() => {
     setColumns(defaultColumns);
     // Only remove from localStorage in the browser
     if (typeof window !== "undefined") {
       localStorage.removeItem(`${storageKey}_${tableId}`);
+      localStorage.removeItem(`${storageKey}_metadata_${tableId}`);
     }
   }, [tableId, storageKey, defaultColumns]);
 
@@ -157,6 +219,7 @@ export function useColumnVisibility({
     columns,
     visibleColumns,
     toggleColumn,
+    toggleFavorite,
     showAll,
     hideNonEssential,
     resetDefaults,
