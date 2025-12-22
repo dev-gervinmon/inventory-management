@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { X, Eye, EyeOff } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { X, Eye, EyeOff, Search } from "lucide-react";
 import { ColumnVisibility } from "@/lib/hooks/useColumnVisibility";
 
 interface ColumnManagerModalProps {
@@ -15,16 +15,19 @@ interface ColumnManagerModalProps {
 
 /**
  * Column Manager Modal
- * Allows users to show/hide table columns
+ * Allows users to show/hide table columns with search functionality
  *
  * Features:
+ * - Search/filter columns by name (case-insensitive)
  * - Toggle individual columns
  * - Show All / Hide All toggle (shows only essentials when all hidden)
  * - Backdrop click to close
+ * - Escape key to close
  * - Prevents background scroll/interaction when open
- * - Mobile-responsive
+ * - Mobile-responsive (search input scales on all devices)
  * - Production-ready design with SaaS polish
- * - Accessibility support
+ * - Accessibility support (ARIA labels, semantic HTML)
+ * - Scales gracefully to any number of columns (10+)
  */
 export default function ColumnManagerModal({
   isOpen,
@@ -34,6 +37,8 @@ export default function ColumnManagerModal({
   onToggleAllColumns,
   hiddenCount,
 }: ColumnManagerModalProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+
   // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
@@ -45,13 +50,32 @@ export default function ColumnManagerModal({
     }
   }, [isOpen]);
 
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
+  // Filter columns based on search query
+  const filteredColumns = useCallback(() => {
+    if (!searchQuery.trim()) return columns;
+    const lowerQuery = searchQuery.toLowerCase();
+    return columns.filter((col) =>
+      col.label.toLowerCase().includes(lowerQuery)
+    );
+  }, [columns, searchQuery]);
+
+  const displayColumns = filteredColumns();
+  const hasSearchResults = displayColumns.length > 0;
+
   if (!isOpen) return null;
 
   // Determine if we should show "Show All" or "Hide All"
-  const nonEssentialColumns = columns.filter((col) => !col.essential);
-  const allNonEssentialVisible = nonEssentialColumns.every(
-    (col) => col.visible
-  );
   const showShowAllButton = hiddenCount > 0;
 
   return (
@@ -99,21 +123,52 @@ export default function ColumnManagerModal({
           </div>
 
           {/* Content */}
-          <div className="p-5 sm:p-6">
+          <div className="p-5 sm:p-6 space-y-4">
+            {/* Search Input */}
+            <div className="relative">
+              <div className="relative flex items-center">
+                <Search className="absolute left-3 w-4 h-4 text-gray-400 pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder="Search columns..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-9 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                  aria-label="Search columns"
+                  autoComplete="off"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 p-0.5 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                    aria-label="Clear search"
+                    type="button"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+
             {/* Quick Action - Show All / Hide All Toggle */}
-            <div className="mb-5 pb-5 border-b border-gray-100">
+            <div className="pb-4 border-b border-gray-100">
               <button
                 onClick={onToggleAllColumns}
                 className={`w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors duration-200 cursor-pointer ${
+                  searchQuery ? "opacity-50 pointer-events-none" : ""
+                } ${
                   showShowAllButton
                     ? "text-gray-700 bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300"
                     : "text-purple-600 bg-purple-50 border border-purple-200 hover:bg-purple-100 hover:border-purple-300"
                 }`}
                 title={
-                  showShowAllButton
+                  searchQuery
+                    ? "Clear search to use this button"
+                    : showShowAllButton
                     ? "Show all columns"
                     : "Hide optional columns"
                 }
+                disabled={!!searchQuery}
                 type="button"
               >
                 {showShowAllButton ? (
@@ -131,41 +186,49 @@ export default function ColumnManagerModal({
             </div>
 
             {/* Column List */}
-            <div className="space-y-1.5 max-h-96 overflow-y-auto pr-2">
-              {columns.map((column) => (
-                <label
-                  key={column.id}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 ${
-                    column.essential
-                      ? "opacity-60 cursor-not-allowed"
-                      : "hover:bg-purple-50 cursor-pointer"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={column.visible}
-                    onChange={() =>
-                      !column.essential && onToggleColumn(column.id)
-                    }
-                    disabled={column.essential}
-                    className="w-4 h-4 rounded-md border-gray-300 text-purple-600 checked:bg-purple-600 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 accent-purple-600"
-                    aria-label={`Toggle ${column.label} column visibility`}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-gray-900 truncate">
-                      {column.label}
+            <div className="space-y-1.5 max-h-80 overflow-y-auto pr-2">
+              {hasSearchResults ? (
+                displayColumns.map((column) => (
+                  <label
+                    key={column.id}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 ${
+                      column.essential
+                        ? "opacity-60 cursor-not-allowed"
+                        : "hover:bg-purple-50 cursor-pointer"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={column.visible}
+                      onChange={() =>
+                        !column.essential && onToggleColumn(column.id)
+                      }
+                      disabled={column.essential}
+                      className="w-4 h-4 rounded-md border-gray-300 text-purple-600 checked:bg-purple-600 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 accent-purple-600"
+                      aria-label={`Toggle ${column.label} column visibility`}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-gray-900 truncate">
+                        {column.label}
+                      </div>
+                      {column.essential && (
+                        <span className="text-xs text-gray-400 font-medium">
+                          Always shown
+                        </span>
+                      )}
                     </div>
-                    {column.essential && (
-                      <span className="text-xs text-gray-400 font-medium">
-                        Always shown
-                      </span>
-                    )}
-                  </div>
-                </label>
-              ))}
+                  </label>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-sm text-gray-500">
+                    No columns match &quot;{searchQuery}&quot;
+                  </p>
+                </div>
+              )}
             </div>
 
-            {columns.length === 0 && (
+            {!searchQuery && columns.length === 0 && (
               <div className="text-center py-8">
                 <p className="text-sm text-gray-500">No columns available</p>
               </div>
