@@ -9,8 +9,18 @@ import {
 } from "@/lib/hooks/useColumnVisibility";
 import CategoriesTable from "@/components/tables/categories-table";
 
+interface Category {
+  id: string;
+  name: string;
+  createdAt: Date;
+  subcategories: Array<{ id: string }>;
+  _count: {
+    products: number;
+  };
+}
+
 interface CategoriesPageContentProps {
-  initialCategories: any[];
+  initialCategories: Category[];
 }
 
 export default function CategoriesPageContent({
@@ -52,18 +62,31 @@ export default function CategoriesPageContent({
     },
   ];
 
-  const {
-    columns,
-    visibleColumns,
-    toggleColumn,
-    showAll,
-    hideNonEssential,
-    resetDefaults,
-    isCustomized,
-  } = useColumnVisibility({
-    tableId: "categories",
-    defaultColumns,
-  });
+  const { columns, visibleColumns, toggleColumn, showAll, isCustomized } =
+    useColumnVisibility({
+      tableId: "categories",
+      defaultColumns,
+    });
+
+  // Toggle between Show All and Hide All (show only essentials)
+  const handleToggleAllColumns = () => {
+    const nonEssentialColumns = columns.filter((col) => !col.essential);
+    const allNonEssentialVisible = nonEssentialColumns.every(
+      (col) => col.visible
+    );
+
+    // If all non-essential columns are visible, hide them
+    // Otherwise, show all columns
+    if (allNonEssentialVisible) {
+      nonEssentialColumns.forEach((col) => {
+        if (col.visible) {
+          toggleColumn(col.id);
+        }
+      });
+    } else {
+      showAll();
+    }
+  };
 
   return (
     <>
@@ -94,9 +117,7 @@ export default function CategoriesPageContent({
         onClose={() => setShowColumnManager(false)}
         columns={columns}
         onToggleColumn={toggleColumn}
-        onShowAll={showAll}
-        onHideNonEssential={hideNonEssential}
-        onResetDefaults={resetDefaults}
+        onToggleAllColumns={handleToggleAllColumns}
         hiddenCount={columns.filter((col) => !col.visible).length}
       />
     </>
