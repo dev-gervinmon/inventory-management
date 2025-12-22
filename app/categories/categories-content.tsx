@@ -33,6 +33,7 @@ export default function CategoriesPageContent({
     {
       id: "name",
       label: "Name",
+      description: "The category name",
       visible: true,
       essential: true,
       sortable: true,
@@ -40,6 +41,7 @@ export default function CategoriesPageContent({
     {
       id: "products",
       label: "Products",
+      description: "Number of products in this category",
       visible: true,
       essential: true,
       sortable: true,
@@ -47,6 +49,7 @@ export default function CategoriesPageContent({
     {
       id: "subcategories",
       label: "Subcategories",
+      description: "Number of subcategories in this category",
       visible: false,
       essential: false,
       sortable: true,
@@ -55,6 +58,7 @@ export default function CategoriesPageContent({
     {
       id: "created",
       label: "Created",
+      description: "Date when the category was created",
       visible: false,
       essential: false,
       sortable: true,
