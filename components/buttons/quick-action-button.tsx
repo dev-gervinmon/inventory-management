@@ -16,7 +16,7 @@ export default function QuickActionButton({
   className = "",
 }: QuickActionButtonProps) {
   const baseClass =
-    "inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg";
+    "inline-flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg min-h-[44px]";
 
   const variantClass = {
     primary:
