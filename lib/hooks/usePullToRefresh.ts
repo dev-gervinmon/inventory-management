@@ -1,16 +1,30 @@
 /**
  * Pull-to-Refresh Hook
- * Detects when user pulls down on mobile and triggers refresh
- * Desktop: Disabled automatically
- * Mobile: Works on touch devices
+ * Detects when user pulls down on mobile and triggers refresh action
+ *
+ * Features:
+ * - Mobile-only: Desktop automatically disabled
+ * - Scroll-aware: Only triggers at top of page
+ * - Resistance: Natural deceleration as you pull
+ * - Performance: Passive event listeners for smooth 60fps
+ *
+ * @example
+ * const { containerRef, isPulling, progress, shouldTrigger, isRefreshing }
+ *   = usePullToRefresh({ onRefresh: () => refetch(), triggerDistance: 80 })
  */
 
 import { useState, useCallback, useRef, useEffect } from "react";
 
+// Configuration constants
+const PTR_HOOK_CONFIG = {
+  DEFAULT_TRIGGER_DISTANCE: 80, // pixels
+  DEFAULT_RESISTANCE: 0.7, // 0-1, lower = more resistance
+} as const;
+
 interface UsePullToRefreshOptions {
   onRefresh: () => Promise<void> | void;
-  triggerDistance?: number; // pixels to pull before triggering (default: 80)
-  resistance?: number; // friction as you pull (0-1, default: 0.7)
+  triggerDistance?: number; // pixels to pull before triggering
+  resistance?: number; // friction as you pull (0-1)
 }
 
 interface PullToRefreshState {
@@ -21,8 +35,8 @@ interface PullToRefreshState {
 
 export function usePullToRefresh({
   onRefresh,
-  triggerDistance = 80,
-  resistance = 0.7,
+  triggerDistance = PTR_HOOK_CONFIG.DEFAULT_TRIGGER_DISTANCE,
+  resistance = PTR_HOOK_CONFIG.DEFAULT_RESISTANCE,
 }: UsePullToRefreshOptions) {
   const [state, setState] = useState<PullToRefreshState>({
     isPulling: false,
@@ -39,7 +53,7 @@ export function usePullToRefresh({
   const shouldTrigger = state.pullDistance >= triggerDistance;
 
   const handleTouchStart = useCallback((e: TouchEvent) => {
-    // Only start if scrolled to top
+    // Only start pull-to-refresh if scrolled to top of page
     const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
     if (scrollTop !== 0) return;
 
