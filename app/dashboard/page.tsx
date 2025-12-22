@@ -82,22 +82,22 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <MobileSidebar currentPath="/dashboard" />
-      <main className="md:ml-64 px-4 sm:px-6 md:px-8 py-4 md:py-8 pt-20 md:pt-8">
+      <main className="md:ml-64 px-4 sm:px-6 md:px-8 py-2 sm:py-4 md:py-8 pt-20 sm:pt-24 md:pt-8">
         {/** Header with Quick Actions */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
+        <div className="mb-4 sm:mb-8">
+          <div className="flex items-center justify-between mb-3 sm:mb-6">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
                 Dashboard
               </h1>
-              <p className="text-xs sm:text-sm text-gray-600 mt-1">
+              <p className="text-xs sm:text-sm text-gray-700 mt-0.5 sm:mt-1">
                 Welcome back! Here is an overview of your inventory.
               </p>
             </div>
           </div>
 
           {/** Quick Actions */}
-          <div className="flex flex-col sm:flex-row flex-wrap gap-3">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3">
             <AddProductButton
               variant="simple"
               size="sm"
@@ -149,15 +149,15 @@ export default async function DashboardPage() {
         </div>
 
         {/** Key Metrics - 4 Column Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-10">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-6 mb-6 sm:mb-10">
           {/** Total Products */}
-          <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6 hover:border-gray-300 transition-colors">
+          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:border-gray-300 hover:shadow-sm transition-all duration-200">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs sm:text-sm md:text-sm text-gray-600 font-medium">
+                <p className="text-xs sm:text-sm md:text-sm text-gray-700 font-semibold">
                   Total Products
                 </p>
-                <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mt-2">
+                <p className="text-lg sm:text-xl md:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">
                   {totalProducts}
                 </p>
               </div>
@@ -165,19 +165,19 @@ export default async function DashboardPage() {
                 <div className="w-5 h-5 md:w-6 md:h-6 text-blue-600">📦</div>
               </div>
             </div>
-            <p className="text-xs text-gray-500 mt-4">
+            <p className="text-xs text-gray-500 mt-4 landscape:mt-2 landscape:hidden">
               All products in inventory
             </p>
           </div>
 
           {/** Total Value */}
-          <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6 hover:border-gray-300 transition-colors">
+          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:border-gray-300 hover:shadow-sm transition-all duration-200">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs sm:text-sm md:text-sm text-gray-600 font-medium">
+                <p className="text-xs sm:text-sm md:text-sm text-gray-700 font-semibold">
                   Total Value
                 </p>
-                <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mt-2">
+                <p className="text-lg sm:text-xl md:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">
                   ₱{Number(totalValue).toFixed(0)}
                 </p>
               </div>
@@ -191,13 +191,13 @@ export default async function DashboardPage() {
           </div>
 
           {/** In Stock */}
-          <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6 hover:border-gray-300 transition-colors">
+          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:border-gray-300 hover:shadow-sm transition-all duration-200">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs sm:text-sm md:text-sm text-gray-600 font-medium">
+                <p className="text-xs sm:text-sm md:text-sm text-gray-700 font-semibold">
                   In Stock
                 </p>
-                <p className="text-xl sm:text-2xl md:text-3xl font-bold text-green-600 mt-2">
+                <p className="text-lg sm:text-xl md:text-3xl font-bold text-green-600 mt-1 sm:mt-2">
                   {inStockCount}
                 </p>
               </div>
@@ -213,13 +213,13 @@ export default async function DashboardPage() {
           </div>
 
           {/** Critical Items */}
-          <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6 hover:border-gray-300 transition-colors">
+          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:border-gray-300 hover:shadow-sm transition-all duration-200">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs sm:text-sm md:text-sm text-gray-600 font-medium">
+                <p className="text-xs sm:text-sm md:text-sm text-gray-700 font-semibold">
                   Critical Stock
                 </p>
-                <p className="text-xl sm:text-2xl md:text-3xl font-bold text-red-600 mt-2">
+                <p className="text-lg sm:text-xl md:text-3xl font-bold text-red-600 mt-1 sm:mt-2">
                   {outOfStockCount + lowStockCount}
                 </p>
               </div>
@@ -236,9 +236,9 @@ export default async function DashboardPage() {
         </div>
 
         {/** Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8 mb-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-8 mb-6 sm:mb-10">
           {/** Weekly Products Chart - Full width on tablet, 2 cols on desktop */}
-          <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-4 md:p-6">
+          <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:shadow-sm transition-all duration-200">
             <div className="flex items-center justify-between mb-4 md:mb-6">
               <h2 className="text-base md:text-lg font-semibold text-gray-900">
                 New Products Per Week
@@ -253,7 +253,7 @@ export default async function DashboardPage() {
           </div>
 
           {/** Stock Distribution - Hidden on tablet, visible on desktop */}
-          <div className="hidden lg:block bg-white rounded-lg border border-gray-200 p-4 md:p-6">
+          <div className="hidden lg:block bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:shadow-sm transition-all duration-200">
             <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-4 md:mb-6">
               Stock Status
             </h2>
