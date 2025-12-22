@@ -1,13 +1,11 @@
-import Link from "next/link";
 import ProductChart from "@/components/charts/products-chart";
 import MobileSidebar from "@/components/layout/mobile-sidebar";
+import AlertsActivityTabs from "@/components/layout/alerts-activity-tabs";
 import AddProductButton from "@/components/buttons/add-product-button";
 import QuickActionButton from "@/components/buttons/quick-action-button";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
 import {
-  formatActivityTime,
-  getActivityIcon,
   calculateStockStats,
   generateWeeklyProductData,
   getCriticalStockItems,
@@ -83,8 +81,12 @@ export default async function DashboardPage() {
           </div>
 
           {/** Quick Actions */}
-          <div className="flex flex-wrap gap-3">
-            <AddProductButton variant="simple" size="sm" />
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3">
+            <AddProductButton
+              variant="simple"
+              size="sm"
+              className="w-full sm:w-auto justify-center sm:justify-start"
+            />
             <QuickActionButton
               href="/inventory"
               label="View Inventory"
@@ -104,6 +106,7 @@ export default async function DashboardPage() {
                 </svg>
               }
               variant="secondary"
+              className="w-full sm:w-auto justify-center"
             />
             <QuickActionButton
               href="/categories"
@@ -124,6 +127,7 @@ export default async function DashboardPage() {
                 </svg>
               }
               variant="secondary"
+              className="w-full sm:w-auto justify-center"
             />
           </div>
         </div>
@@ -299,108 +303,10 @@ export default async function DashboardPage() {
         </div>
 
         {/** Critical Items & Recent Products */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
-          {/** Low Stock Alert */}
-          <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
-            <div className="flex items-center justify-between mb-4 md:mb-6">
-              <h2 className="text-base md:text-lg font-semibold text-gray-900">
-                Critical Stock Alerts
-              </h2>
-              {criticalStockItems.length > 0 && (
-                <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full">
-                  {criticalStockItems.length} items
-                </span>
-              )}
-            </div>
-
-            {criticalStockItems.length > 0 ? (
-              <div className="space-y-3">
-                {criticalStockItems.map(
-                  (product: (typeof allProducts)[number]) => {
-                    const status =
-                      product.quantity === 0 ? "Out of Stock" : "Low Stock";
-                    const statusColor =
-                      product.quantity === 0
-                        ? "text-red-600 bg-red-50"
-                        : "text-yellow-600 bg-yellow-50";
-
-                    return (
-                      <Link
-                        key={product.id}
-                        href={`/inventory/${product.id}/edit-product`}
-                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
-                      >
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900 truncate">
-                            {product.name}
-                          </p>
-                          <p className="text-xs text-gray-600 mt-1">
-                            SKU: {product.sku}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p
-                            className={`text-xs md:text-sm font-bold ${statusColor} px-2 py-1 rounded inline-block`}
-                          >
-                            {product.quantity} units
-                          </p>
-                          <p className="text-xs text-gray-500 mt-1">{status}</p>
-                        </div>
-                      </Link>
-                    );
-                  }
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-sm text-gray-500">
-                  ✓ All items are well stocked!
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/** Recent Products */}
-          <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
-            <div className="flex items-center justify-between mb-4 md:mb-6">
-              <h2 className="text-base md:text-lg font-semibold text-gray-900">
-                Recent Activity
-              </h2>
-              <span className="text-xs text-gray-500 font-medium">
-                Latest {activities.length}
-              </span>
-            </div>
-
-            {activities.length > 0 ? (
-              <div className="space-y-3">
-                {activities.map((activity: (typeof activities)[number]) => (
-                  <div
-                    key={activity.id}
-                    className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
-                  >
-                    <div className="text-xl mt-0.5">
-                      {getActivityIcon(activity.type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {activity.message}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {formatActivityTime(activity.createdAt)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-sm text-gray-500">
-                  No activity yet. Start by adding a product!
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
+        <AlertsActivityTabs
+          criticalStockItems={criticalStockItems}
+          activities={activities}
+        />
       </main>
     </div>
   );
