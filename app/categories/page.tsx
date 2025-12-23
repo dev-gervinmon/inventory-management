@@ -3,7 +3,7 @@ import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
 import CategoriesPageContent from "./categories-content";
-import CategoryForm from "@/components/forms/category-form";
+import CategoryFormWrapper from "./category-form-wrapper";
 
 export default async function CategoriesPage() {
   await getCurrentUser();
@@ -46,7 +46,7 @@ export default async function CategoriesPage() {
                 <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-4 md:mb-6">
                   Add New Category
                 </h2>
-                <CategoryForm />
+                <CategoryFormWrapper />
               </div>
             </div>
 
