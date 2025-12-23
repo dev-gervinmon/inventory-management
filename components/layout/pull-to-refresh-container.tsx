@@ -98,10 +98,10 @@ export default function PullToRefreshContainer({
   }, [isLoading, isRefreshing]);
 
   return (
-    <div ref={containerRef} className="w-full">
+    <div ref={containerRef} className="w-full overflow-x-hidden">
       {/* Pull-to-Refresh Indicator - Always visible when pulling/refreshing/loading */}
       <div
-        className="flex items-center justify-center bg-linear-to-b from-purple-50 to-transparent overflow-hidden"
+        className="flex items-center justify-center bg-linear-to-b from-purple-50 to-transparent overflow-visible"
         style={{
           maxHeight:
             isPulling || isRefreshing || isLoading || showCheckmark
