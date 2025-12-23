@@ -6,8 +6,7 @@ import MobileSidebar from "@/components/layout/mobile-sidebar";
 import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
 import SubcategoriesListWrapper from "@/components/layout/subcategories-list-wrapper";
 import AddSubcategoryFormWrapper from "@/components/layout/add-subcategory-form-wrapper";
-import EditCategoryFormWrapper from "@/components/layout/edit-category-form-wrapper";
-import DeleteCategoryButton from "@/components/buttons/delete/delete-category-button";
+import EditCategoryFormWithDeleteWrapper from "@/components/layout/edit-category-form-with-delete-wrapper";
 import ConfirmationModal from "@/components/modals/confirmation-modal";
 import MessageBanner from "@/components/common/message-banner";
 import { SecondaryButton } from "@/components/buttons/nav-button";
@@ -132,19 +131,11 @@ export default function EditCategoryWrapper({
                     <h2 className="hidden lg:block text-base sm:text-lg md:text-lg font-semibold text-gray-900 mb-4 sm:mb-6">
                       Edit Category
                     </h2>
-                    <EditCategoryFormWrapper
+                    <EditCategoryFormWithDeleteWrapper
                       categoryId={category.id}
                       categoryName={category.name}
+                      onDelete={() => setIsModalOpen(true)}
                     />
-
-                    {/* Delete Button - Outside of form */}
-                    <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
-                      <DeleteCategoryButton
-                        categoryId={category.id}
-                        categoryName={category.name}
-                        onDelete={() => setIsModalOpen(true)}
-                      />
-                    </div>
                   </div>
                 )}
 
@@ -164,19 +155,11 @@ export default function EditCategoryWrapper({
                     <h2 className="text-base sm:text-lg md:text-lg font-semibold text-gray-900 mb-4 sm:mb-6">
                       Edit Category
                     </h2>
-                    <EditCategoryFormWrapper
+                    <EditCategoryFormWithDeleteWrapper
                       categoryId={category.id}
                       categoryName={category.name}
+                      onDelete={() => setIsModalOpen(true)}
                     />
-
-                    {/* Delete Button - Outside of form */}
-                    <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
-                      <DeleteCategoryButton
-                        categoryId={category.id}
-                        categoryName={category.name}
-                        onDelete={() => setIsModalOpen(true)}
-                      />
-                    </div>
                   </div>
 
                   <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 md:p-8 shadow-sm">
