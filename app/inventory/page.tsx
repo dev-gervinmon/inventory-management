@@ -1,4 +1,4 @@
-import ProductTable from "@/components/tables/product-table";
+import ProductTableContent from "@/app/inventory/product-table-content";
 import AddProductButton from "@/components/buttons/add-product-button";
 import MobileSidebar from "@/components/layout/mobile-sidebar";
 import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
@@ -11,21 +11,18 @@ export default async function InventoryPage() {
   const userId = user.id;
 
   // Fetch all products for the user (client-side filtering/sorting/pagination)
-  const [totalCount, itemsRaw] = await Promise.all([
-    prisma.product.count({ where: { userId } }),
-    prisma.product.findMany({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-      include: {
-        categories: true,
-        subcategories: {
-          include: {
-            category: true,
-          },
+  const itemsRaw = await prisma.product.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    include: {
+      categories: true,
+      subcategories: {
+        include: {
+          category: true,
         },
       },
-    }),
-  ]);
+    },
+  });
 
   const items = itemsRaw.map(serializeProduct);
 
@@ -39,7 +36,7 @@ export default async function InventoryPage() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
               <div>
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                  Inventory ({totalCount})
+                  Inventory
                 </h1>
                 <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-0.5 sm:mt-1">
                   Manage your products and track inventory levels
@@ -52,8 +49,10 @@ export default async function InventoryPage() {
           </div>
 
           <div className="space-y-4 sm:space-y-6">
-            {/* Product Table */}
-            <ProductTable products={items} />
+            {/* Product Table Card */}
+            <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:border-gray-300 hover:shadow-sm transition-all duration-200">
+              <ProductTableContent products={items} />
+            </div>
           </div>
         </PullToRefreshWrapper>
       </main>
