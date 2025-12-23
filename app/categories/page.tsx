@@ -1,5 +1,5 @@
 import MobileSidebar from "@/components/layout/mobile-sidebar";
-import DashboardContentWrapper from "@/components/layout/dashboard-content-wrapper";
+import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
 import CategoriesPageContent from "./categories-content";
@@ -26,7 +26,7 @@ export default async function CategoriesPage() {
     <div className="min-h-screen bg-gray-50">
       <MobileSidebar currentPath="/categories" />
       <main className="md:ml-64 px-4 sm:px-6 md:px-8 py-2 sm:py-4 md:py-8 pt-20 sm:pt-24 md:pt-8">
-        <DashboardContentWrapper>
+        <PullToRefreshWrapper>
           <div className="mb-4 sm:mb-6 md:mb-8">
             <div>
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
@@ -57,7 +57,7 @@ export default async function CategoriesPage() {
               </div>
             </div>
           </div>
-        </DashboardContentWrapper>
+        </PullToRefreshWrapper>
       </main>
     </div>
   );
