@@ -1,6 +1,7 @@
 import ProductTable from "@/components/tables/product-table";
 import AddProductButton from "@/components/buttons/add-product-button";
 import MobileSidebar from "@/components/layout/mobile-sidebar";
+import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
 import { serializeProduct } from "../src/utils/product";
@@ -29,28 +30,32 @@ export default async function InventoryPage() {
   const items = itemsRaw.map(serializeProduct);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gray-50">
       <MobileSidebar currentPath="/inventory" />
-      <main className="ml-64 p-8">
-        {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-gray-900">
-                Inventory ({totalCount})
-              </h1>
-              <p className="text-base text-gray-600 mt-2">
-                Manage your products and track inventory levels
-              </p>
+      <main className="md:ml-64 px-4 sm:px-6 md:px-8 py-2 sm:py-4 md:py-8 pt-20 sm:pt-24 md:pt-8">
+        <PullToRefreshWrapper>
+          {/* Header Section */}
+          <div className="mb-4 sm:mb-6 md:mb-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+              <div>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
+                  Inventory ({totalCount})
+                </h1>
+                <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-0.5 sm:mt-1">
+                  Manage your products and track inventory levels
+                </p>
+              </div>
+              <div className="w-full sm:w-auto">
+                <AddProductButton className="w-full sm:w-auto justify-center sm:justify-start" />
+              </div>
             </div>
-            <AddProductButton />
           </div>
-        </div>
 
-        <div className="space-y-6">
-          {/* Product Table */}
-          <ProductTable products={items} />
-        </div>
+          <div className="space-y-4 sm:space-y-6">
+            {/* Product Table */}
+            <ProductTable products={items} />
+          </div>
+        </PullToRefreshWrapper>
       </main>
     </div>
   );
