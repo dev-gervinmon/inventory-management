@@ -124,7 +124,7 @@ export default function EditCategoryWrapper({
               </div>
 
               {/* Forms Container */}
-              <div className="space-y-4 sm:space-y-6 md:space-y-8">
+              <div className="space-y-4 sm:space-y-6 md:space-y-8 lg:hidden">
                 {/* Edit Category Form - with fade transition */}
                 {activeTab === "edit" && (
                   <div className="animate-fade bg-white rounded-b-xl lg:rounded-xl border border-gray-200 p-4 sm:p-6 md:p-8 shadow-sm static md:sticky md:top-8 z-0">
@@ -148,26 +148,26 @@ export default function EditCategoryWrapper({
                     <AddSubcategoryFormWrapper categoryId={category.id} />
                   </div>
                 )}
+              </div>
 
-                {/* Desktop View: Show both forms vertically */}
-                <div className="hidden lg:block space-y-8">
-                  <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 md:p-8 shadow-sm static md:sticky md:top-8 z-0">
-                    <h2 className="text-base sm:text-lg md:text-lg font-semibold text-gray-900 mb-4 sm:mb-6">
-                      Edit Category
-                    </h2>
-                    <EditCategoryFormWithDeleteWrapper
-                      categoryId={category.id}
-                      categoryName={category.name}
-                      onDelete={() => setIsModalOpen(true)}
-                    />
-                  </div>
+              {/* Desktop View: Show both forms vertically */}
+              <div className="hidden lg:block space-y-8">
+                <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 md:p-8 shadow-sm static md:sticky md:top-8 z-0">
+                  <h2 className="text-base sm:text-lg md:text-lg font-semibold text-gray-900 mb-4 sm:mb-6">
+                    Edit Category
+                  </h2>
+                  <EditCategoryFormWithDeleteWrapper
+                    categoryId={category.id}
+                    categoryName={category.name}
+                    onDelete={() => setIsModalOpen(true)}
+                  />
+                </div>
 
-                  <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 md:p-8 shadow-sm">
-                    <h2 className="text-base sm:text-lg md:text-lg font-semibold text-gray-900 mb-4 sm:mb-6">
-                      Add New Subcategory
-                    </h2>
-                    <AddSubcategoryFormWrapper categoryId={category.id} />
-                  </div>
+                <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 md:p-8 shadow-sm">
+                  <h2 className="text-base sm:text-lg md:text-lg font-semibold text-gray-900 mb-4 sm:mb-6">
+                    Add New Subcategory
+                  </h2>
+                  <AddSubcategoryFormWrapper categoryId={category.id} />
                 </div>
               </div>
             </div>
