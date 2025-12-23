@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { PencilIcon, Plus } from "lucide-react";
 import MobileSidebar from "@/components/layout/mobile-sidebar";
+import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
 import SubcategoriesList from "@/components/list/subcategories-list";
 import AddSubcategoryForm from "@/components/forms/add-subcategory-form";
 import EditCategoryForm from "@/components/forms/edit-category-form";
@@ -37,6 +39,7 @@ export default function EditCategoryWrapper({
 }: EditCategoryWrapperProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [activeTab, setActiveTab] = useState<"edit" | "add">("edit");
   const { message, showSuccess, showError, clearMessage } = useMessage({
     autoClose: true,
     timeout: UI_TIMING.MESSAGE_TIMEOUT_MS,
@@ -69,77 +72,147 @@ export default function EditCategoryWrapper({
   return (
     <div className="min-h-screen bg-gray-50">
       <MobileSidebar currentPath="/categories" />
-      <main className="ml-64 p-8">
-        <div className="mb-8">
-          <div className="mb-4">
-            <SecondaryButton
-              href="/categories"
-              label="← Back to Categories"
-              variant="subtle"
-            />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900">{category.name}</h1>
-          <p className="text-base text-gray-600 mt-2">
-            Manage category details and subcategories
-          </p>
-        </div>
-
-        {/* Main Form and Subcategories in 2 Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column: Forms */}
-          <div className="lg:col-span-1 space-y-8">
-            {/* Edit Category Form */}
-            <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm sticky top-8 z-0">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">
-                Edit Category
-              </h2>
-              <EditCategoryForm
-                categoryId={category.id}
-                categoryName={category.name}
+      <PullToRefreshWrapper>
+        <main className="md:ml-64 pt-20 sm:pt-24 md:pt-8 px-4 sm:px-6 md:px-8 pb-8">
+          <div className="mb-6 sm:mb-8">
+            <div className="mb-3 sm:mb-4">
+              <SecondaryButton
+                href="/categories"
+                label="← Back to Categories"
+                variant="subtle"
               />
+            </div>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
+              {category.name}
+            </h1>
+            <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1 sm:mt-2">
+              Manage category details and subcategories
+            </p>
+          </div>
 
-              {/* Delete Button - Outside of form */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <DeleteCategoryButton
-                  categoryId={category.id}
-                  categoryName={category.name}
-                  onDelete={() => setIsModalOpen(true)}
-                />
+          {/* Main Form and Subcategories in 2 Column Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+            {/* Left Column: Forms - Tabs on Mobile, Vertical on Desktop */}
+            <div className="lg:col-span-1">
+              {/* Mobile Tabs - Hidden on desktop */}
+              <div className="lg:hidden mb-4">
+                <div className="flex gap-1 border-b border-gray-200 bg-white rounded-t-xl">
+                  <button
+                    onClick={() => setActiveTab("edit")}
+                    className={`flex-1 flex items-center justify-center gap-2 px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold transition-all duration-200 rounded-t-lg ${
+                      activeTab === "edit"
+                        ? "text-purple-600 bg-purple-50 border-b-2 border-purple-600"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    }`}
+                    title="Edit category details"
+                  >
+                    <PencilIcon className="w-4 h-4" />
+                    <span>Edit</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("add")}
+                    className={`flex-1 flex items-center justify-center gap-2 px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold transition-all duration-200 rounded-t-lg ${
+                      activeTab === "add"
+                        ? "text-purple-600 bg-purple-50 border-b-2 border-purple-600"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    }`}
+                    title="Add new subcategory"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Forms Container */}
+              <div className="space-y-4 sm:space-y-6 md:space-y-8">
+                {/* Edit Category Form - with fade transition */}
+                {activeTab === "edit" && (
+                  <div className="animate-fade bg-white rounded-b-xl lg:rounded-xl border border-gray-200 p-4 sm:p-6 md:p-8 shadow-sm static md:sticky md:top-8 z-0">
+                    <h2 className="hidden lg:block text-base sm:text-lg md:text-lg font-semibold text-gray-900 mb-4 sm:mb-6">
+                      Edit Category
+                    </h2>
+                    <EditCategoryForm
+                      categoryId={category.id}
+                      categoryName={category.name}
+                    />
+
+                    {/* Delete Button - Outside of form */}
+                    <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
+                      <DeleteCategoryButton
+                        categoryId={category.id}
+                        categoryName={category.name}
+                        onDelete={() => setIsModalOpen(true)}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Add New Subcategory Form - with fade transition */}
+                {activeTab === "add" && (
+                  <div className="animate-fade bg-white rounded-b-xl lg:rounded-xl border border-gray-200 p-4 sm:p-6 md:p-8 shadow-sm static md:sticky md:top-8 z-0">
+                    <h2 className="hidden lg:block text-base sm:text-lg md:text-lg font-semibold text-gray-900 mb-4 sm:mb-6">
+                      Add New Subcategory
+                    </h2>
+                    <AddSubcategoryForm categoryId={category.id} />
+                  </div>
+                )}
+
+                {/* Desktop View: Show both forms vertically */}
+                <div className="hidden lg:block space-y-8">
+                  <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 md:p-8 shadow-sm static md:sticky md:top-8 z-0">
+                    <h2 className="text-base sm:text-lg md:text-lg font-semibold text-gray-900 mb-4 sm:mb-6">
+                      Edit Category
+                    </h2>
+                    <EditCategoryForm
+                      categoryId={category.id}
+                      categoryName={category.name}
+                    />
+
+                    {/* Delete Button - Outside of form */}
+                    <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
+                      <DeleteCategoryButton
+                        categoryId={category.id}
+                        categoryName={category.name}
+                        onDelete={() => setIsModalOpen(true)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 md:p-8 shadow-sm">
+                    <h2 className="text-base sm:text-lg md:text-lg font-semibold text-gray-900 mb-4 sm:mb-6">
+                      Add New Subcategory
+                    </h2>
+                    <AddSubcategoryForm categoryId={category.id} />
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Add New Subcategory Form */}
-            <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm sticky top-80 z-0">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">
-                Add New Subcategory
-              </h2>
-              <AddSubcategoryForm categoryId={category.id} />
+            {/* Right Column: Subcategories List */}
+            <div className="lg:col-span-2">
+              {/* Subcategories List */}
+              <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 md:p-8 shadow-sm">
+                <h2 className="text-base sm:text-lg md:text-lg font-semibold text-gray-900 mb-4 sm:mb-6">
+                  Subcategories ({category.subcategories.length})
+                </h2>
+
+                {category.subcategories.length === 0 ? (
+                  <p className="text-xs sm:text-sm text-gray-500">
+                    No subcategories yet. Create one using the form on the left.
+                  </p>
+                ) : (
+                  <SubcategoriesList
+                    subcategories={category.subcategories}
+                    categoryId={category.id}
+                    formAction={editSubcategory}
+                  />
+                )}
+              </div>
             </div>
           </div>
-
-          {/* Right Column: Subcategories List */}
-          <div className="lg:col-span-2">
-            {/* Subcategories List */}
-            <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">
-                Subcategories ({category.subcategories.length})
-              </h2>
-
-              {category.subcategories.length === 0 ? (
-                <p className="text-gray-500 text-sm">
-                  No subcategories yet. Create one using the form on the left.
-                </p>
-              ) : (
-                <SubcategoriesList
-                  subcategories={category.subcategories}
-                  categoryId={category.id}
-                  formAction={editSubcategory}
-                />
-              )}
-            </div>
-          </div>
-        </div>
-      </main>
+        </main>
+      </PullToRefreshWrapper>
 
       {/* Modal rendered at page level - outside any sticky containers */}
       <ConfirmationModal
