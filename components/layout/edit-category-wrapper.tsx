@@ -72,9 +72,9 @@ export default function EditCategoryWrapper({
   return (
     <div className="min-h-screen bg-gray-50">
       <MobileSidebar currentPath="/categories" />
-      <PullToRefreshWrapper>
-        <main className="md:ml-64 pt-20 sm:pt-24 md:pt-8 px-4 sm:px-6 md:px-8 pb-8">
-          <div className="mb-6 sm:mb-8">
+      <main className="md:ml-64 px-4 sm:px-6 md:px-8 py-2 sm:py-4 md:py-8 pt-20 sm:pt-24 md:pt-8">
+        <PullToRefreshWrapper>
+          <div className="mb-6 sm:mb-8 relative z-0">
             <div className="mb-3 sm:mb-4">
               <SecondaryButton
                 href="/categories"
@@ -211,8 +211,8 @@ export default function EditCategoryWrapper({
               </div>
             </div>
           </div>
-        </main>
-      </PullToRefreshWrapper>
+        </PullToRefreshWrapper>
+      </main>
 
       {/* Modal rendered at page level - outside any sticky containers */}
       <ConfirmationModal
