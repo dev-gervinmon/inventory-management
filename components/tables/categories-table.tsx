@@ -6,7 +6,7 @@ import React, {
   useRef,
   useSyncExternalStore,
 } from "react";
-import Link from "next/link";
+import { useNavigationTransition } from "@/lib/contexts/navigation-transition-context";
 import { useMessage } from "@/lib/hooks/useMessage";
 import { useSelection } from "@/lib/hooks/useSelection";
 import { useSearch } from "@/lib/hooks/useSearch";
@@ -72,6 +72,7 @@ export default function CategoriesTable({
 }: CategoriesTableProps) {
   const { showError } = useMessage();
   const [isPending, startTransition] = useTransition();
+  const { push: navigateTo } = useNavigationTransition();
   const { selectedIds, selectAll, deselectAll, toggle, isSelected, count } =
     useSelection();
 
@@ -343,12 +344,12 @@ export default function CategoriesTable({
                   />
                 </td>
                 <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4">
-                  <Link
-                    href={`/categories/${category.id}`}
-                    className="text-xs sm:text-sm font-medium text-purple-600 hover:text-purple-700"
+                  <button
+                    onClick={() => navigateTo(`/categories/${category.id}`)}
+                    className="text-xs sm:text-sm font-medium text-purple-600 hover:text-purple-700 hover:underline transition cursor-pointer text-left"
                   >
                     {category.name}
-                  </Link>
+                  </button>
                 </td>
                 <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4">
                   {(() => {
