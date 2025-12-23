@@ -9,7 +9,7 @@ import AddSubcategoryFormWrapper from "@/components/layout/add-subcategory-form-
 import EditCategoryFormWithDeleteWrapper from "@/components/layout/edit-category-form-with-delete-wrapper";
 import ConfirmationModal from "@/components/modals/confirmation-modal";
 import MessageBanner from "@/components/common/message-banner";
-import { SecondaryButton } from "@/components/buttons/nav-button";
+import { NavigationSecondaryButton } from "@/components/buttons/navigation-secondary-button";
 import { deleteCategory } from "@/lib/actions/categories";
 import { useMessage } from "@/lib/hooks/useMessage";
 import { UI_TIMING } from "@/lib/constants/forms";
@@ -75,7 +75,7 @@ export default function EditCategoryWrapper({
         <PullToRefreshWrapper>
           <div className="mb-6 sm:mb-8 relative z-0">
             <div className="mb-3 sm:mb-4">
-              <SecondaryButton
+              <NavigationSecondaryButton
                 href="/categories"
                 label="← Back to Categories"
                 variant="subtle"
