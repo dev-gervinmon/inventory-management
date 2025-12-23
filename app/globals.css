@@ -20,6 +20,20 @@ body {
   animation: fadeIn 0.8s ease forwards;
 }
 
+/* Fade animation for tab transitions */
+@keyframes fadeTabs {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade {
+  animation: fadeTabs 0.2s ease-in forwards;
+}
+
 /* Parallax blobs */
 .parallax-blob {
   position: absolute;
