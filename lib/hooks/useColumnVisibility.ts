@@ -211,9 +211,10 @@ export function useColumnVisibility({
   const hiddenCount = columns.filter((col) => !col.visible).length;
 
   // Check if columns are in custom (non-default) state
-  const isCustomized = columns.some(
-    (col, idx) => col.visible !== defaultColumns[idx].visible
-  );
+  const isCustomized = columns.some((col) => {
+    const defaultCol = defaultColumns.find((dc) => dc.id === col.id);
+    return defaultCol && col.visible !== defaultCol.visible;
+  });
 
   return {
     columns,
