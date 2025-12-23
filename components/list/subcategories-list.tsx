@@ -6,6 +6,7 @@ import EditSubcategoryModal from "../modals/edit-subcategory-modal";
 import FormButton from "@/components/buttons/form-button";
 import ConfirmationModal from "@/components/modals/confirmation-modal";
 import MessageBanner from "@/components/common/message-banner";
+import Pagination from "@/components/common/pagination";
 import { deleteBulkSubcategories } from "@/lib/actions/subcategories";
 import { useMessage } from "@/lib/hooks/useMessage";
 import { usePagination } from "@/lib/hooks/usePagination";
@@ -304,46 +305,15 @@ export default function SubcategoriesList({
 
       {/* Pagination Controls */}
       {sortedSubcategories.length > 0 && totalPages > 1 && (
-        <div className="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
-          <div className="text-sm text-gray-600">
-            Showing {startIndex + 1} to{" "}
-            {Math.min(endIndex, sortedSubcategories.length)} of{" "}
-            {sortedSubcategories.length} items
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setCurrentPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition cursor-pointer"
-            >
-              ← Previous
-            </button>
-            <div className="flex items-center gap-2">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (pageNum) => (
-                  <button
-                    key={pageNum}
-                    onClick={() => setCurrentPage(pageNum)}
-                    className={`w-10 h-10 rounded-lg font-medium transition cursor-pointer ${
-                      currentPage === pageNum
-                        ? "bg-purple-600 text-white"
-                        : "border border-gray-300 hover:bg-purple-50 hover:border-purple-300 hover:scale-105"
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                )
-              )}
-            </div>
-            <button
-              onClick={() => setCurrentPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition cursor-pointer"
-            >
-              Next →
-            </button>
-          </div>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          itemsStart={startIndex + 1}
+          itemsEnd={Math.min(endIndex, sortedSubcategories.length)}
+          totalItems={sortedSubcategories.length}
+          entityName="subcategories"
+        />
       )}
       <ConfirmationModal
         isOpen={isBulkDeleteModalOpen}
