@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { SerializedProduct } from "@/app/src/utils/product";
@@ -9,9 +9,12 @@ import { useSearch } from "@/lib/hooks/useSearch";
 import { useSelection } from "@/lib/hooks/useSelection";
 import { usePagination } from "@/lib/hooks/usePagination";
 import { useSort } from "@/lib/hooks/useSort";
+import { type ColumnVisibility } from "@/lib/hooks/useColumnVisibility";
 import SortableHeader from "@/components/common/sortable-header";
 import SearchableMultiSelect from "@/components/common/searchable-multi-select";
 import MessageBanner from "@/components/common/message-banner";
+import Pagination from "@/components/common/pagination";
+import ColumnManagerButton from "@/components/buttons/column-manager-button";
 import { useMessage } from "@/lib/hooks/useMessage";
 import ConfirmationModal from "@/components/modals/confirmation-modal";
 import FormButton from "@/components/buttons/form-button";
@@ -21,16 +24,55 @@ import {
   formatProductDate,
 } from "@/lib/utils/products";
 
+interface ProductTableProps {
+  products: SerializedProduct[];
+  visibleColumns: ColumnVisibility[];
+  isCustomized: boolean;
+  onOpenColumnManager: () => void;
+}
+
 export default function ProductTable({
   products,
-}: {
-  products: SerializedProduct[];
-}) {
+  visibleColumns,
+  isCustomized,
+  onOpenColumnManager,
+}: ProductTableProps) {
   const router = useRouter();
   const { message, showSuccess, showError, clearMessage } = useMessage({
     autoClose: true,
     timeout: 5000,
   });
+
+  // Use useSyncExternalStore to safely check visible columns without hydration mismatch
+  const showSkuColumn = useSyncExternalStore(
+    () => () => {},
+    () => !!visibleColumns.find((col) => col.id === "sku")?.visible,
+    () => false
+  );
+
+  const showCategoriesColumn = useSyncExternalStore(
+    () => () => {},
+    () => !!visibleColumns.find((col) => col.id === "categories")?.visible,
+    () => false
+  );
+
+  const showPriceColumn = useSyncExternalStore(
+    () => () => {},
+    () => !!visibleColumns.find((col) => col.id === "price")?.visible,
+    () => false
+  );
+
+  const showStockColumn = useSyncExternalStore(
+    () => () => {},
+    () => !!visibleColumns.find((col) => col.id === "stock")?.visible,
+    () => false
+  );
+
+  const showStatusColumn = useSyncExternalStore(
+    () => () => {},
+    () => !!visibleColumns.find((col) => col.id === "status")?.visible,
+    () => false
+  );
 
   // Filter state
   const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
@@ -152,6 +194,17 @@ export default function ProductTable({
 
   return (
     <div className="space-y-4">
+      {/* Header with Products Count and Column Manager */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-base md:text-lg font-semibold text-gray-900">
+          Products ({products.length})
+        </h2>
+        <ColumnManagerButton
+          onClick={onOpenColumnManager}
+          isCustomized={isCustomized}
+        />
+      </div>
+
       <MessageBanner message={message} />
 
       {/* Search Input */}
@@ -330,33 +383,43 @@ export default function ProductTable({
                   sortDirection={sortDirection}
                   onSort={toggleSort}
                 />
-                <SortableHeader
-                  label="SKU"
-                  sortKey="sku"
-                  currentSortKey={sortKey}
-                  sortDirection={sortDirection}
-                  onSort={toggleSort}
-                />
-                <th className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-900">
-                  Categories
-                </th>
-                <SortableHeader
-                  label="Price"
-                  sortKey="price"
-                  currentSortKey={sortKey}
-                  sortDirection={sortDirection}
-                  onSort={toggleSort}
-                />
-                <SortableHeader
-                  label="Stock"
-                  sortKey="quantity"
-                  currentSortKey={sortKey}
-                  sortDirection={sortDirection}
-                  onSort={toggleSort}
-                />
-                <th className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-900">
-                  Status
-                </th>
+                {showSkuColumn && (
+                  <SortableHeader
+                    label="SKU"
+                    sortKey="sku"
+                    currentSortKey={sortKey}
+                    sortDirection={sortDirection}
+                    onSort={toggleSort}
+                  />
+                )}
+                {showCategoriesColumn && (
+                  <th className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-900">
+                    Categories
+                  </th>
+                )}
+                {showPriceColumn && (
+                  <SortableHeader
+                    label="Price"
+                    sortKey="price"
+                    currentSortKey={sortKey}
+                    sortDirection={sortDirection}
+                    onSort={toggleSort}
+                  />
+                )}
+                {showStockColumn && (
+                  <SortableHeader
+                    label="Stock"
+                    sortKey="quantity"
+                    currentSortKey={sortKey}
+                    sortDirection={sortDirection}
+                    onSort={toggleSort}
+                  />
+                )}
+                {showStatusColumn && (
+                  <th className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-900">
+                    Status
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -420,64 +483,75 @@ export default function ProductTable({
                     </td>
 
                     {/* SKU */}
-                    <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm font-medium text-gray-700">
-                      <code className="px-2 py-1 bg-gray-100 rounded text-xs">
-                        {product.sku || "—"}
-                      </code>
-                    </td>
+                    {showSkuColumn && (
+                      <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm font-medium text-gray-700">
+                        <code className="px-2 py-1 bg-gray-100 rounded text-xs">
+                          {product.sku || "—"}
+                        </code>
+                      </td>
+                    )}
 
                     {/* Categories */}
-                    <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm">
-                      <div className="flex flex-wrap gap-1">
-                        {product.categories && product.categories.length > 0 ? (
-                          <>
-                            {product.categories.slice(0, 2).map((cat) => (
-                              <span
-                                key={cat.id}
-                                className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold"
-                              >
-                                {cat.name}
-                              </span>
-                            ))}
-                            {product.categories.length > 2 && (
-                              <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold">
-                                +{product.categories.length - 2}
-                              </span>
-                            )}
-                          </>
-                        ) : (
-                          <span className="text-gray-400 text-xs">—</span>
-                        )}
-                      </div>
-                    </td>
+                    {showCategoriesColumn && (
+                      <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm">
+                        <div className="flex flex-wrap gap-1">
+                          {product.categories &&
+                          product.categories.length > 0 ? (
+                            <>
+                              {product.categories.slice(0, 2).map((cat) => (
+                                <span
+                                  key={cat.id}
+                                  className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold"
+                                >
+                                  {cat.name}
+                                </span>
+                              ))}
+                              {product.categories.length > 2 && (
+                                <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold">
+                                  +{product.categories.length - 2}
+                                </span>
+                              )}
+                            </>
+                          ) : (
+                            <span className="text-gray-400 text-xs">—</span>
+                          )}
+                        </div>
+                      </td>
+                    )}
 
                     {/* Price */}
-                    <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm font-bold text-gray-900">
-                      {formatPrice(product.price)}
-                    </td>
+                    {showPriceColumn && (
+                      <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm font-bold text-gray-900">
+                        {formatPrice(product.price)}
+                      </td>
+                    )}
 
                     {/* Stock Quantity */}
-                    <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-xs sm:text-sm font-bold text-gray-900">
-                          {product.quantity}
-                        </span>
-                        {product.lowStockAt && (
-                          <span className="text-xs text-gray-500">
-                            Low: {product.lowStockAt}
+                    {showStockColumn && (
+                      <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs sm:text-sm font-bold text-gray-900">
+                            {product.quantity}
                           </span>
-                        )}
-                      </div>
-                    </td>
+                          {product.lowStockAt && (
+                            <span className="text-xs text-gray-500">
+                              Low: {product.lowStockAt}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                    )}
 
                     {/* Status Badge */}
-                    <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm">
-                      <span
-                        className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-bold inline-flex items-center gap-1 ${status.color}`}
-                      >
-                        {status.label}
-                      </span>
-                    </td>
+                    {showStatusColumn && (
+                      <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm">
+                        <span
+                          className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-bold inline-flex items-center gap-1 ${status.color}`}
+                        >
+                          {status.label}
+                        </span>
+                      </td>
+                    )}
                   </tr>
                 );
               })}
@@ -488,45 +562,16 @@ export default function ProductTable({
 
       {/* Pagination Controls */}
       {sortedProducts.length > 0 && totalPages > 1 && (
-        <div className="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
-          <div className="text-sm text-gray-600">
-            Showing {startIndex + 1} to{" "}
-            {Math.min(endIndex, sortedProducts.length)} of{" "}
-            {sortedProducts.length} items
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setCurrentPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition cursor-pointer"
-            >
-              ← Previous
-            </button>
-            <div className="flex items-center gap-2">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (pageNum) => (
-                  <button
-                    key={pageNum}
-                    onClick={() => setCurrentPage(pageNum)}
-                    className={`w-10 h-10 rounded-lg font-medium transition cursor-pointer ${
-                      currentPage === pageNum
-                        ? "bg-purple-600 text-white"
-                        : "border border-gray-300 hover:bg-purple-50 hover:border-purple-300 hover:scale-105"
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                )
-              )}
-            </div>
-            <button
-              onClick={() => setCurrentPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition cursor-pointer"
-            >
-              Next →
-            </button>
-          </div>
+        <div className="px-4 sm:px-6 md:px-8 py-2 sm:py-3">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            itemsStart={startIndex + 1}
+            itemsEnd={Math.min(endIndex, sortedProducts.length)}
+            totalItems={sortedProducts.length}
+            entityName="products"
+          />
         </div>
       )}
 
