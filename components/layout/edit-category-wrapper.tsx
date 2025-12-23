@@ -4,9 +4,9 @@ import { useState } from "react";
 import { PencilIcon, Plus } from "lucide-react";
 import MobileSidebar from "@/components/layout/mobile-sidebar";
 import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
-import SubcategoriesList from "@/components/list/subcategories-list";
-import AddSubcategoryForm from "@/components/forms/add-subcategory-form";
-import EditCategoryForm from "@/components/forms/edit-category-form";
+import SubcategoriesListWrapper from "@/components/layout/subcategories-list-wrapper";
+import AddSubcategoryFormWrapper from "@/components/layout/add-subcategory-form-wrapper";
+import EditCategoryFormWrapper from "@/components/layout/edit-category-form-wrapper";
 import DeleteCategoryButton from "@/components/buttons/delete/delete-category-button";
 import ConfirmationModal from "@/components/modals/confirmation-modal";
 import MessageBanner from "@/components/common/message-banner";
@@ -132,7 +132,7 @@ export default function EditCategoryWrapper({
                     <h2 className="hidden lg:block text-base sm:text-lg md:text-lg font-semibold text-gray-900 mb-4 sm:mb-6">
                       Edit Category
                     </h2>
-                    <EditCategoryForm
+                    <EditCategoryFormWrapper
                       categoryId={category.id}
                       categoryName={category.name}
                     />
@@ -154,7 +154,7 @@ export default function EditCategoryWrapper({
                     <h2 className="hidden lg:block text-base sm:text-lg md:text-lg font-semibold text-gray-900 mb-4 sm:mb-6">
                       Add New Subcategory
                     </h2>
-                    <AddSubcategoryForm categoryId={category.id} />
+                    <AddSubcategoryFormWrapper categoryId={category.id} />
                   </div>
                 )}
 
@@ -164,7 +164,7 @@ export default function EditCategoryWrapper({
                     <h2 className="text-base sm:text-lg md:text-lg font-semibold text-gray-900 mb-4 sm:mb-6">
                       Edit Category
                     </h2>
-                    <EditCategoryForm
+                    <EditCategoryFormWrapper
                       categoryId={category.id}
                       categoryName={category.name}
                     />
@@ -183,7 +183,7 @@ export default function EditCategoryWrapper({
                     <h2 className="text-base sm:text-lg md:text-lg font-semibold text-gray-900 mb-4 sm:mb-6">
                       Add New Subcategory
                     </h2>
-                    <AddSubcategoryForm categoryId={category.id} />
+                    <AddSubcategoryFormWrapper categoryId={category.id} />
                   </div>
                 </div>
               </div>
@@ -197,17 +197,11 @@ export default function EditCategoryWrapper({
                   Subcategories ({category.subcategories.length})
                 </h2>
 
-                {category.subcategories.length === 0 ? (
-                  <p className="text-xs sm:text-sm text-gray-500">
-                    No subcategories yet. Create one using the form on the left.
-                  </p>
-                ) : (
-                  <SubcategoriesList
-                    subcategories={category.subcategories}
-                    categoryId={category.id}
-                    formAction={editSubcategory}
-                  />
-                )}
+                <SubcategoriesListWrapper
+                  subcategories={category.subcategories}
+                  categoryId={category.id}
+                  formAction={editSubcategory}
+                />
               </div>
             </div>
           </div>
