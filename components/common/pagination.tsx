@@ -142,7 +142,12 @@ export default function Pagination({
         </button>
 
         {/* Page Numbers - Responsive Display */}
-        <div className="hidden xs:flex items-center gap-0.5 sm:gap-1">
+        {/* Show on larger screens always, on mobile only if 5+ pages */}
+        <div
+          className={`${
+            totalPages >= 5 ? "flex" : "hidden sm:flex"
+          } items-center gap-0.5 sm:gap-1`}
+        >
           {visiblePages.map((page, key) => {
             const isCurrentPage = page === currentPage;
             const isDots = page === "...";
