@@ -31,9 +31,6 @@ export default function EditCategoryFormWrapper({
   }
 
   return (
-    <EditCategoryForm
-      categoryId={categoryId}
-      categoryName={categoryName}
-    />
+    <EditCategoryForm categoryId={categoryId} categoryName={categoryName} />
   );
 }
