@@ -311,7 +311,7 @@ export default function ProductTable({
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-6 py-3 text-left">
+                <th className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left">
                   <input
                     type="checkbox"
                     id="select-all"
@@ -337,7 +337,7 @@ export default function ProductTable({
                   sortDirection={sortDirection}
                   onSort={toggleSort}
                 />
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
+                <th className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-900">
                   Categories
                 </th>
                 <SortableHeader
@@ -354,7 +354,7 @@ export default function ProductTable({
                   sortDirection={sortDirection}
                   onSort={toggleSort}
                 />
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
+                <th className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-900">
                   Status
                 </th>
               </tr>
@@ -378,7 +378,7 @@ export default function ProductTable({
                     }`}
                   >
                     <td
-                      className="px-6 py-4"
+                      className="px-3 sm:px-4 md:px-6 py-2 sm:py-4"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <input
@@ -391,9 +391,9 @@ export default function ProductTable({
                     </td>
 
                     {/* Product Name + Image */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 shrink-0 bg-gray-200 rounded-lg overflow-hidden border border-gray-300">
+                    <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-8 sm:w-10 h-8 sm:h-10 shrink-0 bg-gray-200 rounded-lg overflow-hidden border border-gray-300">
                           {product.imageUrl ? (
                             <Image
                               src={product.imageUrl}
@@ -409,7 +409,7 @@ export default function ProductTable({
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-gray-900 truncate">
+                          <p className="text-xs sm:text-sm font-semibold text-gray-900 truncate">
                             {product.name}
                           </p>
                           <p className="text-xs text-gray-500">
@@ -420,14 +420,14 @@ export default function ProductTable({
                     </td>
 
                     {/* SKU */}
-                    <td className="px-6 py-4 text-sm font-medium text-gray-700">
+                    <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm font-medium text-gray-700">
                       <code className="px-2 py-1 bg-gray-100 rounded text-xs">
                         {product.sku || "—"}
                       </code>
                     </td>
 
                     {/* Categories */}
-                    <td className="px-6 py-4 text-sm">
+                    <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm">
                       <div className="flex flex-wrap gap-1">
                         {product.categories && product.categories.length > 0 ? (
                           <>
@@ -452,14 +452,14 @@ export default function ProductTable({
                     </td>
 
                     {/* Price */}
-                    <td className="px-6 py-4 text-sm font-bold text-gray-900">
+                    <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm font-bold text-gray-900">
                       {formatPrice(product.price)}
                     </td>
 
                     {/* Stock Quantity */}
-                    <td className="px-6 py-4 text-sm">
+                    <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm">
                       <div className="flex flex-col gap-1">
-                        <span className="font-bold text-gray-900">
+                        <span className="text-xs sm:text-sm font-bold text-gray-900">
                           {product.quantity}
                         </span>
                         {product.lowStockAt && (
@@ -471,9 +471,9 @@ export default function ProductTable({
                     </td>
 
                     {/* Status Badge */}
-                    <td className="px-6 py-4 text-sm">
+                    <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm">
                       <span
-                        className={`px-3 py-1.5 rounded-full text-xs font-bold inline-flex items-center gap-1 ${status.color}`}
+                        className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-bold inline-flex items-center gap-1 ${status.color}`}
                       >
                         {status.label}
                       </span>
