@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useState, useRef, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { SerializedProduct } from "@/app/src/utils/product";
@@ -11,7 +11,9 @@ import { usePagination } from "@/lib/hooks/usePagination";
 import { useSort } from "@/lib/hooks/useSort";
 import { type ColumnVisibility } from "@/lib/hooks/useColumnVisibility";
 import SortableHeader from "@/components/common/sortable-header";
-import SearchableMultiSelect from "@/components/common/searchable-multi-select";
+import SearchableMultiSelect, {
+  type SearchableMultiSelectRef,
+} from "@/components/common/searchable-multi-select";
 import MessageBanner from "@/components/common/message-banner";
 import Pagination from "@/components/common/pagination";
 import ColumnManagerButton from "@/components/buttons/column-manager-button";
@@ -77,6 +79,8 @@ export default function ProductTable({
   // Filter state
   const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>("");
+  const [categoriesSearchInput, setCategoriesSearchInput] =
+    useState<string>("");
 
   // Get unique categories from all products
   const categoryMap = new Map<string, { id: string; name: string }>();
@@ -143,6 +147,7 @@ export default function ProductTable({
   const { selectedIds, toggle, selectAll, deselectAll, count } = useSelection();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
+  const categoriesSelectRef = useRef<SearchableMultiSelectRef>(null);
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
@@ -187,14 +192,18 @@ export default function ProductTable({
   const handleClearFilters = () => {
     setCategoryFilter([]);
     setStatusFilter("");
+    setCategoriesSearchInput("");
+    clearSearch();
+    categoriesSelectRef.current?.clearSearch();
     setCurrentPage(1);
   };
 
-  const hasActiveFilters = categoryFilter.length > 0 || statusFilter;
+  const hasActiveFilters =
+    categoryFilter.length > 0 || statusFilter || categoriesSearchInput;
 
   return (
     <div className="space-y-4">
-      {/* Header with Products Count and Column Manager */}
+      {/* Top Row: Header with Products Count and Column Manager */}
       <div className="flex items-center justify-between">
         <h2 className="text-base md:text-lg font-semibold text-gray-900">
           Products ({products.length})
@@ -205,46 +214,104 @@ export default function ProductTable({
         />
       </div>
 
-      <MessageBanner message={message} />
+      {/* Bottom Row: Search and Filters */}
+      <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Search Input */}
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-gray-700">
+              Search
+            </label>
+            <div className="relative flex items-center">
+              <svg
+                className="absolute left-4 w-5 h-5 text-gray-400 pointer-events-none"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="w-full pl-12 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => {
+                    clearSearch();
+                    setCurrentPage(1);
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+                  title="Clear search"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
 
-      {/* Search Input */}
-      <div className="relative">
-        <div className="relative flex items-center">
-          <svg
-            className="absolute left-4 w-5 h-5 text-gray-400 pointer-events-none"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={searchQuery}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full pl-12 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => {
-                clearSearch();
+          {/* Categories Filter */}
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-gray-700">
+              Categories
+            </label>
+            <SearchableMultiSelect
+              ref={categoriesSelectRef}
+              options={allCategories}
+              selectedIds={categoryFilter}
+              onChange={(selected) => {
+                setCategoryFilter(selected);
                 setCurrentPage(1);
               }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
-              title="Clear search"
+              placeholder="Search categories..."
+              onSearchChange={setCategoriesSearchInput}
+            />
+          </div>
+
+          {/* Stock Status Filter */}
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-gray-700">
+              Stock Status
+            </label>
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
             >
-              ✕
-            </button>
-          )}
+              <option value="">All Items</option>
+              <option value="in-stock">In Stock</option>
+              <option value="low-stock">Low Stock</option>
+              <option value="out-of-stock">Out of Stock</option>
+            </select>
+          </div>
         </div>
+
+        {/* Clear Filters Button */}
+        {(hasActiveFilters || searchQuery) && (
+          <div className="mt-4 flex justify-end">
+            <FormButton
+              type="button"
+              label="Clear all"
+              variant="secondary"
+              size="sm"
+              onClick={handleClearFilters}
+            />
+          </div>
+        )}
       </div>
 
+      <MessageBanner message={message} />
       {/* Search Results Info */}
       {searchQuery && (
         <div className="bg-linear-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200 px-4 py-3 flex items-center justify-between">
@@ -271,60 +338,6 @@ export default function ProductTable({
           </div>
         </div>
       )}
-
-      {/* Filters Section */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-gray-900">Filters</h3>
-          {hasActiveFilters && (
-            <button
-              onClick={handleClearFilters}
-              className="text-sm text-purple-600 hover:text-purple-700 font-medium transition-colors"
-            >
-              Clear all
-            </button>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Categories Filter */}
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">
-              Categories
-            </label>
-            <SearchableMultiSelect
-              options={allCategories}
-              selectedIds={categoryFilter}
-              onChange={(selected) => {
-                setCategoryFilter(selected);
-                setCurrentPage(1);
-              }}
-              placeholder="Search categories..."
-            />
-          </div>
-
-          {/* Stock Status Filter */}
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">
-              Stock Status
-            </label>
-            <select
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-            >
-              <option value="">All Items</option>
-              <option value="in-stock">In Stock</option>
-              <option value="low-stock">Low Stock</option>
-              <option value="out-of-stock">Out of Stock</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
       {count > 0 && (
         <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
           <span className="text-sm font-medium text-blue-900">
