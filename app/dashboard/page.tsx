@@ -4,7 +4,7 @@ import AlertsActivityTabs from "@/components/layout/alerts-activity-tabs";
 import AddProductButton from "@/components/buttons/add-product-button";
 import QuickActionButton from "@/components/buttons/quick-action-button";
 import DashboardErrorState from "@/components/layout/dashboard-error-state";
-import DashboardContentWrapper from "@/components/layout/dashboard-content-wrapper";
+import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
 import {
@@ -129,7 +129,7 @@ export default async function DashboardPage() {
     <div className="min-h-screen bg-gray-50">
       <MobileSidebar currentPath="/dashboard" />
       <main className="md:ml-64 px-4 sm:px-6 md:px-8 py-2 sm:py-4 md:py-8 pt-20 sm:pt-24 md:pt-8">
-        <DashboardContentWrapper>
+        <PullToRefreshWrapper>
           {/** Header with Quick Actions */}
           <div className="mb-4 sm:mb-8">
             <div className="flex items-center justify-between mb-3 sm:mb-6">
@@ -373,7 +373,7 @@ export default async function DashboardPage() {
             criticalStockItems={serializedCriticalStockItems}
             activities={serializedActivities}
           />
-        </DashboardContentWrapper>
+        </PullToRefreshWrapper>
       </main>
     </div>
   );
