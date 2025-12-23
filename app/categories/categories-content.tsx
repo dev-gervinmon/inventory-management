@@ -8,6 +8,8 @@ import {
   type ColumnVisibility,
 } from "@/lib/hooks/useColumnVisibility";
 import CategoriesTable from "@/components/tables/categories-table";
+import { usePullToRefreshLoading } from "@/lib/contexts/pull-to-refresh-context";
+import { TableRowSkeleton } from "@/components/skeletons/generic-skeletons";
 
 interface Category {
   id: string;
@@ -27,6 +29,7 @@ export default function CategoriesPageContent({
   initialCategories,
 }: CategoriesPageContentProps) {
   const [showColumnManager, setShowColumnManager] = useState(false);
+  const isLoading = usePullToRefreshLoading();
 
   // Column visibility hook
   const defaultColumns: ColumnVisibility[] = [
@@ -117,7 +120,15 @@ export default function CategoriesPageContent({
           isCustomized={isCustomizedWithHydration}
         />
       </div>
-      {initialCategories.length === 0 ? (
+      {isLoading ? (
+        <div className="space-y-2">
+          {Array.from({ length: Math.max(3, initialCategories.length) }).map(
+            (_, i) => (
+              <TableRowSkeleton key={i} columns={4} />
+            )
+          )}
+        </div>
+      ) : initialCategories.length === 0 ? (
         <div className="text-center">
           <p className="text-gray-500">
             No categories yet. Create one to get started!
