@@ -13,6 +13,7 @@
 
 import React, { ReactNode, useTransition } from "react";
 import PullToRefreshContainer from "@/components/layout/pull-to-refresh-container";
+import { PullToRefreshProvider } from "@/lib/contexts/pull-to-refresh-context";
 import { useRouter } from "next/navigation";
 
 interface PullToRefreshWrapperProps {
@@ -35,7 +36,9 @@ export default function PullToRefreshWrapper({
 
   return (
     <PullToRefreshContainer onRefresh={handleRefresh} isLoading={isPending}>
-      {children}
+      <PullToRefreshProvider isLoading={isPending}>
+        {children}
+      </PullToRefreshProvider>
     </PullToRefreshContainer>
   );
 }
