@@ -1,4 +1,5 @@
 import EditCategoryWrapper from "@/components/layout/edit-category-wrapper";
+import EditCategoryPageWrapper from "./edit-category-page-wrapper";
 import CategoryNotFound from "@/components/layout/category-not-found";
 import { editSubcategory } from "@/lib/actions/subcategories";
 import { getCurrentUser } from "@/lib/auth/auth";
@@ -26,9 +27,11 @@ export default async function EditCategoryPage({
   }
 
   return (
-    <EditCategoryWrapper
-      category={category}
-      editSubcategory={editSubcategory}
-    />
+    <EditCategoryPageWrapper>
+      <EditCategoryWrapper
+        category={category}
+        editSubcategory={editSubcategory}
+      />
+    </EditCategoryPageWrapper>
   );
 }
