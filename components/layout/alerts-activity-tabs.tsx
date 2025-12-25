@@ -75,7 +75,7 @@ export default function AlertsActivityTabs({
             </div>
             {criticalStockItems.length > 0 && (
               <Link
-                href="/inventory?filter=critical-stock"
+                href="/inventory?status=critical-stock"
                 className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 text-xs md:text-sm font-semibold rounded-lg transition-colors"
               >
                 See All
@@ -255,7 +255,7 @@ export default function AlertsActivityTabs({
                 </h2>
                 {criticalStockItems.length > 0 && (
                   <Link
-                    href="/inventory?filter=critical-stock"
+                    href="/inventory?status=critical-stock"
                     className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 text-xs md:text-sm font-semibold rounded-lg transition-colors"
                   >
                     See All
