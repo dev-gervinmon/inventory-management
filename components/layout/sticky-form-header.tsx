@@ -92,7 +92,7 @@ export default function StickyFormHeader({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2 px-4 sm:px-6 md:px-0">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 px-4 sm:px-6 md:px-0">
           <FormButton
             type="submit"
             label={submitLabel}
@@ -107,7 +107,7 @@ export default function StickyFormHeader({
               type="button"
               label="Reset"
               variant="secondary"
-              size="md"
+              size="lg"
               disabled={alwaysShowReset ? isLoading : !isDirty || isLoading}
               onClick={onReset}
             />
