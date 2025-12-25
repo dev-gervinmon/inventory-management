@@ -1,4 +1,3 @@
-import MobileSidebar from "@/components/layout/mobile-sidebar";
 import PageLayout from "@/components/layout/page-layout";
 import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
 import CategoriesPageWrapper from "./categories-page-wrapper";
