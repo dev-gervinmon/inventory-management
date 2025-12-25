@@ -3,7 +3,7 @@ import PageLayout from "@/components/layout/page-layout";
 import AlertsActivityTabs from "@/components/layout/alerts-activity-tabs";
 import AddProductButton from "@/components/buttons/add-product-button";
 import QuickActionButton from "@/components/buttons/quick-action-button";
-import DashboardErrorState from "@/components/layout/dashboard-error-state";
+import DashboardErrorState from "@/components/states/dashboard-error-state";
 import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
