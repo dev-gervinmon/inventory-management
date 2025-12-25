@@ -44,10 +44,13 @@ export default function InventorySearch({
     <div className="space-y-3">
       {/* Search Bar */}
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-        <form className="flex gap-0" onSubmit={handleSearch}>
-          <div className="flex-1 flex items-center px-6 py-4 border-r border-gray-200 relative">
+        <form
+          className="flex flex-col md:flex-row gap-0"
+          onSubmit={handleSearch}
+        >
+          <div className="flex-1 flex items-center px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:border-r md:border-gray-200 relative">
             <svg
-              className="w-5 h-5 text-gray-400 mr-3"
+              className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 mr-2 sm:mr-3 shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -62,9 +65,9 @@ export default function InventorySearch({
             <input
               ref={inputRef}
               name="q"
-              placeholder="Search by product name, SKU..."
+              placeholder="Search by name, SKU..."
               defaultValue={q}
-              className="flex-1 bg-transparent text-gray-900 placeholder-gray-500 focus:outline-none pr-8"
+              className="flex-1 bg-transparent text-xs sm:text-sm md:text-base text-gray-900 placeholder-gray-500 focus:outline-none pr-8"
             />
             {q && (
               <div className="absolute right-2">
@@ -79,7 +82,7 @@ export default function InventorySearch({
           <button
             type="submit"
             disabled={isPending}
-            className="px-8 py-4 bg-linear-to-r from-purple-600 to-purple-700 text-white font-semibold hover:from-purple-700 hover:to-purple-800 active:from-purple-800 active:to-purple-900 transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
+            className="px-3 sm:px-6 md:px-8 py-3 sm:py-4 md:py-4 bg-linear-to-r from-purple-600 to-purple-700 text-white text-xs sm:text-sm md:text-base font-semibold hover:from-purple-700 hover:to-purple-800 active:from-purple-800 active:to-purple-900 transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed whitespace-nowrap"
           >
             {isPending ? (
               <span className="inline-flex items-center gap-2">
