@@ -1,6 +1,7 @@
 "use server";
 
 import PageLayout from "@/components/layout/page-layout";
+import EditProductPageWrapper from "../edit-product-page-wrapper";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
 import { editProduct, deleteProduct } from "@/lib/actions/products";
@@ -43,36 +44,38 @@ export default async function EditProductPage({
 
   return (
     <PageLayout currentPath="/inventory">
-      <ProductEditClient
-        product={{
-          id: product.id,
-          name: product.name,
-          price: Number(product.price),
-          quantity: product.quantity,
-          sku: product.sku,
-          lowStockAt: product.lowStockAt,
-          imageUrl: product.imageUrl,
-          createdAt: product.createdAt,
-          updatedAt: product.updatedAt,
-          categories: product.categories,
-          subcategories: product.subcategories,
-        }}
-        formAction={editProduct}
-        deleteAction={deleteProduct}
-      >
-        <ProductForm
-          id={product.id}
-          name={product.name}
-          price={Number(product.price)}
-          quantity={product.quantity}
-          sku={product.sku}
-          lowStockAt={product.lowStockAt}
-          image={product.imageUrl}
-          categoryIds={product.categories.map((c) => c.id)}
-          subcategoryIds={product.subcategories.map((s) => s.id)}
-          categories={categories}
-        />
-      </ProductEditClient>
+      <EditProductPageWrapper>
+        <ProductEditClient
+          product={{
+            id: product.id,
+            name: product.name,
+            price: Number(product.price),
+            quantity: product.quantity,
+            sku: product.sku,
+            lowStockAt: product.lowStockAt,
+            imageUrl: product.imageUrl,
+            createdAt: product.createdAt,
+            updatedAt: product.updatedAt,
+            categories: product.categories,
+            subcategories: product.subcategories,
+          }}
+          formAction={editProduct}
+          deleteAction={deleteProduct}
+        >
+          <ProductForm
+            id={product.id}
+            name={product.name}
+            price={Number(product.price)}
+            quantity={product.quantity}
+            sku={product.sku}
+            lowStockAt={product.lowStockAt}
+            image={product.imageUrl}
+            categoryIds={product.categories.map((c) => c.id)}
+            subcategoryIds={product.subcategories.map((s) => s.id)}
+            categories={categories}
+          />
+        </ProductEditClient>
+      </EditProductPageWrapper>
     </PageLayout>
   );
 }
