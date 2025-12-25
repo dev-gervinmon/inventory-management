@@ -3,6 +3,7 @@
 import { useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useNavigationTransition } from "@/lib/contexts/navigation-transition-context";
 import { SerializedProduct } from "@/app/src/utils/product";
 import { bulkDeleteProducts } from "@/lib/actions/products";
 import { useSearch } from "@/lib/hooks/useSearch";
@@ -38,6 +39,7 @@ export default function ProductTable({
   onOpenColumnManager,
 }: ProductTableProps) {
   const router = useRouter();
+  const { push: navigateTo } = useNavigationTransition();
   const { message, showSuccess, showError, clearMessage } = useMessage({
     autoClose: true,
     timeout: 5000,
@@ -434,7 +436,7 @@ export default function ProductTable({
                   <tr
                     key={product.id}
                     onClick={() =>
-                      router.push(`/inventory/${product.id}/edit-product`)
+                      navigateTo(`/inventory/${product.id}/edit-product`)
                     }
                     className={`border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition ${
                       isSelected ? "bg-purple-50" : ""
