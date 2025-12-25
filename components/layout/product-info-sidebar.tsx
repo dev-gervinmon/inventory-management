@@ -54,19 +54,17 @@ export default function ProductInfoSidebar({
                 {stockStatus.label}
               </span>
               <span className="text-xl sm:text-2xl md:text-2xl font-bold text-gray-900">
-                {quantity}
+                {quantity} unit/s
               </span>
             </div>
           </div>
 
-          {lowStockAt && (
-            <div className="pt-2 border-t border-gray-200">
-              <p className="text-xs text-gray-500">Low Stock Threshold</p>
-              <p className="text-sm font-semibold text-gray-900 mt-1">
-                {lowStockAt} units
-              </p>
-            </div>
-          )}
+          <div className="pt-2 border-t border-gray-200">
+            <p className="text-xs text-gray-500">Low Stock Threshold</p>
+            <p className="text-sm font-semibold text-gray-900 mt-1">
+              {lowStockAt && lowStockAt > 0 ? `${lowStockAt} units` : "Not set"}
+            </p>
+          </div>
         </div>
       </div>
 
