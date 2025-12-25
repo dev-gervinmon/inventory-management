@@ -18,8 +18,8 @@ function LoadingSideBar() {
 
   return (
     <>
-      {/* Mobile Hamburger Header - only on mobile */}
-      <div className="md:hidden fixed top-0 left-0 right-0 bg-gray-900 text-white z-40 p-4 flex items-center justify-between">
+      {/* Mobile/Tablet Hamburger Header - hidden on lg+ */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-gray-900 text-white z-40 p-4 flex items-center justify-between">
         <button
           className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
           aria-label="Toggle menu"
@@ -32,8 +32,8 @@ function LoadingSideBar() {
         </div>
       </div>
 
-      {/* Desktop Sidebar - only on md+ */}
-      <div className="hidden md:fixed md:left-0 md:top-0 md:block bg-gray-900 text-white w-64 min-h-screen p-6 z-10">
+      {/* Desktop Sidebar - visible on lg+ */}
+      <div className="hidden lg:fixed lg:left-0 lg:top-0 lg:block bg-gray-900 text-white w-64 min-h-screen p-6 z-10">
         <div className="mb-8">
           <div className="flex items-center space-x-2 mb-4">
             <BarChart3 className="w-7 h-7" />
@@ -86,7 +86,7 @@ function MainContentSkeleton({
     <main
       className={
         showSidebar
-          ? "md:ml-64 px-4 sm:px-6 md:px-8 py-2 sm:py-4 md:py-8 pt-20 sm:pt-24 md:pt-8"
+          ? "lg:ml-64 px-4 sm:px-6 md:px-8 py-2 sm:py-4 md:py-8 mt-16 sm:mt-16 lg:mt-0"
           : "px-4 sm:px-6 md:px-8 py-2 sm:py-4 md:py-8"
       }
     >
