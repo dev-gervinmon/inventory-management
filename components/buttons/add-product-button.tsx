@@ -16,12 +16,12 @@ export default function AddProductButton({
 
   const sizeClass = {
     sm: "px-4 py-2.5",
-    md: "px-6 py-3",
+    md: "px-4 sm:px-6 py-2 sm:py-3",
   };
 
   const fontClass = {
-    sm: "text-sm",
-    md: "text-base font-semibold",
+    sm: "text-xs sm:text-sm",
+    md: "text-xs sm:text-base font-semibold",
   };
 
   if (variant === "simple") {
