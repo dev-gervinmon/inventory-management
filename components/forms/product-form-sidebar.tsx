@@ -21,12 +21,14 @@ export default function ProductFormSidebar({
   const { isSubmitting } = useProductFormContext();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-6 md:space-y-8">
       {/* Media Section */}
-      <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-900">Product Image</h2>
-          <p className="text-sm text-gray-600 mt-1">
+      <div className="bg-white rounded-lg sm:rounded-xl border border-gray-200 p-4 sm:p-6 md:p-8 shadow-sm">
+        <div className="mb-4 sm:mb-5 md:mb-6">
+          <h2 className="text-base sm:text-lg md:text-lg font-semibold text-gray-900">
+            Product Image
+          </h2>
+          <p className="text-xs sm:text-sm text-gray-600 mt-1">
             Upload a product image for your inventory
           </p>
         </div>
@@ -35,12 +37,12 @@ export default function ProductFormSidebar({
       </div>
 
       {/* Categories Section */}
-      <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-900">
+      <div className="bg-white rounded-lg sm:rounded-xl border border-gray-200 p-4 sm:p-6 md:p-8 shadow-sm">
+        <div className="mb-4 sm:mb-5 md:mb-6">
+          <h2 className="text-base sm:text-lg md:text-lg font-semibold text-gray-900">
             Categories & Tags
           </h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-xs sm:text-sm text-gray-600 mt-1">
             Organize your product with categories and subcategories
           </p>
         </div>
