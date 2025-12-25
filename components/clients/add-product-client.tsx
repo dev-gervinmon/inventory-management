@@ -125,31 +125,33 @@ export default function AddProductClient({
         title="Add Product"
         subtitle="Add a new product to your inventory"
         backHref="/inventory"
+        backLabel="← Back to Inventory"
         isLoading={isSubmitting}
         submitLabel="Create Product"
         alwaysShowReset
         onReset={handleReset}
-        onBack={(href) => router.push(href)}
       />
 
-      {/* Add padding for sticky header */}
-      <div className="pt-20" />
+      {/* Add padding for sticky header - responsive */}
+      <div className="pt-20 sm:pt-20 md:pt-20" />
 
-      <ProductFormContext.Provider
-        value={{ formErrors, isSubmitting, onSubmit: handleFormSubmit }}
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Column: Form Sections */}
-          <div className="space-y-8">
-            <AddProductForm categories={categories} />
-          </div>
+      <div className="px-4 sm:px-6 md:px-8">
+        <ProductFormContext.Provider
+          value={{ formErrors, isSubmitting, onSubmit: handleFormSubmit }}
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
+            {/* Left Column: Form Sections */}
+            <div className="space-y-4 sm:space-y-6 md:space-y-8">
+              <AddProductForm categories={categories} />
+            </div>
 
-          {/* Right Column: Image, Categories */}
-          <div className="space-y-8">
-            <ProductFormSidebar categories={categories} />
+            {/* Right Column: Image, Categories */}
+            <div className="space-y-4 sm:space-y-6 md:space-y-8">
+              <ProductFormSidebar categories={categories} />
+            </div>
           </div>
-        </div>
-      </ProductFormContext.Provider>
+        </ProductFormContext.Provider>
+      </div>
     </PageLayout>
   );
 }
