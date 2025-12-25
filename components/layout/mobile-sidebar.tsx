@@ -61,8 +61,8 @@ export default function MobileSidebar({
 
   return (
     <>
-      {/* Desktop Sidebar - Always Visible */}
-      <div className="hidden md:fixed md:left-0 md:top-0 md:block bg-gray-900 text-white w-64 min-h-screen p-6 z-30">
+      {/* Desktop Sidebar - Always Visible on lg and above */}
+      <div className="hidden lg:fixed lg:left-0 lg:top-0 lg:block bg-gray-900 text-white w-64 min-h-screen p-6 z-30">
         <SidebarContent currentPath={currentPath} />
         <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-700">
           <div className="flex items-center justify-between">
@@ -71,8 +71,8 @@ export default function MobileSidebar({
         </div>
       </div>
 
-      {/* Mobile Hamburger Button */}
-      <div className="md:hidden fixed top-0 left-0 right-0 bg-gray-900 text-white z-40 p-4 flex items-center justify-between">
+      {/* Mobile/Tablet Hamburger Button */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-gray-900 text-white z-40 p-4 flex items-center justify-between">
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
@@ -86,17 +86,17 @@ export default function MobileSidebar({
         </div>
       </div>
 
-      {/* Mobile Drawer Overlay */}
+      {/* Mobile/Tablet Drawer Overlay */}
       {isOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black/20 z-20"
+          className="lg:hidden fixed inset-0 bg-black/20 z-20"
           onClick={() => setIsOpen(false)}
         />
       )}
 
-      {/* Mobile Sidebar Drawer */}
+      {/* Mobile/Tablet Sidebar Drawer */}
       <div
-        className={`md:hidden fixed left-0 top-0 bottom-0 bg-gray-900 text-white w-64 z-30 transform transition-transform duration-300 ease-in-out ${
+        className={`lg:hidden fixed left-0 top-0 bottom-0 bg-gray-900 text-white w-64 z-30 transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
