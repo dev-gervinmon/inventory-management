@@ -20,6 +20,30 @@ interface AddProductClientProps {
   categories: CategoryWithSubcategories[];
 }
 
+/**
+ * Client-side wrapper for adding new products
+ *
+ * This component manages the entire product creation flow on the client:
+ * - Form state and validation tracking
+ * - Success modal with auto-redirect to edit page
+ * - Error handling and display
+ * - Form reset functionality
+ * - Context provision for nested form components
+ *
+ * @component
+ * @example
+ * // In app/add-product/page.tsx (server component)
+ * import { addProduct } from '@/lib/actions/products';
+ * import AddProductClient from '@/components/clients/add-product-client';
+ *
+ * export default async function AddProductPage() {
+ *   const categories = await prisma.category.findMany();
+ *   return <AddProductClient formAction={addProduct} categories={categories} />;
+ * }
+ *
+ * @param {Function} formAction - Server action to handle product creation
+ * @param {CategoryWithSubcategories[]} categories - Available categories for the product
+ */
 export default function AddProductClient({
   formAction,
   categories,
