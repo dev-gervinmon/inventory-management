@@ -62,14 +62,14 @@ export default function ProductForm({
     <form
       id="product-form"
       onSubmit={onSubmit ? handleSubmit : undefined}
-      className="space-y-8"
+      className="space-y-6 sm:space-y-7 md:space-y-8"
     >
       {id && <input type="hidden" name="id" value={id} />}
 
       <Tabs tabs={tabs} defaultTabId="basic">
         {/* Tab 1: Basic Information */}
         <TabPanel tabId="basic">
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-5 md:space-y-6">
             <FormField
               id="name"
               label="Product Name"
@@ -84,7 +84,7 @@ export default function ProductForm({
                 placeholder="Enter product name"
                 defaultValue={name || ""}
                 disabled={isSubmitting}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition ${
+                className={`w-full px-3 sm:px-4 md:px-4 py-2.5 sm:py-3 md:py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm sm:text-base md:text-base ${
                   formErrors.name
                     ? "border-red-500 bg-red-50"
                     : "border-gray-300"
@@ -96,13 +96,13 @@ export default function ProductForm({
 
         {/* Tab 2: Inventory & Pricing */}
         <TabPanel tabId="inventory">
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-5 md:space-y-6">
             {/* Pricing & Inventory */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">
+              <h3 className="text-xs sm:text-sm md:text-sm font-semibold text-gray-900 mb-3 sm:mb-4 md:mb-4">
                 Pricing & Inventory
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
                 <FormField
                   id="price"
                   label="Price"
@@ -121,7 +121,7 @@ export default function ProductForm({
                       price !== null && price !== undefined ? price : undefined
                     }
                     disabled={isSubmitting}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition ${
+                    className={`w-full px-3 sm:px-4 md:px-4 py-2.5 sm:py-3 md:py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm sm:text-base md:text-base ${
                       formErrors.price
                         ? "border-red-500 bg-red-50"
                         : "border-gray-300"
@@ -148,7 +148,7 @@ export default function ProductForm({
                         : undefined
                     }
                     disabled={isSubmitting}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition ${
+                    className={`w-full px-3 sm:px-4 md:px-4 py-2.5 sm:py-3 md:py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm sm:text-base md:text-base ${
                       formErrors.quantity
                         ? "border-red-500 bg-red-50"
                         : "border-gray-300"
@@ -159,11 +159,11 @@ export default function ProductForm({
             </div>
 
             {/* Additional Details */}
-            <div className="border-t border-gray-200 pt-6">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">
+            <div className="border-t border-gray-200 pt-4 sm:pt-5 md:pt-6">
+              <h3 className="text-xs sm:text-sm md:text-sm font-semibold text-gray-900 mb-3 sm:mb-4 md:mb-4">
                 Additional Details
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
                 <FormField
                   id="sku"
                   label="SKU"
@@ -177,7 +177,7 @@ export default function ProductForm({
                     placeholder="Enter SKU"
                     defaultValue={sku || ""}
                     disabled={isSubmitting}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition ${
+                    className={`w-full px-3 sm:px-4 md:px-4 py-2.5 sm:py-3 md:py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm sm:text-base md:text-base ${
                       formErrors.sku
                         ? "border-red-500 bg-red-50"
                         : "border-gray-300"
@@ -203,7 +203,7 @@ export default function ProductForm({
                         : undefined
                     }
                     disabled={isSubmitting}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition ${
+                    className={`w-full px-3 sm:px-4 md:px-4 py-2.5 sm:py-3 md:py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm sm:text-base md:text-base ${
                       formErrors.lowStockAt
                         ? "border-red-500 bg-red-50"
                         : "border-gray-300"
@@ -217,14 +217,14 @@ export default function ProductForm({
 
         {/* Tab 3: Media */}
         <TabPanel tabId="media">
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-5 md:space-y-6">
             <ImageUploadField defaultUrl={image || ""} />
           </div>
         </TabPanel>
 
         {/* Tab 4: Categories */}
         <TabPanel tabId="categories">
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-5 md:space-y-6">
             <CategorySubcategorySelector
               categories={categories}
               initialCategoryIds={categoryIds}
