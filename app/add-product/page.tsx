@@ -5,7 +5,7 @@ import { getCurrentUser } from "@/lib/auth/auth";
 import { getAllCategories } from "@/lib/actions/categories";
 
 export default async function AddProductPage() {
-  const user = await getCurrentUser();
+  await getCurrentUser();
   const categories = await getAllCategories();
 
   return (
