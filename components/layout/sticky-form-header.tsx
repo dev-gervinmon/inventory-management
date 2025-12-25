@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import FormButton from "@/components/buttons/form-button";
 import Link from "next/link";
+import { useNavigationTransition } from "@/lib/contexts/navigation-transition-context";
 
 interface StickyFormHeaderProps {
   title: string;
@@ -67,17 +68,36 @@ export default function StickyFormHeader({
     formRef.current?.requestSubmit();
   };
 
+  // Try to use navigation transition, fall back to Link if provider not available
+  let navigateTo: ((href: string) => void) | null = null;
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const navContext = useNavigationTransition();
+    navigateTo = navContext.push;
+  } catch {
+    // Provider not available, will use Link instead
+  }
+
   // Mobile/Tablet layout (non-sticky)
   if (!isLargeScreen) {
     return (
       <div className="mb-6 sm:mb-8">
         <div className="mb-3 sm:mb-4">
-          <Link
-            href={backHref}
-            className="inline-flex items-center px-2 py-3 text-gray-600 hover:text-gray-900 hover:underline transition-colors cursor-pointer w-fit font-semibold rounded-lg"
-          >
-            {backLabel || "Back"}
-          </Link>
+          {navigateTo ? (
+            <button
+              onClick={() => navigateTo(backHref)}
+              className="inline-flex items-center px-2 py-3 text-gray-600 hover:text-gray-900 hover:underline transition-colors cursor-pointer w-fit font-semibold rounded-lg"
+            >
+              {backLabel || "Back"}
+            </button>
+          ) : (
+            <Link
+              href={backHref}
+              className="inline-flex items-center px-2 py-3 text-gray-600 hover:text-gray-900 hover:underline transition-colors cursor-pointer w-fit font-semibold rounded-lg"
+            >
+              {backLabel || "Back"}
+            </Link>
+          )}
         </div>
 
         <div className="mb-4 sm:mb-6 px-4 sm:px-6 md:px-0">
@@ -137,12 +157,21 @@ export default function StickyFormHeader({
           <div className="flex items-center justify-between gap-3">
             {/* Left Side: Back button and title */}
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <Link
-                href={backHref}
-                className="px-4 py-2 text-xs text-gray-600 hover:text-gray-900 hover:underline transition-colors cursor-pointer w-fit shrink-0 font-semibold whitespace-nowrap rounded-lg"
-              >
-                ← Back
-              </Link>
+              {navigateTo ? (
+                <button
+                  onClick={() => navigateTo(backHref)}
+                  className="px-4 py-2 text-xs text-gray-600 hover:text-gray-900 hover:underline transition-colors cursor-pointer w-fit shrink-0 font-semibold whitespace-nowrap rounded-lg"
+                >
+                  ← Back
+                </button>
+              ) : (
+                <Link
+                  href={backHref}
+                  className="px-4 py-2 text-xs text-gray-600 hover:text-gray-900 hover:underline transition-colors cursor-pointer w-fit shrink-0 font-semibold whitespace-nowrap rounded-lg"
+                >
+                  ← Back
+                </Link>
+              )}
               <h1 className="font-bold text-gray-900 text-base truncate">
                 {title}
               </h1>
@@ -180,12 +209,21 @@ export default function StickyFormHeader({
           <div className="space-y-3 sm:space-y-4">
             {/* Back Button */}
             <div className="mb-2 sm:mb-3">
-              <Link
-                href={backHref}
-                className="inline-flex items-center px-6 py-3 text-sm text-gray-600 hover:text-gray-900 hover:underline transition-colors cursor-pointer w-fit font-semibold rounded-lg"
-              >
-                {backLabel || "Back"}
-              </Link>
+              {navigateTo ? (
+                <button
+                  onClick={() => navigateTo(backHref)}
+                  className="inline-flex items-center px-6 py-3 text-sm text-gray-600 hover:text-gray-900 hover:underline transition-colors cursor-pointer w-fit font-semibold rounded-lg"
+                >
+                  {backLabel || "Back"}
+                </button>
+              ) : (
+                <Link
+                  href={backHref}
+                  className="inline-flex items-center px-6 py-3 text-sm text-gray-600 hover:text-gray-900 hover:underline transition-colors cursor-pointer w-fit font-semibold rounded-lg"
+                >
+                  {backLabel || "Back"}
+                </Link>
+              )}
             </div>
 
             {/* Title and Subtitle */}
