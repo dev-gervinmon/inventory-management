@@ -237,7 +237,7 @@ export default function ProductEditClient({
   };
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-6 md:py-8 space-y-4 sm:space-y-6 md:space-y-6">
       <MessageBanner message={message} />
 
       {/* Success Modal */}
@@ -252,20 +252,20 @@ export default function ProductEditClient({
         title="Edit Product"
         subtitle={`${product.name} • Product ID: ${product.id}`}
         backHref="/inventory"
+        backLabel="← Back to Inventory"
         isDirty={isDirty}
         isLoading={isSubmitting}
         onReset={handleReset}
-        onBack={handleNavigationBlock}
       />
 
-      {/* Add padding for sticky header */}
-      <div className="pt-20" />
+      {/* Add padding for sticky header - responsive */}
+      <div className="pt-20 sm:pt-20 md:pt-20" />
 
       <div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
           {/* Left Column: Form */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
+            <div className="bg-white rounded-lg sm:rounded-xl border border-gray-200 p-4 sm:p-6 md:p-8 shadow-sm">
               <ProductFormContext.Provider
                 value={{ formErrors, isSubmitting, onSubmit: handleFormSubmit }}
               >
