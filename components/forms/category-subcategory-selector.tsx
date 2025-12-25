@@ -146,6 +146,10 @@ export default function CategorySubcategorySelector({
   };
 
   const handleSubcategoryChange = (subcategoryId: string) => {
+    const parentCategory = categories.find((cat) =>
+      cat.subcategories.some((sub) => sub.id === subcategoryId)
+    );
+
     setSelectedSubcategories((prev) => {
       const updated = new Set(prev);
       if (updated.has(subcategoryId)) {
@@ -155,6 +159,14 @@ export default function CategorySubcategorySelector({
       }
       return updated;
     });
+
+    if (parentCategory && !selectedCategories.has(parentCategory.id)) {
+      setSelectedCategories((prev) => {
+        const updated = new Set(prev);
+        updated.add(parentCategory.id);
+        return updated;
+      });
+    }
   };
 
   const removeCategory = (categoryId: string) => {
