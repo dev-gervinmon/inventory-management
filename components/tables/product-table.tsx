@@ -32,6 +32,7 @@ interface ProductTableProps {
   visibleColumns: ColumnVisibility[];
   isCustomized: boolean;
   onOpenColumnManager: () => void;
+  initialStatusFilter?: string;
 }
 
 export default function ProductTable({
@@ -39,6 +40,7 @@ export default function ProductTable({
   visibleColumns,
   isCustomized,
   onOpenColumnManager,
+  initialStatusFilter,
 }: ProductTableProps) {
   const router = useRouter();
   const { push: navigateTo } = useNavigationTransition();
@@ -80,7 +82,9 @@ export default function ProductTable({
 
   // Filter state
   const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>(
+    initialStatusFilter === "critical-stock" ? "critical-stock" : ""
+  );
   const [categoriesSearchInput, setCategoriesSearchInput] =
     useState<string>("");
 
@@ -112,6 +116,11 @@ export default function ProductTable({
       : statusFilter === "low-stock"
       ? filteredByCategory.filter(
           (p) => p.quantity > 0 && p.quantity <= (p.lowStockAt || 0)
+        )
+      : statusFilter === "critical-stock"
+      ? filteredByCategory.filter(
+          (p) =>
+            p.quantity === 0 || (p.lowStockAt && p.quantity <= p.lowStockAt)
         )
       : filteredByCategory;
 
@@ -295,6 +304,9 @@ export default function ProductTable({
               <option value="in-stock">In Stock</option>
               <option value="low-stock">Low Stock</option>
               <option value="out-of-stock">Out of Stock</option>
+              <option value="critical-stock">
+                Critical Stock (Low or Empty)
+              </option>
             </select>
           </div>
         </div>
