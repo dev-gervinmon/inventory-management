@@ -32,6 +32,52 @@ interface EditCategoryWrapperProps {
   }>;
 }
 
+/**
+ * Main page wrapper for category editing
+ *
+ * This component orchestrates the entire category edit page:
+ * - Two-column layout: Forms on left, subcategories list on right
+ * - Mobile tabs: Toggle between Edit and Add subcategory forms
+ * - Desktop stacked: Both forms visible vertically
+ * - Composition of three wrapper components:
+ *   1. EditCategoryFormWithDeleteWrapper - Form with delete button
+ *   2. AddSubcategoryFormWrapper - Add subcategory form
+ *   3. SubcategoriesListWrapper - List of existing subcategories
+ * - Delete confirmation modal for category deletion
+ * - Message banner for feedback
+ *
+ * @component
+ * @example
+ * // In app/categories/[id]/page.tsx (server component)
+ * import { editSubcategory } from '@/lib/actions/subcategories';
+ * import EditCategoryWrapper from '@/components/wrappers/edit-category-wrapper';
+ *
+ * export default async function EditCategoryPage({ params }) {
+ *   const category = await getCategory(params.id);
+ *   return (
+ *     <EditCategoryWrapper
+ *       category={category}
+ *       editSubcategory={editSubcategory}
+ *     />
+ *   );
+ * }
+ *
+ * @param {Object} category - Category data with name and subcategories
+ * @param {string} category.id - Category ID
+ * @param {string} category.name - Category name
+ * @param {Array} category.subcategories - List of subcategories
+ * @param {Function} editSubcategory - Server action for updating subcategories
+ *
+ * Component Hierarchy:
+ * EditCategoryWrapper
+ * ├── EditCategoryFormWithDeleteWrapper
+ * │   ├── EditCategoryForm (base component)
+ * │   └── DeleteCategoryButton
+ * ├── AddSubcategoryFormWrapper
+ * │   └── AddSubcategoryForm (base component)
+ * └── SubcategoriesListWrapper
+ *     └── SubcategoriesList (base component)
+ */
 export default function EditCategoryWrapper({
   category,
   editSubcategory,
