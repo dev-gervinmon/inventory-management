@@ -133,7 +133,7 @@ export default function AddProductClient({
       />
 
       {/* Add padding for sticky header - responsive */}
-      <div className="pt-20 sm:pt-20 md:pt-20" />
+      <div className="pt-6 sm:pt-8 md:pt-20" />
 
       <div className="px-4 sm:px-6 md:px-8">
         <ProductFormContext.Provider
