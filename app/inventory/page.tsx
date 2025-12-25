@@ -1,4 +1,4 @@
-import ProductTableContent from "@/app/inventory/product-table-content";
+import ProductTableContent from "@/app/inventory/_components/product-table-content";
 import AddProductButton from "@/components/buttons/add-product-button";
 import PageLayout from "@/components/layout/page-layout";
 import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";

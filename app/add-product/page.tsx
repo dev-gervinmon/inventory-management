@@ -1,4 +1,4 @@
-import AddProductClient from "@/components/forms/add-product-client";
+import AddProductClient from "@/components/clients/add-product-client";
 import MobileSidebar from "@/components/layout/mobile-sidebar";
 import { createProduct } from "@/lib/actions/products";
 import { getCurrentUser } from "@/lib/auth/auth";

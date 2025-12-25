@@ -1,10 +1,10 @@
 import PageLayout from "@/components/layout/page-layout";
 import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
-import CategoriesPageWrapper from "./categories-page-wrapper";
+import CategoriesPageWrapper from "./_components/categories-page-wrapper";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
-import CategoriesPageContent from "./categories-content";
-import CategoryFormWrapper from "./category-form-wrapper";
+import CategoriesPageContent from "./_components/categories-content";
+import CategoryFormWrapper from "./_components/category-form-wrapper";
 
 export default async function CategoriesPage() {
   await getCurrentUser();

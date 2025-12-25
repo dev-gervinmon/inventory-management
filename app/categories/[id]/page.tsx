@@ -1,4 +1,4 @@
-import EditCategoryWrapper from "@/components/layout/edit-category-wrapper";
+import EditCategoryWrapper from "@/components/wrappers/edit-category-wrapper";
 import EditCategoryPageWrapper from "./edit-category-page-wrapper";
 import CategoryNotFound from "@/components/layout/category-not-found";
 import { editSubcategory } from "@/lib/actions/subcategories";

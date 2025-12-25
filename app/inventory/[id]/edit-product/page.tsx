@@ -5,7 +5,7 @@ import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
 import { editProduct, deleteProduct } from "@/lib/actions/products";
 import { redirect } from "next/navigation";
-import ProductEditClient from "@/components/forms/product-edit-client";
+import ProductEditClient from "@/components/clients/product-edit-client";
 import ProductForm from "@/components/forms/product-form";
 
 export default async function EditProductPage({
