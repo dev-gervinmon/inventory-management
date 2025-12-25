@@ -7,9 +7,14 @@ import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
 import { serializeProduct } from "../src/utils/product";
 
-export default async function InventoryPage() {
+export default async function InventoryPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
   const user = await getCurrentUser();
   const userId = user.id;
+  const { status } = await searchParams;
 
   // Fetch all products for the user (client-side filtering/sorting/pagination)
   const itemsRaw = await prisma.product.findMany({
@@ -51,7 +56,10 @@ export default async function InventoryPage() {
           <div className="space-y-4 sm:space-y-6">
             {/* Product Table Card */}
             <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:border-gray-300 hover:shadow-sm transition-all duration-200">
-              <ProductTableContent products={items} />
+              <ProductTableContent
+                products={items}
+                initialStatusFilter={status}
+              />
             </div>
           </div>
         </PullToRefreshWrapper>
