@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import AddProductForm from "./add-product-form";
 import ProductFormSidebar from "./product-form-sidebar";
 import StickyFormHeader from "@/components/layout/sticky-form-header";
+import PageLayout from "@/components/layout/page-layout";
 import { useMessage } from "@/lib/hooks/useMessage";
 import { useFormErrors } from "@/lib/hooks/useFormErrors";
 import { ProductFormContext } from "@/lib/contexts/product-form-context";
@@ -87,46 +88,44 @@ export default function AddProductClient({
   }, [clearFormErrors]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <main className="ml-64 p-8">
-        {/* Success Modal */}
-        <SuccessModal
-          isOpen={isSuccessModalOpen}
-          title="Product Created"
-          subtitle="Your new product has been successfully added to inventory."
-          onClose={handleSuccessModalClose}
-        />
+    <PageLayout currentPath="/add-product">
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={isSuccessModalOpen}
+        title="Product Created"
+        subtitle="Your new product has been successfully added to inventory."
+        onClose={handleSuccessModalClose}
+      />
 
-        <StickyFormHeader
-          title="Add Product"
-          subtitle="Add a new product to your inventory"
-          backHref="/inventory"
-          isLoading={isSubmitting}
-          submitLabel="Create Product"
-          alwaysShowReset
-          onReset={handleReset}
-          onBack={(href) => router.push(href)}
-        />
+      <StickyFormHeader
+        title="Add Product"
+        subtitle="Add a new product to your inventory"
+        backHref="/inventory"
+        isLoading={isSubmitting}
+        submitLabel="Create Product"
+        alwaysShowReset
+        onReset={handleReset}
+        onBack={(href) => router.push(href)}
+      />
 
-        {/* Add padding for sticky header */}
-        <div className="pt-20" />
+      {/* Add padding for sticky header */}
+      <div className="pt-20" />
 
-        <ProductFormContext.Provider
-          value={{ formErrors, isSubmitting, onSubmit: handleFormSubmit }}
-        >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Left Column: Form Sections */}
-            <div className="space-y-8">
-              <AddProductForm categories={categories} />
-            </div>
-
-            {/* Right Column: Image, Categories */}
-            <div className="space-y-8">
-              <ProductFormSidebar categories={categories} />
-            </div>
+      <ProductFormContext.Provider
+        value={{ formErrors, isSubmitting, onSubmit: handleFormSubmit }}
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left Column: Form Sections */}
+          <div className="space-y-8">
+            <AddProductForm categories={categories} />
           </div>
-        </ProductFormContext.Provider>
-      </main>
-    </div>
+
+          {/* Right Column: Image, Categories */}
+          <div className="space-y-8">
+            <ProductFormSidebar categories={categories} />
+          </div>
+        </div>
+      </ProductFormContext.Provider>
+    </PageLayout>
   );
 }
