@@ -13,10 +13,12 @@ import { SerializedProduct } from "@/app/src/utils/product";
 
 interface ProductTableContentProps {
   products: SerializedProduct[];
+  initialStatusFilter?: string;
 }
 
 export default function ProductTableContent({
   products,
+  initialStatusFilter,
 }: ProductTableContentProps) {
   const [showColumnManager, setShowColumnManager] = useState(false);
   const isLoading = usePullToRefreshLoading();
@@ -134,6 +136,7 @@ export default function ProductTableContent({
           visibleColumns={visibleColumns}
           isCustomized={isCustomizedWithHydration}
           onOpenColumnManager={() => setShowColumnManager(true)}
+          initialStatusFilter={initialStatusFilter}
         />
       )}
 
