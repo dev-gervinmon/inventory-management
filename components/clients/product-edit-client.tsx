@@ -34,6 +34,44 @@ interface ProductEditClientProps {
   children: React.ReactNode;
 }
 
+/**
+ * Client-side wrapper for editing existing products
+ *
+ * This component manages the entire product edit flow on the client:
+ * - Dirty state tracking for unsaved changes
+ * - Navigation blocking with confirmation when form is dirty
+ * - Delete confirmation modal with separate action handler
+ * - Success modal with auto-close
+ * - Form reset and validation
+ * - Sticky form header with submit button
+ * - Context provision for nested form components
+ * - Warning before page unload if form has unsaved changes
+ *
+ * @component
+ * @example
+ * // In app/inventory/[id]/edit-product/page.tsx (server component)
+ * import { editProduct, deleteProduct } from '@/lib/actions/products';
+ * import ProductEditClient from '@/components/clients/product-edit-client';
+ * import ProductForm from '@/components/forms/product-form';
+ *
+ * export default async function EditProductPage({ params }) {
+ *   const product = await getProduct(params.id);
+ *   return (
+ *     <ProductEditClient
+ *       product={product}
+ *       formAction={editProduct}
+ *       deleteAction={deleteProduct}
+ *     >
+ *       <ProductForm product={product} />
+ *     </ProductEditClient>
+ *   );
+ * }
+ *
+ * @param {Product} product - The product data to edit
+ * @param {Function} formAction - Server action to handle product updates
+ * @param {Function} deleteAction - Server action to handle product deletion
+ * @param {React.ReactNode} children - Form content to render inside the edit client
+ */
 export default function ProductEditClient({
   product,
   formAction,
