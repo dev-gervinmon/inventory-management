@@ -39,10 +39,10 @@ export default function ProductInfoSidebar({
   };
 
   return (
-    <div className="lg:col-span-1 space-y-6">
+    <div className="lg:col-span-1 space-y-4 sm:space-y-5 md:space-y-6">
       {/* Stock Status */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
-        <div className="space-y-4">
+      <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-4">
+        <div className="space-y-3 sm:space-y-4 md:space-y-4">
           <div>
             <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2">
               Stock Status
@@ -53,7 +53,7 @@ export default function ProductInfoSidebar({
               >
                 {stockStatus.label}
               </span>
-              <span className="text-2xl font-bold text-gray-900">
+              <span className="text-xl sm:text-2xl md:text-2xl font-bold text-gray-900">
                 {quantity}
               </span>
             </div>
@@ -71,15 +71,17 @@ export default function ProductInfoSidebar({
       </div>
 
       {/* Pricing */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
+      <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-4">
         <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-3">
           Price
         </p>
-        <p className="text-2xl font-bold text-gray-900">{formatPrice(price)}</p>
+        <p className="text-xl sm:text-2xl md:text-2xl font-bold text-gray-900">
+          {formatPrice(price)}
+        </p>
       </div>
 
       {/* Product ID */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
+      <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-4">
         <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2">
           Product ID
         </p>
@@ -89,7 +91,7 @@ export default function ProductInfoSidebar({
           </code>
           <button
             onClick={() => copyToClipboard(productId, "id")}
-            className="p-1.5 hover:bg-gray-100 rounded transition cursor-pointer"
+            className="p-1.5 hover:bg-gray-100 rounded transition cursor-pointer shrink-0"
             title="Copy product ID"
           >
             <Copy
@@ -103,7 +105,7 @@ export default function ProductInfoSidebar({
 
       {/* SKU */}
       {sku && (
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-4">
           <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2">
             SKU
           </p>
@@ -113,7 +115,7 @@ export default function ProductInfoSidebar({
             </code>
             <button
               onClick={() => copyToClipboard(sku, "sku")}
-              className="p-1.5 hover:bg-gray-100 rounded transition cursor-pointer"
+              className="p-1.5 hover:bg-gray-100 rounded transition cursor-pointer shrink-0"
               title="Copy SKU"
             >
               <Copy
@@ -127,12 +129,12 @@ export default function ProductInfoSidebar({
       )}
 
       {/* Metadata */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
+      <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-4 space-y-2 sm:space-y-3 md:space-y-3">
         <div>
           <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
             Created
           </p>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-xs sm:text-sm md:text-sm text-gray-600 mt-1">
             {formatProductDate(createdAt)}
           </p>
         </div>
@@ -140,7 +142,7 @@ export default function ProductInfoSidebar({
           <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
             Last Updated
           </p>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-xs sm:text-sm md:text-sm text-gray-600 mt-1">
             {formatProductDate(updatedAt)}
           </p>
         </div>
