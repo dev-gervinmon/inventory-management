@@ -2,10 +2,10 @@
 
 import PageLayout from "@/components/layout/page-layout";
 import EditProductPageWrapper from "../edit-product-page-wrapper";
+import NotFoundPage from "@/components/layout/not-found-page";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
 import { editProduct, deleteProduct } from "@/lib/actions/products";
-import { redirect } from "next/navigation";
 import ProductEditClient from "@/components/clients/product-edit-client";
 import ProductForm from "@/components/forms/product-form";
 
@@ -35,7 +35,16 @@ export default async function EditProductPage({
   });
 
   if (!product) {
-    redirect("/inventory");
+    return (
+      <NotFoundPage
+        entityId={id}
+        entityName="Product"
+        storageKey="deletedProductId"
+        redirectPath="/inventory"
+        backButtonLabel="Back to Inventory"
+        sidebarPath="/inventory"
+      />
+    );
   }
 
   if (product.userId !== user.id) {
