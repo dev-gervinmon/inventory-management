@@ -14,6 +14,7 @@ import {
   DASHBOARD_LIMITS,
 } from "@/lib/utils/dashboard";
 import { Decimal } from "@prisma/client/runtime/client";
+import InventoryOverviewCard from "@/components/common/inventory-overview-card";
 
 export default async function DashboardPage() {
   interface Product {
@@ -195,28 +196,20 @@ export default async function DashboardPage() {
 
         {/** Key Metrics - 4 Column Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-6 mb-6 sm:mb-10">
-          {/** Total Products */}
-          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:border-gray-300 hover:shadow-sm transition-all duration-200">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs sm:text-sm md:text-sm text-gray-700 font-semibold">
-                  Total Products
-                </p>
-                <p className="text-lg sm:text-xl md:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">
-                  {totalProducts}
-                </p>
-              </div>
-              <div className="p-2 md:p-3 bg-blue-50 rounded-lg">
-                <div className="w-5 h-5 md:w-6 md:h-6 text-blue-600">📦</div>
-              </div>
-            </div>
-            <p className="text-xs text-gray-500 mt-4 landscape:mt-2 landscape:hidden">
-              All products in inventory
-            </p>
-          </div>
+          {/* Inventory Overview Card (collapsible, client component) */}
+          <InventoryOverviewCard
+            totalProducts={totalProducts}
+            inStockCount={inStockCount}
+            inStockPercentage={inStockPercentage}
+            lowStockCount={lowStockCount}
+            lowStockPercentage={lowStockPercentage}
+            outOfStockCount={outOfStockCount}
+            outOfStockPercentage={outOfStockPercentage}
+            criticalStockCount={outOfStockCount + lowStockCount}
+          />
 
-          {/** Total Value */}
-          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:border-gray-300 hover:shadow-sm transition-all duration-200">
+          {/* Total Value (remains as a separate card) */}
+          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:border-gray-300 hover:shadow-sm transition-all duration-200 flex flex-col justify-between">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-xs sm:text-sm md:text-sm text-gray-700 font-semibold">
@@ -232,50 +225,6 @@ export default async function DashboardPage() {
             </div>
             <p className="text-xs text-gray-500 mt-4">
               Estimated inventory value
-            </p>
-          </div>
-
-          {/** In Stock */}
-          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:border-gray-300 hover:shadow-sm transition-all duration-200">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs sm:text-sm md:text-sm text-gray-700 font-semibold">
-                  In Stock
-                </p>
-                <p className="text-lg sm:text-xl md:text-3xl font-bold text-green-600 mt-1 sm:mt-2">
-                  {inStockCount}
-                </p>
-              </div>
-              <div className="p-2 md:p-3 bg-green-50 rounded-lg">
-                <div className="w-5 h-5 md:w-6 md:h-6 text-green-600 flex items-center justify-center">
-                  ✓
-                </div>
-              </div>
-            </div>
-            <p className="text-xs text-gray-500 mt-4">
-              {inStockPercentage}% of inventory
-            </p>
-          </div>
-
-          {/** Critical Items */}
-          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:border-gray-300 hover:shadow-sm transition-all duration-200">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs sm:text-sm md:text-sm text-gray-700 font-semibold">
-                  Critical Stock
-                </p>
-                <p className="text-lg sm:text-xl md:text-3xl font-bold text-red-600 mt-1 sm:mt-2">
-                  {outOfStockCount + lowStockCount}
-                </p>
-              </div>
-              <div className="p-2 md:p-3 bg-red-50 rounded-lg">
-                <div className="w-6 h-6 text-red-600 flex items-center justify-center">
-                  !
-                </div>
-              </div>
-            </div>
-            <p className="text-xs text-gray-500 mt-4">
-              Low or out of stock items
             </p>
           </div>
         </div>
@@ -294,74 +243,6 @@ export default async function DashboardPage() {
               style={{ aspectRatio: "4/1" }}
             >
               <ProductChart data={weeklyProductsData} />
-            </div>
-          </div>
-
-          {/* Stock Distribution - Visible on tablet and desktop, stacks below chart on tablet */}
-          <div className="hidden md:block lg:col-span-1 bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-5 lg:p-4 hover:shadow-sm transition-all duration-200">
-            <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 lg:mb-5">
-              Stock Status
-            </h2>
-            <div className="space-y-4">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 rounded-full bg-green-500" />
-                    <span className="text-sm font-medium text-gray-700">
-                      In Stock
-                    </span>
-                  </div>
-                  <span className="text-sm font-bold text-gray-900">
-                    {inStockPercentage}%
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-green-500 h-2 rounded-full"
-                    style={{ width: `${inStockPercentage}%` }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                    <span className="text-sm font-medium text-gray-700">
-                      Low Stock
-                    </span>
-                  </div>
-                  <span className="text-sm font-bold text-gray-900">
-                    {lowStockPercentage}%
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-yellow-500 h-2 rounded-full"
-                    style={{ width: `${lowStockPercentage}%` }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 rounded-full bg-red-500" />
-                    <span className="text-sm font-medium text-gray-700">
-                      Out of Stock
-                    </span>
-                  </div>
-                  <span className="text-sm font-bold text-gray-900">
-                    {outOfStockPercentage}%
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-red-500 h-2 rounded-full"
-                    style={{ width: `${outOfStockPercentage}%` }}
-                  />
-                </div>
-              </div>
             </div>
           </div>
         </div>
