@@ -123,7 +123,7 @@ export default function AlertsActivityTabs({
                         {product.name}
                       </p>
                       <p className="text-xs text-gray-600 mt-1">
-                        SKU: {product.sku}
+                        SKU: {product.sku ? product.sku : "N/A"}
                       </p>
                     </div>
                     <div className="text-right">
