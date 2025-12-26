@@ -1,30 +1,25 @@
 "use client";
-
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { AlertCircle, Activity } from "lucide-react";
-import { formatActivityTime, getActivityIcon } from "@/lib/utils/dashboard";
-import {
-  useSwipeGesture,
-  type SwipeDirection,
-} from "@/lib/hooks/useSwipeGesture";
+import Tabs, { TabPanel } from "@/components/common/tabs";
 import {
   EmptyAlertsState,
   EmptyActivityState,
-} from "@/components/empty-states";
+} from "@/components/empty-states/dashboard-empty-states";
 
 interface Product {
   id: string;
   name: string;
   quantity: number;
-  sku: string | null;
+  sku?: string | null;
 }
 
 interface ActivityItem {
   id: string;
   type: string;
   message: string;
-  createdAt: Date;
+  createdAt: string | Date;
 }
 
 interface AlertsActivityTabsProps {
@@ -32,287 +27,215 @@ interface AlertsActivityTabsProps {
   activities: ActivityItem[];
 }
 
+function formatActivityTime(date: string | Date) {
+  const d = typeof date === "string" ? new Date(date) : date;
+  const now = new Date();
+  const diff = (now.getTime() - d.getTime()) / 1000;
+  if (diff < 60) return "just now";
+  if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`;
+  return d.toLocaleDateString();
+}
+
+function getActivityIcon(type: string) {
+  // You can expand this mapping as needed
+  switch (type) {
+    case "add":
+      return <Activity className="w-5 h-5 text-green-600" />;
+    case "edit":
+      return <Activity className="w-5 h-5 text-blue-600" />;
+    case "delete":
+      return <Activity className="w-5 h-5 text-red-600" />;
+    default:
+      return <Activity className="w-5 h-5 text-gray-400" />;
+  }
+}
+
 export default function AlertsActivityTabs({
   criticalStockItems,
   activities,
 }: AlertsActivityTabsProps) {
-  const [activeTab, setActiveTab] = useState<"alerts" | "activity">("alerts");
-
-  /**
-   * Handle swipe gesture to switch between tabs
-   * Swipe left -> go to Activity (next tab)
-   * Swipe right -> go to Alerts (previous tab)
-   */
-  const handleSwipe = useCallback((direction: SwipeDirection) => {
-    setActiveTab((prevTab) => {
-      if (direction === "left" && prevTab === "alerts") {
-        return "activity";
-      } else if (direction === "right" && prevTab === "activity") {
-        return "alerts";
-      }
-      return prevTab;
-    });
-  }, []);
-
-  const { containerRef } = useSwipeGesture({
-    onSwipe: handleSwipe,
-    threshold: 50,
-    enabled: true,
-  });
-
+  const [open, setOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("alerts");
+  const tabs: { id: string; label: React.ReactNode }[] = [
+    {
+      id: "alerts",
+      label: (
+        <span className="flex items-center gap-1">
+          <AlertCircle className="w-4 h-4 text-red-600" />
+          Alerts
+          {criticalStockItems.length > 0
+            ? ` (${criticalStockItems.length})`
+            : ""}
+        </span>
+      ),
+    },
+    {
+      id: "activity",
+      label: (
+        <span className="flex items-center gap-1">
+          <Activity className="w-4 h-4 text-blue-600" />
+          Activity{activities.length > 0 ? ` (${activities.length})` : ""}
+        </span>
+      ),
+    },
+  ];
   return (
-    <>
-      {/* Desktop View - Side by Side */}
-      <div className="hidden lg:grid grid-cols-2 gap-8">
-        {/* Alerts Section */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
-          <div className="flex items-center justify-between mb-4 md:mb-6">
-            <div>
-              <h2 className="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-red-600" />
-                Critical Stock Alerts
-              </h2>
-            </div>
-            {criticalStockItems.length > 0 && (
-              <Link
-                href="/inventory?status=critical-stock"
-                className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 text-xs md:text-sm font-semibold rounded-lg transition-colors"
-              >
-                See All
-                <svg
-                  className="w-3.5 h-3.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
-                </svg>
-              </Link>
-            )}
-          </div>
-          {criticalStockItems.length > 0 && (
-            <span className="text-xs text-gray-500 font-medium block mb-4">
-              {criticalStockItems.length} item
-              {criticalStockItems.length !== 1 ? "s" : ""} need attention
-            </span>
-          )}
-
-          {criticalStockItems.length > 0 ? (
-            <div className="space-y-3">
-              {criticalStockItems.map((product) => {
-                const status =
-                  product.quantity === 0 ? "Out of Stock" : "Low Stock";
-                const statusColor =
-                  product.quantity === 0
-                    ? "text-red-600 bg-red-50"
-                    : "text-yellow-600 bg-yellow-50";
-
-                return (
-                  <Link
-                    key={product.id}
-                    href={`/inventory/${product.id}/edit-product`}
-                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
-                  >
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {product.name}
-                      </p>
-                      <p className="text-xs text-gray-600 mt-1">
-                        SKU: {product.sku ? product.sku : "N/A"}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p
-                        className={`text-xs md:text-sm font-bold ${statusColor} px-2 py-1 rounded inline-block`}
-                      >
-                        {product.quantity} units
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">{status}</p>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          ) : (
-            <EmptyAlertsState />
-          )}
-        </div>
-
-        {/* Activity Section */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
-          <div className="flex items-center justify-between mb-4 md:mb-6">
-            <div>
-              <h2 className="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Activity className="w-5 h-5 text-blue-600" />
-                Recent Activity
-              </h2>
-            </div>
-            {activities.length > 0 && (
-              <Link
-                href="/activities"
-                className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs md:text-sm font-semibold rounded-lg transition-colors"
-              >
-                See All
-                <svg
-                  className="w-3.5 h-3.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
-                </svg>
-              </Link>
-            )}
-          </div>
-          {activities.length > 0 && (
-            <span className="text-xs text-gray-500 font-medium">
-              Latest {activities.length}
-            </span>
-          )}
-
-          {activities.length > 0 ? (
-            <div className="space-y-3">
-              {activities.map((activity) => (
-                <div
-                  key={activity.id}
-                  className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
-                >
-                  <div className="text-xl mt-0.5">
-                    {getActivityIcon(activity.type)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {activity.message}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {formatActivityTime(activity.createdAt)}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <EmptyActivityState />
-          )}
-        </div>
-      </div>
-
-      {/* Mobile/Tablet View - Tabs with Swipe Support */}
-      <div
-        ref={containerRef}
-        className="lg:hidden bg-white rounded-lg border border-gray-200 touch-pan-y"
+    <div className="bg-white rounded-lg border border-gray-200 max-w-lg mx-auto w-full">
+      <button
+        className={`w-full flex items-center justify-between px-4 py-2 focus:outline-none transition-colors duration-150 rounded-t-lg ${
+          open ? "bg-gray-50" : "bg-white hover:bg-gray-50"
+        } cursor-pointer`}
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-controls="alerts-activity-tabs-content"
+        type="button"
       >
-        {/* Tab Navigation */}
-        <div className="flex border-b border-gray-200">
-          <button
-            onClick={() => setActiveTab("alerts")}
-            className={`flex-1 py-4 px-4 font-medium text-sm transition-colors flex items-center justify-center gap-2 ${
-              activeTab === "alerts"
-                ? "border-b-2 border-red-600 text-red-600 bg-red-50"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-            }`}
-          >
-            <AlertCircle className="w-4 h-4" />
-            Alerts
-            {criticalStockItems.length > 0 && (
-              <span className="ml-1 px-2 py-0.5 bg-red-100 text-red-700 text-xs font-semibold rounded-full">
-                {criticalStockItems.length}
+        <span className="text-base sm:text-lg font-semibold text-gray-900">
+          Alerts & Activities
+        </span>
+        <svg
+          className={`w-5 h-5 ml-2 transition-transform duration-200 ${
+            open ? "rotate-180" : "rotate-0"
+          }`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
+        </svg>
+      </button>
+      {/* Collapsed summary view */}
+      {!open && (
+        <div className="flex flex-col gap-2 px-4 py-3 border-t border-gray-100">
+          <div className="flex gap-2">
+            <div
+              className="flex-1 flex flex-col items-center justify-center py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer group"
+              onClick={() => {
+                setActiveTab("alerts");
+                setOpen(true);
+              }}
+              aria-label="Show Alerts"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  setActiveTab("alerts");
+                  setOpen(true);
+                }
+              }}
+            >
+              <span className="flex items-center gap-1 text-sm font-semibold text-red-600">
+                <AlertCircle className="w-4 h-4" /> Alerts
+                {criticalStockItems.length > 0 && (
+                  <span className="ml-1 px-2 py-0.5 bg-red-100 text-red-700 text-xs font-semibold rounded-full">
+                    {criticalStockItems.length}
+                  </span>
+                )}
               </span>
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab("activity")}
-            className={`flex-1 py-4 px-4 font-medium text-sm transition-colors flex items-center justify-center gap-2 ${
-              activeTab === "activity"
-                ? "border-b-2 border-blue-600 text-blue-600 bg-blue-50"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-            }`}
-          >
-            <Activity className="w-4 h-4" />
-            Activity
-          </button>
+              <span className="text-xs text-gray-500 mt-1">
+                {criticalStockItems.length} item
+                {criticalStockItems.length !== 1 ? "s" : ""} need attention
+              </span>
+              <span className="text-xs text-gray-400 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                Click to expand
+              </span>
+            </div>
+            <div
+              className="flex-1 flex flex-col items-center justify-center py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer group"
+              onClick={() => {
+                setActiveTab("activity");
+                setOpen(true);
+              }}
+              aria-label="Show Activity"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  setActiveTab("activity");
+                  setOpen(true);
+                }
+              }}
+            >
+              <span className="flex items-center gap-1 text-sm font-semibold text-blue-600">
+                <Activity className="w-4 h-4" /> Activity
+              </span>
+              <span className="text-xs text-gray-400 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                Click to expand
+              </span>
+            </div>
+          </div>
         </div>
-
-        {/* Tab Content with Smooth Transitions */}
-        <div className="p-4 md:p-6 transition-opacity duration-300 ease-in-out">
-          {/* Alerts Tab */}
-          {activeTab === "alerts" && (
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5 text-red-600" />
+      )}
+      {/* Expanded full tabbed view */}
+      <div
+        id="alerts-activity-tabs-content"
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${
+          open
+            ? "max-h-[2000px] opacity-100"
+            : "max-h-0 opacity-0 pointer-events-none"
+        }`}
+        aria-hidden={!open}
+      >
+        <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab}>
+          <TabPanel tabId="alerts">
+            <div className="p-2 sm:p-3 md:p-4">
+              <div className="flex items-center mb-2 justify-between">
+                <h2 className="text-sm md:text-base font-semibold text-gray-900">
                   Critical Stock Alerts
                 </h2>
                 {criticalStockItems.length > 0 && (
                   <Link
-                    href="/inventory?status=critical-stock"
-                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 text-xs md:text-sm font-semibold rounded-lg transition-colors"
+                    href="/inventory?filter=critical"
+                    className="ml-auto px-3 py-1 text-xs font-semibold text-red-700 bg-red-50 hover:bg-red-100 rounded transition-colors"
                   >
                     See All
-                    <svg
-                      className="w-3.5 h-3.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 7l5 5m0 0l-5 5m5-5H6"
-                      />
-                    </svg>
                   </Link>
                 )}
               </div>
               {criticalStockItems.length > 0 && (
-                <span className="text-xs text-gray-500 font-medium block mb-4">
-                  {criticalStockItems.length} item
-                  {criticalStockItems.length !== 1 ? "s" : ""} need attention
+                <span className="text-xs text-gray-500 font-medium block mb-2 text-left">
+                  Items need attention
                 </span>
               )}
 
               {criticalStockItems.length > 0 ? (
-                <div className="space-y-3">
-                  {criticalStockItems.map((product) => {
+                <div className="space-y-1">
+                  {criticalStockItems.slice(0, 5).map((product) => {
                     const status =
                       product.quantity === 0 ? "Out of Stock" : "Low Stock";
                     const statusColor =
                       product.quantity === 0
                         ? "text-red-600 bg-red-50"
                         : "text-yellow-600 bg-yellow-50";
-
                     return (
                       <Link
                         key={product.id}
                         href={`/inventory/${product.id}/edit-product`}
-                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
+                        className="flex items-center justify-between gap-2 p-2 rounded bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
                       >
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900 truncate">
+                        <div className="flex-1 min-w-0">
+                          <span className="block text-xs font-medium text-gray-900 truncate">
                             {product.name}
-                          </p>
-                          <p className="text-xs text-gray-600 mt-1">
-                            SKU: {product.sku}
-                          </p>
+                          </span>
+                          <span className="block text-[11px] text-gray-500">
+                            SKU: {product.sku ? product.sku : "N/A"}
+                          </span>
                         </div>
-                        <div className="text-right">
-                          <p
-                            className={`text-xs md:text-sm font-bold ${statusColor} px-2 py-1 rounded inline-block`}
+                        <div className="text-right shrink-0 flex flex-col items-end">
+                          <span
+                            className={`text-xs font-bold ${statusColor} px-2 py-0.5 rounded`}
                           >
                             {product.quantity} units
-                          </p>
-                          <p className="text-xs text-gray-500 mt-1">{status}</p>
+                          </span>
+                          <span className="text-[11px] text-gray-400">
+                            {status}
+                          </span>
                         </div>
                       </Link>
                     );
@@ -322,56 +245,39 @@ export default function AlertsActivityTabs({
                 <EmptyAlertsState />
               )}
             </div>
-          )}
-
-          {/* Activity Tab */}
-          {activeTab === "activity" && (
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-2">
-                  <Activity className="w-5 h-5 text-blue-600" />
+          </TabPanel>
+          <TabPanel tabId="activity">
+            <div className="p-2 sm:p-3 md:p-4">
+              <div className="flex items-center mb-2 justify-between">
+                <h2 className="text-sm md:text-base font-semibold text-gray-900">
                   Recent Activity
                 </h2>
                 {activities.length > 0 && (
                   <Link
-                    href="/activities"
-                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs md:text-sm font-semibold rounded-lg transition-colors"
+                    href="/activity"
+                    className="ml-auto px-3 py-1 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded transition-colors"
                   >
                     See All
-                    <svg
-                      className="w-3.5 h-3.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 7l5 5m0 0l-5 5m5-5H6"
-                      />
-                    </svg>
                   </Link>
                 )}
               </div>
-
               {activities.length > 0 ? (
-                <div className="space-y-3">
-                  {activities.map((activity) => (
+                <div className="space-y-1">
+                  {activities.slice(0, 5).map((activity) => (
                     <div
                       key={activity.id}
-                      className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+                      className="flex items-center gap-2 p-2 rounded bg-gray-50 hover:bg-gray-100 transition-colors"
                     >
-                      <div className="text-xl mt-0.5">
+                      <div className="text-lg shrink-0">
                         {getActivityIcon(activity.type)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                        <span className="block text-xs font-medium text-gray-900 truncate">
                           {activity.message}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
+                        </span>
+                        <span className="block text-[11px] text-gray-500">
                           {formatActivityTime(activity.createdAt)}
-                        </p>
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -380,9 +286,9 @@ export default function AlertsActivityTabs({
                 <EmptyActivityState />
               )}
             </div>
-          )}
-        </div>
+          </TabPanel>
+        </Tabs>
       </div>
-    </>
+    </div>
   );
 }
