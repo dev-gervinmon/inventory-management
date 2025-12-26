@@ -17,6 +17,8 @@ interface FilterParams {
   sort?: SortType;
   search?: string;
   page?: number;
+  actionType?: string; // For activity page
+  entityType?: string; // For activity page
 }
 
 /**
@@ -32,7 +34,7 @@ export function buildFilterUrl(params: FilterParams): URLSearchParams {
 
   if (params.categories?.length) {
     params.categories.forEach((id) => {
-      searchParams.append("category", id);
+      searchParams.append("categories", id);
     });
   }
 
@@ -52,6 +54,14 @@ export function buildFilterUrl(params: FilterParams): URLSearchParams {
 
   if (params.page) {
     searchParams.set("page", String(params.page));
+  }
+
+  if (params.actionType) {
+    searchParams.set("actionType", params.actionType);
+  }
+
+  if (params.entityType) {
+    searchParams.set("entityType", params.entityType);
   }
 
   return searchParams;
