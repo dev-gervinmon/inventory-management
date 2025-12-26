@@ -22,12 +22,20 @@ interface ActivityTableProps {
   activities: Activity[];
   currentActionType?: string;
   currentEntityType?: string;
+  showPagination?: boolean;
+  showFilters?: boolean;
+  showSearch?: boolean;
+  maxHeight?: string;
 }
 
 export default function ActivityTable({
   activities,
   currentActionType,
   currentEntityType,
+  showPagination = true,
+  showFilters = true,
+  showSearch = true,
+  maxHeight = "auto",
 }: ActivityTableProps) {
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
     null
@@ -106,7 +114,11 @@ export default function ActivityTable({
   const totalItems = sortedItems.length;
 
   return (
-    <div className="space-y-4">
+    <div
+      className={`space-y-4 ${
+        maxHeight !== "auto" ? maxHeight + " overflow-y-auto" : ""
+      }`}
+    >
       {/* Message Banner */}
       {message && (
         <MessageBanner
@@ -118,12 +130,14 @@ export default function ActivityTable({
       )}
 
       {/* Search Bar */}
-      <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
-        <ActivitySearch onSearchChange={setSearch} />
-      </div>
+      {showSearch && (
+        <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
+          <ActivitySearch onSearchChange={setSearch} />
+        </div>
+      )}
 
       {/* Results Count */}
-      {!isEmpty && (
+      {!isEmpty && (showPagination || showSearch) && (
         <div className="flex items-center justify-between text-xs sm:text-sm text-gray-600 px-1">
           <span>
             Showing {startIndex + 1}-{Math.min(endIndex, totalItems)} of{" "}
@@ -353,7 +367,7 @@ export default function ActivityTable({
       </div>
 
       {/* Pagination */}
-      {!isEmpty && !noResults && totalPages > 1 && (
+      {showPagination && !isEmpty && !noResults && totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
