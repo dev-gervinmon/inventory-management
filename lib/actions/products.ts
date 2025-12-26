@@ -1,13 +1,10 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { getCurrentUser } from "../auth/auth";
 import prisma from "../db/prisma";
 import { parseProductData } from "../schemas/products";
 import { logActivity } from "./activities";
 import { formatPrice } from "../utils/products";
-
-const INVENTORY_PATH = "/inventory";
 
 /**
  * Extract IDs from FormData for a given key
@@ -86,8 +83,9 @@ export async function bulkDeleteProducts(ids: string[]) {
       .map((p: { id: string; name: string }) => p.name)
       .join(", ");
     await logActivity(user.id, {
-      type: "PRODUCT_DELETED",
-      productName: `${products.length} products`,
+      entityType: "PRODUCT",
+      actionType: "DELETED",
+      entityName: `${products.length} products`,
       message: `Bulk deleted ${products.length} product(s): ${productNames}`,
     });
 
@@ -122,9 +120,10 @@ export async function createProduct(formData: FormData) {
     });
 
     await logActivity(user.id, {
-      type: "PRODUCT_ADDED",
-      productId: createdProduct.id,
-      productName: createdProduct.name,
+      entityType: "PRODUCT",
+      actionType: "ADDED",
+      entityId: createdProduct.id,
+      entityName: createdProduct.name,
       message: `Added new product "${createdProduct.name}" (${formatPrice(
         createdProduct.price.toNumber()
       )})`,
@@ -207,30 +206,41 @@ export async function editProduct(formData: FormData) {
     if (Object.keys(changes).length > 0) {
       const flattenedChanges = flattenChanges(changes);
 
-      // Prioritize which type of change to log (stock > price > other)
+      // Log each type of change separately
       if (changes.quantity) {
         await logActivity(user.id, {
-          type: "STOCK_UPDATED",
-          productId: id,
-          productName: updatedProduct.name,
+          entityType: "PRODUCT",
+          actionType: "STOCK_UPDATED",
+          entityId: id,
+          entityName: updatedProduct.name,
           message: `Updated stock for "${updatedProduct.name}": ${oldProduct.quantity} → ${updatedProduct.quantity} units`,
           details: flattenedChanges,
         });
-      } else if (changes.price) {
+      }
+
+      if (changes.price) {
         await logActivity(user.id, {
-          type: "PRICE_UPDATED",
-          productId: id,
-          productName: updatedProduct.name,
+          entityType: "PRODUCT",
+          actionType: "PRICE_UPDATED",
+          entityId: id,
+          entityName: updatedProduct.name,
           message: `Updated price for "${updatedProduct.name}": ${formatPrice(
             oldProduct.price.toNumber()
           )} → ${formatPrice(updatedProduct.price.toNumber())}`,
           details: flattenedChanges,
         });
-      } else {
+      }
+
+      // Log general edit if other fields changed (but not if only stock/price changed)
+      const otherChanges = Object.keys(changes).filter(
+        (key) => key !== "quantity" && key !== "price"
+      );
+      if (otherChanges.length > 0 && !changes.quantity && !changes.price) {
         await logActivity(user.id, {
-          type: "PRODUCT_EDITED",
-          productId: id,
-          productName: updatedProduct.name,
+          entityType: "PRODUCT",
+          actionType: "EDITED",
+          entityId: id,
+          entityName: updatedProduct.name,
           message: `Updated product "${updatedProduct.name}"`,
           details: flattenedChanges,
         });
@@ -269,11 +279,11 @@ export async function deleteProduct(id: string) {
 
     // Log the deletion
     await logActivity(user.id, {
-      type: "PRODUCT_DELETED",
-      productId: id,
-      productName: product.name,
+      entityType: "PRODUCT",
+      actionType: "DELETED",
+      entityId: id,
+      entityName: product.name,
       message: `Deleted product "${product.name}"`,
-      details: {},
     });
 
     return { success: true };

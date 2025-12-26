@@ -29,12 +29,15 @@ export async function createSubcategory(
     });
 
     await logActivity(user.id, {
-      type: "SUBCATEGORY_ADDED",
-      subcategoryId: createdSubcategory.id,
-      subcategoryName: createdSubcategory.name,
-      categoryId: data.categoryId,
-      categoryName: category?.name || "",
+      entityType: "SUBCATEGORY",
+      actionType: "ADDED",
+      entityId: createdSubcategory.id,
+      entityName: createdSubcategory.name,
       message: `Subcategory "${createdSubcategory.name}" was created in category "${category?.name}"`,
+      details: {
+        categoryId: data.categoryId,
+        categoryName: category?.name || "",
+      },
     });
 
     revalidatePath(CATEGORIES_PATH);
@@ -84,15 +87,16 @@ export async function editSubcategory(
       });
 
       await logActivity(user.id, {
-        type: "SUBCATEGORY_EDITED",
-        subcategoryId: id,
-        subcategoryName: updatedSubcategory.name,
-        categoryId: oldSubcategory?.categoryId || "",
-        categoryName: category?.name || "",
+        entityType: "SUBCATEGORY",
+        actionType: "EDITED",
+        entityId: id,
+        entityName: updatedSubcategory.name,
         message: `Subcategory name changed from "${oldSubcategory?.name}" to "${updatedSubcategory.name}" in category "${category?.name}"`,
         details: {
           oldName: oldSubcategory?.name || "",
           newName: updatedSubcategory.name,
+          categoryId: oldSubcategory?.categoryId || "",
+          categoryName: category?.name || "",
         },
       });
     }
@@ -143,12 +147,15 @@ export async function deleteSubcategory(
 
     // Log the deletion
     await logActivity(user.id, {
-      type: "SUBCATEGORY_DELETED",
-      subcategoryId: id,
-      subcategoryName: subcategoryData?.name || "",
-      categoryId,
-      categoryName: categoryData?.name || "",
+      entityType: "SUBCATEGORY",
+      actionType: "DELETED",
+      entityId: id,
+      entityName: subcategoryData?.name || "",
       message: `Subcategory "${subcategoryData?.name}" was deleted from category "${categoryData?.name}"`,
+      details: {
+        categoryId,
+        categoryName: categoryData?.name || "",
+      },
     });
 
     return { success: true };
@@ -195,11 +202,13 @@ export async function deleteBulkSubcategories(
 
     // Log the bulk deletion
     await logActivity(user.id, {
-      type: "SUBCATEGORY_DELETED",
-      categoryId,
-      categoryName: category?.name || "",
+      entityType: "SUBCATEGORY",
+      actionType: "DELETED",
+      entityName: `${result.count} subcategory(ies)`,
       message: `${result.count} subcategory(ies) were deleted from category "${category?.name}"`,
       details: {
+        categoryId,
+        categoryName: category?.name || "",
         deletedCount: result.count,
         deletedNames: subcategories.map((s) => s.name).join(", "),
       },

@@ -40,9 +40,10 @@ export async function createCategory(
 
     // Log the activity
     await logActivity(user.id, {
-      type: "CATEGORY_ADDED",
-      categoryId: createdCategory.id,
-      categoryName: createdCategory.name,
+      entityType: "CATEGORY",
+      actionType: "ADDED",
+      entityId: createdCategory.id,
+      entityName: createdCategory.name,
       message: `Category "${createdCategory.name}" was created`,
     });
 
@@ -86,9 +87,10 @@ export async function editCategory(
     // Log if name changed
     if (oldCategory?.name !== data.name) {
       await logActivity(user.id, {
-        type: "CATEGORY_EDITED",
-        categoryId: id,
-        categoryName: updatedCategory.name,
+        entityType: "CATEGORY",
+        actionType: "EDITED",
+        entityId: id,
+        entityName: updatedCategory.name,
         message: `Category name changed from "${
           oldCategory?.name ?? "(unknown)"
         }" to "${updatedCategory.name}"`,
@@ -139,9 +141,10 @@ export async function deleteCategory(
     const subcategoryCount = categoryData?.subcategories.length ?? 0;
 
     await logActivity(user.id, {
-      type: "CATEGORY_DELETED",
-      categoryId: id,
-      categoryName: categoryName,
+      entityType: "CATEGORY",
+      actionType: "DELETED",
+      entityId: id,
+      entityName: categoryName,
       message: `Category "${categoryName}" was deleted along with ${subcategoryCount} subcategory(ies)`,
       details: {
         subcategoriesDeleted: subcategoryCount,
@@ -192,7 +195,9 @@ export async function deleteBulkCategories(
     );
 
     await logActivity(user.id, {
-      type: "CATEGORY_DELETED",
+      entityType: "CATEGORY",
+      actionType: "DELETED",
+      entityName: `${result.count} category(ies)`,
       message: `${result.count} category(ies) were deleted (${categoryNames}) along with ${totalSubcategories} subcategory(ies)`,
       details: {
         deletedCount: result.count,
