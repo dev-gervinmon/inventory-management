@@ -81,7 +81,7 @@ export default function ActivityFilters({
       {/* Header - Clickable on mobile/tablet, non-interactive on desktop */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-6 flex items-center justify-between lg:cursor-default lg:py-0! lg:pb-6!"
+        className="w-full px-3 sm:px-4 md:px-6 py-4 sm:py-5 md:py-7 flex items-center justify-between lg:cursor-default lg:py-0! lg:pt-7! lg:pb-6!"
         aria-expanded={isOpen}
         aria-label="Toggle filters"
       >
@@ -120,7 +120,7 @@ export default function ActivityFilters({
           isOpen ? "max-h-96 sm:max-h-[500px]" : "max-h-0 lg:max-h-none"
         }`}
       >
-        <div className="px-3 sm:px-4 md:px-6 pb-3 sm:pb-4 md:pb-6 space-y-6 border-t border-gray-200 lg:border-t-0 lg:pt-0">
+        <div className="px-3 sm:px-4 md:px-6 pt-4 sm:pt-5 pb-4 sm:pb-5 md:pb-6 space-y-6 border-t border-gray-200 lg:border-t-0 lg:pt-0">
           {/* Entity Type Filter */}
           <div>
             <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
