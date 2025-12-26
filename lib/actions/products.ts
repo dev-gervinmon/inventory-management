@@ -292,3 +292,146 @@ export async function deleteProduct(id: string) {
     throw new Error("Failed to delete product");
   }
 }
+
+/**
+ * Revert a product to a previous version using activity history
+ * Extracts old values from activity details and applies them to the product
+ */
+export async function revertActivity(
+  productId: string,
+  activityId: string
+): Promise<{ success: boolean; message: string }> {
+  const user = await getCurrentUser();
+
+  if (!productId || !activityId) {
+    throw new Error("Product ID and Activity ID are required");
+  }
+
+  try {
+    // Verify product exists and belongs to user
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      select: {
+        id: true,
+        userId: true,
+        name: true,
+        price: true,
+        quantity: true,
+      },
+    });
+
+    if (!product || product.userId !== user.id) {
+      throw new Error("Product not found or unauthorized");
+    }
+
+    // Get the activity to revert
+    const activity = await prisma.activity.findUnique({
+      where: { id: activityId },
+    });
+
+    if (!activity || activity.userId !== user.id) {
+      throw new Error("Activity not found or unauthorized");
+    }
+
+    // Only allow reverting EDITED activities
+    if (
+      activity.actionType !== "STOCK_UPDATED" &&
+      activity.actionType !== "PRICE_UPDATED" &&
+      activity.actionType !== "EDITED"
+    ) {
+      throw new Error(
+        `Cannot revert ${activity.actionType} activities. Only price, stock, and edit changes can be reverted.`
+      );
+    }
+
+    // Prevent reverting reverts
+    if (
+      activity.actionType === "EDITED" &&
+      activity.message &&
+      activity.message.includes("reverted")
+    ) {
+      throw new Error(
+        "This activity is already a revert. Cannot undo a revert this way."
+      );
+    }
+
+    // Extract old values from activity details
+    const details = activity.details as Record<string, unknown>;
+    if (!details || Object.keys(details).length === 0) {
+      throw new Error(
+        "This activity has no change details recorded and cannot be reverted."
+      );
+    }
+
+    // Build update object from old values
+    const updateData: Record<string, unknown> = {};
+    let hasChanges = false;
+
+    // Check for quantity changes
+    if (details.quantity_old !== undefined) {
+      updateData.quantity = Number(details.quantity_old);
+      hasChanges = true;
+    }
+
+    // Check for price changes
+    if (details.price_old !== undefined) {
+      updateData.price = details.price_old;
+      hasChanges = true;
+    }
+
+    // Check for name changes
+    if (details.name_old !== undefined) {
+      updateData.name = details.name_old;
+      hasChanges = true;
+    }
+
+    if (!hasChanges) {
+      throw new Error(
+        "No revertible changes were found in this activity details. The recorded old values may be missing."
+      );
+    }
+
+    // Update the product with old values
+    const revertedProduct = await prisma.product.update({
+      where: { id: productId },
+      data: updateData,
+    });
+
+    // Log the revert as a new activity
+    const revertedFields = Object.keys(updateData)
+      .map((field) => {
+        if (field === "quantity") {
+          return `quantity: ${product.quantity} → ${details.quantity_old}`;
+        } else if (field === "price") {
+          return `price: ${formatPrice(
+            product.price.toNumber()
+          )} → ${formatPrice(Number(details.price_old))}`;
+        } else if (field === "name") {
+          return `name: ${product.name} → ${details.name_old}`;
+        }
+        return field;
+      })
+      .join(", ");
+
+    await logActivity(user.id, {
+      entityType: "PRODUCT",
+      actionType: "EDITED",
+      entityId: productId,
+      entityName: revertedProduct.name,
+      message: `Reverted "${revertedProduct.name}" to previous version (${revertedFields})`,
+      details: {
+        reverted_from: activityId,
+        timestamp: activity.createdAt.toISOString(),
+      },
+    });
+
+    return {
+      success: true,
+      message: `Successfully reverted "${revertedProduct.name}" to previous version`,
+    };
+  } catch (error) {
+    console.error("Revert activity error:", error);
+    if (error instanceof Error) throw error;
+    throw new Error("Failed to revert product");
+  }
+}
