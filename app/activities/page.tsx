@@ -38,6 +38,7 @@ export default async function ActivitiesPage({
   const activities: Activity[] = activitiesRaw.map((activity) => ({
     id: activity.id,
     userId: activity.userId,
+    userName: user.displayName || user.primaryEmail || "Unknown",
     entityType: activity.entityType as Activity["entityType"],
     actionType: activity.actionType as Activity["actionType"],
     entityId: activity.entityId,
