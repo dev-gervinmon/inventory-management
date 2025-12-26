@@ -3,24 +3,15 @@
 import prisma from "@/lib/db/prisma";
 
 export interface ActivityLog {
-  type:
-    | "PRODUCT_ADDED"
-    | "PRODUCT_EDITED"
-    | "PRODUCT_DELETED"
+  entityType: "PRODUCT" | "CATEGORY" | "SUBCATEGORY";
+  actionType:
+    | "ADDED"
+    | "EDITED"
+    | "DELETED"
     | "STOCK_UPDATED"
-    | "PRICE_UPDATED"
-    | "CATEGORY_ADDED"
-    | "CATEGORY_EDITED"
-    | "CATEGORY_DELETED"
-    | "SUBCATEGORY_ADDED"
-    | "SUBCATEGORY_EDITED"
-    | "SUBCATEGORY_DELETED";
-  productId?: string;
-  productName?: string;
-  categoryId?: string;
-  categoryName?: string;
-  subcategoryId?: string;
-  subcategoryName?: string;
+    | "PRICE_UPDATED";
+  entityId?: string;
+  entityName: string;
   message: string;
   details?: Record<string, string | number | boolean>;
 }
@@ -30,17 +21,12 @@ export async function logActivity(userId: string, activity: ActivityLog) {
     await prisma.activity.create({
       data: {
         userId,
-        type: activity.type,
-        productId: activity.productId,
-        productName: activity.productName || "",
+        entityType: activity.entityType,
+        actionType: activity.actionType,
+        entityId: activity.entityId || null,
+        entityName: activity.entityName,
         message: activity.message,
-        details: {
-          ...activity.details,
-          categoryId: activity.categoryId,
-          categoryName: activity.categoryName,
-          subcategoryId: activity.subcategoryId,
-          subcategoryName: activity.subcategoryName,
-        },
+        details: activity.details || {},
       },
     });
   } catch (error) {
