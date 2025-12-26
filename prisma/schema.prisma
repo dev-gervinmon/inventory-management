@@ -59,12 +59,14 @@ model Subcategory {
 model Activity {
   id String @id @default(cuid())
   userId String
-  type String // "PRODUCT_ADDED", "PRODUCT_EDITED", "PRODUCT_DELETED", "STOCK_UPDATED", "PRICE_UPDATED"
-  productId String?
-  productName String
+  entityType String // "PRODUCT", "CATEGORY", "SUBCATEGORY"
+  actionType String // "ADDED", "EDITED", "DELETED", "STOCK_UPDATED", "PRICE_UPDATED"
+  entityId String? // ID of the product, category, or subcategory
+  entityName String // Name of the product, category, or subcategory
   message String
   details Json? // stores old/new values for changes
   createdAt DateTime @default(now())
 
   @@index([userId, createdAt])
+  @@index([entityType, createdAt])
 }
