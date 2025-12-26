@@ -10,8 +10,9 @@ import { useMessage } from "@/lib/hooks/useMessage";
 import { useFormErrors } from "@/lib/hooks/useFormErrors";
 import MessageBanner from "@/components/common/message-banner";
 import { ProductFormContext } from "@/lib/contexts/product-form-context";
-import { CategoryWithSubcategories } from "@/lib/types/category";
 import { UI_TIMING } from "@/lib/constants/forms";
+import ProductActivityTimeline from "@/components/activity-timeline/product-activity-timeline";
+import type { Activity } from "@/lib/types/activities";
 
 interface Product {
   id: string;
@@ -31,6 +32,7 @@ interface ProductEditClientProps {
   product: Product;
   formAction: (formData: FormData) => void | Promise<void>;
   deleteAction: (id: string) => Promise<{ success: boolean }>;
+  activities: Activity[];
   children: React.ReactNode;
 }
 
@@ -76,6 +78,7 @@ export default function ProductEditClient({
   product,
   formAction,
   deleteAction,
+  activities,
   children,
 }: ProductEditClientProps) {
   const router = useRouter();
@@ -83,11 +86,7 @@ export default function ProductEditClient({
     autoClose: true,
     timeout: 5000,
   });
-  const {
-    errors: formErrors,
-    clearErrors: clearFormErrors,
-    setAllErrors: setAllFormErrors,
-  } = useFormErrors();
+  const { errors: formErrors, clearErrors: clearFormErrors } = useFormErrors();
 
   const [isDeletingOpen, setIsDeletingOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -163,15 +162,6 @@ export default function ProductEditClient({
     }
   };
 
-  const handleNavigationBlock = (href: string) => {
-    if (!isDirty) {
-      router.push(href);
-      return;
-    }
-    setPendingNavigation(href);
-    setIsNavigationBlocked(true);
-  };
-
   const handleDiscardChanges = () => {
     setIsNavigationBlocked(false);
     if (pendingNavigation) {
@@ -236,7 +226,6 @@ export default function ProductEditClient({
     }
     setIsSuccessModalOpen(false);
   };
-
   return (
     <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-6 md:py-8 space-y-4 sm:space-y-6 md:space-y-6">
       <MessageBanner message={message} />
@@ -273,6 +262,14 @@ export default function ProductEditClient({
                 {children}
               </ProductFormContext.Provider>
             </div>
+
+            {/* Product Activity Timeline */}
+            {activities.length > 0 && (
+              <ProductActivityTimeline
+                activities={activities}
+                productId={product.id}
+              />
+            )}
           </div>
 
           {/* Right Column: Info Sidebar */}
