@@ -8,6 +8,7 @@ import prisma from "@/lib/db/prisma";
 import { editProduct, deleteProduct } from "@/lib/actions/products";
 import ProductEditClient from "@/components/clients/product-edit-client";
 import ProductForm from "@/components/forms/product-form";
+import type { Activity } from "@/lib/types/activities";
 
 export default async function EditProductPage({
   params,
@@ -33,6 +34,29 @@ export default async function EditProductPage({
     },
     orderBy: { name: "asc" },
   });
+
+  // Fetch activities for this product
+  const activitiesRaw = await prisma.activity.findMany({
+    where: {
+      userId: user.id,
+      entityId: id,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  // Serialize dates for client components
+  const activities: Activity[] = activitiesRaw.map((activity) => ({
+    id: activity.id,
+    userId: activity.userId,
+    userName: user.displayName || user.primaryEmail || "Unknown",
+    entityType: activity.entityType as Activity["entityType"],
+    actionType: activity.actionType as Activity["actionType"],
+    entityId: activity.entityId,
+    entityName: activity.entityName,
+    message: activity.message,
+    details: (activity.details as Record<string, unknown>) || null,
+    createdAt: activity.createdAt.toISOString(),
+  }));
 
   if (!product) {
     return (
@@ -70,6 +94,7 @@ export default async function EditProductPage({
           }}
           formAction={editProduct}
           deleteAction={deleteProduct}
+          activities={activities}
         >
           <ProductForm
             id={product.id}
