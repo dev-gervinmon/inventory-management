@@ -2,7 +2,16 @@
 
 import { useState } from "react";
 import { UserButton } from "@stackframe/stack";
-import { BarChart3, Package, Plus, Settings, Tag, X, Menu } from "lucide-react";
+import {
+  BarChart3,
+  Package,
+  Plus,
+  Settings,
+  Tag,
+  X,
+  Menu,
+  Activity,
+} from "lucide-react";
 import Link from "next/link";
 
 const navigation = [
@@ -10,6 +19,7 @@ const navigation = [
   { name: "Inventory", href: "/inventory", icon: Package },
   { name: "Add Product", href: "/add-product", icon: Plus },
   { name: "Categories", href: "/categories", icon: Tag },
+  { name: "Activities", href: "/activities", icon: Activity },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
