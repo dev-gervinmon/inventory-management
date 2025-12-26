@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useSearch } from "@/lib/hooks/useSearch";
 import { usePagination } from "@/lib/hooks/usePagination";
 import { useSort } from "@/lib/hooks/useSort";
@@ -10,6 +10,7 @@ import MessageBanner from "@/components/common/message-banner";
 import DateGroupHeader from "@/components/common/date-group-header";
 import { useMessage } from "@/lib/hooks/useMessage";
 import ActivitySearch from "@/components/filters/activity-search";
+import ActivityDetailModal from "@/components/modals/activity-detail-modal";
 import { formatActivityDate, groupItemsByDate } from "@/lib/utils/activities";
 import {
   DEFAULT_ACTIVITY_PAGINATION,
@@ -28,10 +29,26 @@ export default function ActivityTable({
   currentActionType,
   currentEntityType,
 }: ActivityTableProps) {
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
+    null
+  );
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
   const { message } = useMessage({
     autoClose: true,
     timeout: 5000,
   });
+
+  const handleActivityClick = (activity: Activity) => {
+    setSelectedActivity(activity);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsDetailModalOpen(false);
+    // Small delay to let animation finish before clearing selected activity
+    setTimeout(() => setSelectedActivity(null), 150);
+  };
 
   // Search functionality
   const { filteredItems: searchedActivities, setSearch } = useSearch(
@@ -191,7 +208,15 @@ export default function ActivityTable({
                       return (
                         <tr
                           key={activity.id}
-                          className="hover:bg-gray-50 transition"
+                          className="hover:bg-blue-50 transition cursor-pointer"
+                          onClick={() => handleActivityClick(activity)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              handleActivityClick(activity);
+                            }
+                          }}
                         >
                           <td className="px-4 py-3">
                             <span
@@ -275,7 +300,15 @@ export default function ActivityTable({
                   return (
                     <div
                       key={activity.id}
-                      className="p-4 hover:bg-gray-50 transition"
+                      className="p-4 hover:bg-blue-50 transition cursor-pointer"
+                      onClick={() => handleActivityClick(activity)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          handleActivityClick(activity);
+                        }
+                      }}
                     >
                       <div className="flex items-start justify-between mb-2">
                         <span
@@ -320,6 +353,13 @@ export default function ActivityTable({
           entityName="activities"
         />
       )}
+
+      {/* Activity Detail Modal */}
+      <ActivityDetailModal
+        activity={selectedActivity}
+        isOpen={isDetailModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 }
