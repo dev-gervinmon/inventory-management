@@ -54,7 +54,7 @@ export default function ActivityTable({
   const { filteredItems: searchedActivities, setSearch } = useSearch(
     activities,
     {
-      searchableFields: ["entityName", "message"],
+      searchableFields: ["entityName", "message", "userName"],
     }
   );
 
@@ -187,6 +187,9 @@ export default function ActivityTable({
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                         Message
                       </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                        User
+                      </th>
                       <SortableHeader
                         label="Date"
                         sortKey="createdAt"
@@ -234,6 +237,11 @@ export default function ActivityTable({
                           <td className="px-4 py-3">
                             <span className="text-sm text-gray-600">
                               {activity.message}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="text-sm text-gray-600">
+                              {activity.userName || "Unknown"}
                             </span>
                           </td>
                           <td className="px-4 py-3">
@@ -330,6 +338,9 @@ export default function ActivityTable({
                         </p>
                         <p className="text-sm text-gray-600">
                           {activity.message}
+                        </p>
+                        <p className="text-xs text-gray-500 pt-2">
+                          by {activity.userName || "Unknown"}
                         </p>
                       </div>
                     </div>
