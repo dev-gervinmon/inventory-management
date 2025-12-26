@@ -14,6 +14,7 @@ export type ActionType =
 export interface Activity {
   id: string;
   userId: string;
+  userName?: string; // User's display name or email
   entityType: EntityType;
   actionType: ActionType;
   entityId: string | null;
