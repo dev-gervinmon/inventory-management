@@ -4,13 +4,13 @@ import { useState, ReactNode, createContext, useContext } from "react";
 
 export interface Tab {
   id: string;
-  label: string;
-  icon?: ReactNode;
+  label: React.ReactNode;
 }
 
 interface TabsProps {
   tabs: Tab[];
-  defaultTabId?: string;
+  activeTab?: string; // controlled
+  defaultTabId?: string; // uncontrolled
   onTabChange?: (tabId: string) => void;
   children: ReactNode;
 }
@@ -19,44 +19,49 @@ const TabContext = createContext<string>("");
 
 export default function Tabs({
   tabs,
+  activeTab: controlledActiveTab,
   defaultTabId,
   onTabChange,
   children,
 }: TabsProps) {
-  const [activeTab, setActiveTab] = useState(defaultTabId || tabs[0]?.id || "");
+  const [uncontrolledActiveTab, setUncontrolledActiveTab] = useState(
+    defaultTabId || tabs[0]?.id || ""
+  );
+  const isControlled = controlledActiveTab !== undefined;
+  const activeTab = isControlled ? controlledActiveTab : uncontrolledActiveTab;
 
   const handleTabChange = (tabId: string) => {
-    setActiveTab(tabId);
+    if (!isControlled) setUncontrolledActiveTab(tabId);
     onTabChange?.(tabId);
   };
 
   return (
-    <div className="space-y-6">
-      {/* Tab Navigation */}
-      <div className="border-b border-gray-200 overflow-x-auto">
-        <div className="flex gap-0">
+    <div className="space-y-4">
+      {/* Tab Navigation - always on its own row */}
+      <div className="w-full border-b border-gray-200 bg-white sticky top-0 z-10">
+        <div className="flex gap-0 min-w-full overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => handleTabChange(tab.id)}
-              className={`px-4 py-3 text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
+              className={`flex-1 px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 ${
                 activeTab === tab.id
-                  ? "border-b-2 border-purple-600 text-purple-600"
+                  ? "border-b-2 border-purple-600 text-purple-600 bg-gray-50"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-b-2 border-transparent"
               }`}
+              style={{ minWidth: 80, touchAction: "manipulation" }}
             >
-              <div className="flex items-center gap-2">
-                {tab.icon && <span>{tab.icon}</span>}
-                <span>{tab.label}</span>
-              </div>
+              <span>{tab.label}</span>
             </button>
           ))}
         </div>
       </div>
 
       {/* Tab Content - Pass activeTab via context */}
-      <TabContext.Provider value={activeTab}>{children}</TabContext.Provider>
+      <div className="w-full">
+        <TabContext.Provider value={activeTab}>{children}</TabContext.Provider>
+      </div>
     </div>
   );
 }
