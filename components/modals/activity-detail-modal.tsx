@@ -147,6 +147,16 @@ export default function ActivityDetailModal({
               <p className="text-sm text-gray-700">{exactTime}</p>
             </div>
 
+            {/* User */}
+            <div>
+              <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">
+                User
+              </h3>
+              <p className="text-sm text-gray-700">
+                {activity.userName || "Unknown"}
+              </p>
+            </div>
+
             {/* Message */}
             <div>
               <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">
