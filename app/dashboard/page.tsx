@@ -28,7 +28,7 @@ export default async function DashboardPage() {
 
   interface Activity {
     id: string;
-    type: string;
+    actionType: string;
     message: string;
     createdAt: Date;
   }
@@ -120,7 +120,7 @@ export default async function DashboardPage() {
   // Serialize activities for client component
   const serializedActivities = activities.map((activity) => ({
     id: activity.id,
-    type: activity.type,
+    type: activity.actionType, // Map actionType to type
     message: activity.message,
     createdAt: activity.createdAt,
   }));
@@ -282,24 +282,24 @@ export default async function DashboardPage() {
 
         {/** Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-8 mb-6 sm:mb-10">
-          {/** Weekly Products Chart - Full width on tablet, 2 cols on desktop */}
-          <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:shadow-sm transition-all duration-200">
-            <div className="flex items-center justify-between mb-4 md:mb-6">
+          {/* Weekly Products Chart - Full width on tablet, 2 cols on desktop */}
+          <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-5 lg:p-4 hover:shadow-sm transition-all duration-200">
+            <div className="flex items-center justify-between mb-3 md:mb-4 lg:mb-5">
               <h2 className="text-base md:text-lg font-semibold text-gray-900">
                 New Products Per Week
               </h2>
             </div>
             <div
-              className="w-full min-w-0 min-h-0"
-              style={{ aspectRatio: "16/9" }}
+              className="w-full min-w-0 min-h-0 lg:max-h-80"
+              style={{ aspectRatio: "4/1" }}
             >
               <ProductChart data={weeklyProductsData} />
             </div>
           </div>
 
-          {/** Stock Distribution - Hidden on tablet, visible on desktop */}
-          <div className="hidden lg:block bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:shadow-sm transition-all duration-200">
-            <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-4 md:mb-6">
+          {/* Stock Distribution - Visible on tablet and desktop, stacks below chart on tablet */}
+          <div className="hidden md:block lg:col-span-1 bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-5 lg:p-4 hover:shadow-sm transition-all duration-200">
+            <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 lg:mb-5">
               Stock Status
             </h2>
             <div className="space-y-4">
