@@ -1,7 +1,15 @@
 "use client";
 
 import { UserButton } from "@stackframe/stack";
-import { BarChart3, Package, Plus, Settings, Tag, Menu } from "lucide-react";
+import {
+  BarChart3,
+  Package,
+  Plus,
+  Settings,
+  Tag,
+  Menu,
+  Activity,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Skeleton } from "@/components/skeletons/skeleton";
@@ -13,6 +21,7 @@ function LoadingSideBar() {
     { name: "Inventory", href: "/inventory", icon: Package },
     { name: "Add Product", href: "/add-product", icon: Plus },
     { name: "Categories", href: "/categories", icon: Tag },
+    { name: "Activities", href: "/activities", icon: Activity },
     { name: "Settings", href: "/settings", icon: Settings },
   ];
 
