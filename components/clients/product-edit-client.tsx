@@ -148,6 +148,7 @@ export default function ProductEditClient({
     try {
       await deleteAction(product.id);
       showSuccess("Product deleted successfully");
+      sessionStorage.setItem("deletedProductId", product.id);
       setTimeout(() => {
         router.push("/inventory");
         router.refresh();
