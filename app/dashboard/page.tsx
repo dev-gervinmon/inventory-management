@@ -133,10 +133,10 @@ export default async function DashboardPage() {
         <div className="mb-4 sm:mb-8">
           <div className="flex items-center justify-between mb-3 sm:mb-6">
             <div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
+              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900">
                 Dashboard
               </h1>
-              <p className="text-xs sm:text-sm text-gray-700 mt-0.5 sm:mt-1">
+              <p className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-700 mt-0.5 sm:mt-1">
                 Welcome back! Here is an overview of your inventory.
               </p>
             </div>
@@ -194,38 +194,50 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/** Key Metrics - 4 Column Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-6 mb-6 sm:mb-10">
+        {/** Key Metrics - 4 Column Grid with Alerts/Activity as 3rd card */}
+        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-2 sm:gap-4 md:gap-6 mb-6 sm:mb-10">
           {/* Inventory Overview Card (collapsible, client component) */}
-          <InventoryOverviewCard
-            totalProducts={totalProducts}
-            inStockCount={inStockCount}
-            inStockPercentage={inStockPercentage}
-            lowStockCount={lowStockCount}
-            lowStockPercentage={lowStockPercentage}
-            outOfStockCount={outOfStockCount}
-            outOfStockPercentage={outOfStockPercentage}
-            criticalStockCount={outOfStockCount + lowStockCount}
-          />
+          <div className="2xl:col-start-1 2xl:row-start-1">
+            <InventoryOverviewCard
+              totalProducts={totalProducts}
+              inStockCount={inStockCount}
+              inStockPercentage={inStockPercentage}
+              lowStockCount={lowStockCount}
+              lowStockPercentage={lowStockPercentage}
+              outOfStockCount={outOfStockCount}
+              outOfStockPercentage={outOfStockPercentage}
+              criticalStockCount={outOfStockCount + lowStockCount}
+            />
+          </div>
 
-          {/* Total Value (remains as a separate card) */}
-          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:border-gray-300 hover:shadow-sm transition-all duration-200 flex flex-col justify-between">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs sm:text-sm md:text-sm text-gray-700 font-semibold">
-                  Total Value
-                </p>
-                <p className="text-lg sm:text-xl md:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">
-                  ₱{Number(totalValue).toFixed(0)}
-                </p>
+          {/* Alerts & Activity Card */}
+          <div className="2xl:col-start-3 2xl:row-start-1">
+            <AlertsActivityTabs
+              criticalStockItems={serializedCriticalStockItems}
+              activities={serializedActivities}
+            />
+          </div>
+
+          {/* Total Value Card */}
+          <div className="2xl:col-start-2 2xl:row-start-1">
+            <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:border-gray-300 hover:shadow-sm transition-all duration-200 flex flex-col justify-between">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl text-gray-700 font-semibold">
+                    Total Value
+                  </p>
+                  <p className="text-base sm:text-lg md:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 mt-1 sm:mt-2">
+                    ₱{Number(totalValue).toFixed(0)}
+                  </p>
+                </div>
+                <div className="p-2 md:p-3 bg-green-50 rounded-lg">
+                  <div className="w-5 h-5 md:w-6 md:h-6 text-green-600">💰</div>
+                </div>
               </div>
-              <div className="p-2 md:p-3 bg-green-50 rounded-lg">
-                <div className="w-5 h-5 md:w-6 md:h-6 text-green-600">💰</div>
-              </div>
+              <p className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl text-gray-500 mt-4">
+                Estimated inventory value
+              </p>
             </div>
-            <p className="text-xs text-gray-500 mt-4">
-              Estimated inventory value
-            </p>
           </div>
         </div>
 
@@ -246,12 +258,6 @@ export default async function DashboardPage() {
             </div>
           </div>
         </div>
-
-        {/** Critical Items & Recent Products */}
-        <AlertsActivityTabs
-          criticalStockItems={serializedCriticalStockItems}
-          activities={serializedActivities}
-        />
       </PullToRefreshWrapper>
     </PageLayout>
   );
