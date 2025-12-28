@@ -254,7 +254,7 @@ export default function AlertsActivityTabs({
                 </h2>
                 {activities.length > 0 && (
                   <Link
-                    href="/activity"
+                    href="/activities"
                     className="ml-auto px-3 py-1 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded transition-colors"
                   >
                     See All
