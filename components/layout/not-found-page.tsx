@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import MobileSidebar from "@/components/layout/mobile-sidebar";
 import { SecondaryButton } from "@/components/buttons/nav-button";
 import { UI_TIMING } from "@/lib/constants/forms";
+import Sidebar from "./sidebar-unified";
 
 interface NotFoundPageProps {
   entityId: string;
@@ -95,7 +95,6 @@ export default function NotFoundPage({
       role="button"
       tabIndex={wasDeleted ? 0 : -1}
     >
-      <MobileSidebar currentPath={sidebarPath} />
       <main className="flex-1 overflow-y-auto">
         <div className="h-screen flex items-center justify-center">
           <div className="text-center">
