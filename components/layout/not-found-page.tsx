@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { SecondaryButton } from "@/components/buttons/nav-button";
 import { UI_TIMING } from "@/lib/constants/forms";
-import Sidebar from "./sidebar-unified";
 
 interface NotFoundPageProps {
   entityId: string;
@@ -26,7 +25,6 @@ export default function NotFoundPage({
   storageKey,
   redirectPath,
   backButtonLabel,
-  sidebarPath,
 }: NotFoundPageProps) {
   const router = useRouter();
   const [countdown, setCountdown] = useState(
