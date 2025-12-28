@@ -141,19 +141,3 @@ export function generateWeeklyProductData(
 
   return weeklyData;
 }
-
-/**
- * Filter and sort critical stock items
- */
-export function getCriticalStockItems<
-  T extends { quantity: number; lowStockAt: number | null }
->(products: T[], limit: number = DASHBOARD_LIMITS.CRITICAL_ITEMS): T[] {
-  return products
-    .filter(
-      (p) =>
-        p.quantity === 0 ||
-        p.quantity <= (p.lowStockAt || STOCK_THRESHOLDS.LOW_STOCK_DEFAULT)
-    )
-    .sort((a, b) => a.quantity - b.quantity)
-    .slice(0, limit);
-}

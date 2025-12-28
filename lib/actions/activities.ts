@@ -34,16 +34,3 @@ export async function logActivity(userId: string, activity: ActivityLog) {
     // Don't throw - activity logging should not break the main operation
   }
 }
-
-export async function getRecentActivities(userId: string, limit = 10) {
-  try {
-    return await prisma.activity.findMany({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-      take: limit,
-    });
-  } catch (error) {
-    console.error("Failed to fetch activities:", error);
-    return [];
-  }
-}
