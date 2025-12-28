@@ -1,6 +1,6 @@
 "use client";
 
-import MobileSidebar from "@/components/layout/mobile-sidebar";
+import Sidebar from "./sidebar-unified";
 
 interface PageLayoutProps {
   children: React.ReactNode;
@@ -23,7 +23,7 @@ interface PageLayoutProps {
 export default function PageLayout({ children, currentPath }: PageLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50">
-      <MobileSidebar currentPath={currentPath} />
+      <Sidebar currentPath={currentPath} />
       <main className="lg:ml-64 px-4 sm:px-6 md:px-8 py-2 sm:py-4 md:py-8 mt-16 sm:mt-16 lg:mt-0">
         {children}
       </main>
