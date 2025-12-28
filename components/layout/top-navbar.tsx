@@ -2,10 +2,11 @@
 
 import { ReactNode } from "react";
 import { UserButton } from "@stackframe/stack";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, Menu } from "lucide-react";
 
 interface TopNavBarProps {
   children?: ReactNode;
+  onMobileMenu?: () => void;
 }
 
 /**
@@ -13,26 +14,27 @@ interface TopNavBarProps {
  * Provides a sticky, full-width top navigation bar for global actions and navigation.
  * Place your navigation links, logo, notification button, user menu, etc. as children.
  */
-export default function TopNavBar({ children }: TopNavBarProps) {
+export default function TopNavBar({ children, onMobileMenu }: TopNavBarProps) {
   return (
     <header className="fixed top-0 left-0 right-0 z-40 w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Left: Logo or navigation links */}
-        <div className="flex items-center gap-4 min-w-0">
-          {/* Temporary logo: BarChart3 icon */}
+      <div className="w-full h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Left: Hamburger (mobile) + Logo + Title */}
+        <div className="flex items-center gap-3 min-w-0">
+          {/* Hamburger only on mobile */}
+          <button
+            className="lg:hidden p-2 mr-1 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-150 shadow-sm"
+            aria-label="Open menu"
+            onClick={onMobileMenu}
+          >
+            <Menu className="w-6 h-6 text-gray-700 dark:text-gray-200 transition-transform duration-200 group-hover:scale-110" />
+          </button>
           <BarChart3 className="w-8 h-8 shrink-0 text-purple-600" />
-        </div>
-        {/* Center: Custom content */}
-        <div className="flex-1 flex justify-center items-center min-w-0">
-          {/* App title for large screens */}
           <span className="hidden lg:block text-xl font-semibold truncate select-none text-gray-900 dark:text-white">
             Inventory App
           </span>
-          {children}
         </div>
-        {/* Right: Actions (notifications, user menu, etc.) */}
+        {/* Right: User button at absolute right */}
         <div className="flex items-center gap-4 min-w-0 justify-end">
-          {/* User button: rightmost, image only */}
           <UserButton />
         </div>
       </div>
