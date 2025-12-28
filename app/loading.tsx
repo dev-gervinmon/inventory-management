@@ -1,7 +1,6 @@
 "use client";
 
 import Sidebar from "../components/layout/sidebar-unified";
-import TopNavBar from "../components/layout/top-navbar";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton";
@@ -16,14 +15,12 @@ export default function Loading() {
     <div className="min-h-screen bg-gray-50">
       {showSidebar && (
         <Sidebar
-          currentPath={pathname}
           collapsed={collapsed}
           setCollapsed={setCollapsed}
           mobileOpen={mobileOpen}
           setMobileOpen={setMobileOpen}
         />
       )}
-      <TopNavBar onMobileMenu={() => setMobileOpen(true)} />
       <main
         className={
           "px-4 sm:px-6 md:px-8 py-2 sm:py-4 md:py-8 mt-16 sm:mt-16 lg:mt-12"

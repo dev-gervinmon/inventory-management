@@ -1,13 +1,7 @@
 "use client";
 
 import Sidebar from "./sidebar-unified";
-import TopNavBar from "./top-navbar";
 import { useState } from "react";
-
-interface PageLayoutProps {
-  children: React.ReactNode;
-  currentPath: string;
-}
 
 /**
  * PageLayout Component
@@ -22,19 +16,17 @@ interface PageLayoutProps {
  *   <YourPageContent />
  * </PageLayout>
  */
-function PageLayout({ children, currentPath }: PageLayoutProps) {
+function PageLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar
-        currentPath={currentPath}
         collapsed={collapsed}
         setCollapsed={setCollapsed}
         mobileOpen={mobileOpen}
         setMobileOpen={setMobileOpen}
       />
-      <TopNavBar onMobileMenu={() => setMobileOpen(true)} />
       <main
         className={
           "px-4 sm:px-6 md:px-8 py-2 sm:py-4 md:py-8 mt-16 sm:mt-16 lg:mt-12"
