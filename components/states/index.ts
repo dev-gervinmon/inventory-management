@@ -22,5 +22,4 @@ export {
   EmptyFilteredState,
   EmptyErrorState,
   EmptyTableState,
-  EmptyListItemsState,
 } from "@/components/empty-states";
