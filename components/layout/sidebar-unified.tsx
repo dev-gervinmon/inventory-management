@@ -10,6 +10,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: BarChart3 },
@@ -21,18 +22,17 @@ const navigation = [
 ];
 
 export default function Sidebar({
-  currentPath = "/dashboard",
   collapsed,
   setCollapsed,
   mobileOpen,
   setMobileOpen,
 }: {
-  currentPath: string;
   collapsed: boolean;
   setCollapsed: (c: boolean) => void;
   mobileOpen: boolean;
   setMobileOpen: (open: boolean) => void;
 }) {
+  const pathname = usePathname();
   // Desktop Sidebar
   const sidebarContent = (
     <div
@@ -62,7 +62,7 @@ export default function Sidebar({
       <nav className="space-y-3">
         {navigation.map((item, key) => {
           const IconComponent = item.icon;
-          const isActive = currentPath === item.href;
+          const isActive = pathname === item.href;
           return (
             <Link
               href={item.href}
@@ -108,7 +108,7 @@ export default function Sidebar({
               <nav className="space-y-1">
                 {navigation.map((item, key) => {
                   const IconComponent = item.icon;
-                  const isActive = currentPath === item.href;
+                  const isActive = pathname === item.href;
                   return (
                     <Link
                       href={item.href}
