@@ -112,7 +112,7 @@ export default function AddProductClient({
   }, [clearFormErrors]);
 
   return (
-    <PageLayout currentPath="/add-product">
+    <PageLayout>
       {/* Success Modal */}
       <SuccessModal
         isOpen={isSuccessModalOpen}

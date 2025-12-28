@@ -16,7 +16,7 @@ export default function DashboardErrorState({
   message = "We're having trouble loading your dashboard at the moment. Please try again.",
 }: DashboardErrorStateProps) {
   return (
-    <PageLayout currentPath="/dashboard">
+    <PageLayout>
       <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
         Dashboard
       </h1>
