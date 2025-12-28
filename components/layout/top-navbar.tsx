@@ -1,8 +1,7 @@
-"use client";
-
 import { ReactNode } from "react";
 import { UserButton } from "@stackframe/stack";
 import { BarChart3, Menu } from "lucide-react";
+import NotificationButtonWrapper from "../wrappers/notification-button-wrapper";
 
 interface TopNavBarProps {
   children?: ReactNode;
@@ -35,6 +34,7 @@ export default function TopNavBar({ onMobileMenu }: TopNavBarProps) {
         </div>
         {/* Right: User button at absolute right */}
         <div className="flex items-center gap-4 min-w-0 justify-end">
+          <NotificationButtonWrapper />
           <UserButton />
         </div>
       </div>
