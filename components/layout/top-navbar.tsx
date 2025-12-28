@@ -14,7 +14,7 @@ interface TopNavBarProps {
  * Provides a sticky, full-width top navigation bar for global actions and navigation.
  * Place your navigation links, logo, notification button, user menu, etc. as children.
  */
-export default function TopNavBar({ children, onMobileMenu }: TopNavBarProps) {
+export default function TopNavBar({ onMobileMenu }: TopNavBarProps) {
   return (
     <header className="fixed top-0 left-0 right-0 z-40 w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
       <div className="w-full h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8">
