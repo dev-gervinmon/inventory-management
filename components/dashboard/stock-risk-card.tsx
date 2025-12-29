@@ -74,22 +74,43 @@ export default function StockRiskCard({
           </div>
           <ul className="max-h-24 overflow-y-auto divide-y divide-gray-100">
             {items.slice(0, 3).map((item) => (
-              <li key={item.id} className="py-1 flex items-center gap-2">
-                <span
-                  className={`inline-block w-2 h-2 rounded-full ${
-                    item.severity === "high"
-                      ? "bg-red-500"
-                      : item.severity === "medium"
-                      ? "bg-yellow-400"
-                      : "bg-green-500"
-                  }`}
-                />
-                <span className="truncate text-xs text-gray-800 font-medium">
-                  {item.name}
-                </span>
-                <span className="ml-auto text-xs text-gray-500">
-                  {item.quantity === 0 ? "Out" : `Low (${item.quantity})`}
-                </span>
+              <li key={item.id}>
+                <Link
+                  href={`/inventory/${item.id}/edit-product`}
+                  className="flex items-center gap-2 py-1 px-1 rounded-md cursor-pointer group focus:outline-none hover:bg-gray-50 dark:hover:bg-gray-200 transition-colors"
+                  tabIndex={0}
+                >
+                  <span
+                    className={`inline-block w-2 h-2 rounded-full ${
+                      item.severity === "high"
+                        ? "bg-red-500"
+                        : item.severity === "medium"
+                        ? "bg-yellow-400"
+                        : "bg-green-500"
+                    }`}
+                  />
+                  <span className="truncate text-xs text-gray-800 font-medium underline group-hover:underline group-focus:underline">
+                    {item.name}
+                  </span>
+                  <span className="ml-auto text-xs text-gray-500">
+                    {item.quantity === 0 ? "Out" : `Low (${item.quantity})`}
+                  </span>
+                  <span className="ml-2 text-gray-400 group-hover:text-gray-700 group-focus:text-gray-700 transition-colors">
+                    <svg
+                      className="w-3.5 h-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </span>
+                </Link>
               </li>
             ))}
           </ul>
