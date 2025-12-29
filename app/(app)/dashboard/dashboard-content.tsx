@@ -16,6 +16,13 @@ interface DashboardContentProps {
       lowStockPercentage: number;
       outOfStockPercentage: number;
     };
+    value: {
+      totalValue: number;
+    };
+    weeklyProductStats: {
+      week: string;
+      products: number;
+    }[];
     risk: {
       totalAtRisk: number;
       outOfStock: number;
@@ -30,19 +37,10 @@ interface DashboardContentProps {
       }[];
     };
   };
-  inventoryValue: {
-    totalValue: number;
-  };
-  weeklyProductStats: {
-    week: string;
-    products: number;
-  }[];
 }
 
 export default function DashboardContent({
   dashboardMetrics,
-  inventoryValue,
-  weeklyProductStats,
 }: DashboardContentProps) {
   return (
     <PageLayout>
@@ -142,7 +140,7 @@ export default function DashboardContent({
                     Total Value
                   </p>
                   <p className="text-base sm:text-lg md:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 mt-1 sm:mt-2">
-                    ₱{Number(inventoryValue.totalValue).toFixed(0)}
+                    ₱{Number(dashboardMetrics.value.totalValue).toFixed(0)}
                   </p>
                 </div>
                 <div className="p-2 md:p-3 bg-green-50 rounded-lg">
@@ -169,7 +167,7 @@ export default function DashboardContent({
               className="w-full min-w-0 min-h-0 lg:max-h-80"
               style={{ aspectRatio: "4/1" }}
             >
-              <ProductChart data={weeklyProductStats} />
+              <ProductChart data={dashboardMetrics.weeklyProductStats} />
             </div>
           </div>
         </div>
