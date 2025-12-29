@@ -2,6 +2,7 @@ import AddProductButton from "@/components/buttons/add-product-button";
 import QuickActionButton from "@/components/buttons/quick-action-button";
 import ProductChart from "@/components/charts/products-chart";
 import InventoryOverviewCard from "@/components/common/inventory-overview-card";
+import StockRiskCard from "@/components/dashboard/stock-risk-card";
 import PageLayout from "@/components/layout/page-layout";
 import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
 
@@ -110,10 +111,10 @@ export default function DashboardContent({
           </div>
         </div>
 
-        {/** Key Metrics - 4 Column Grid with Alerts/Activity as 3rd card */}
-        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-2 sm:gap-4 md:gap-6 mb-6 sm:mb-10">
-          {/* Inventory Overview Card (collapsible, client component) */}
-          <div className="2xl:col-start-1 2xl:row-start-1">
+        {/** Key Metrics - Responsive Grid: 1 col (mobile), 2 col (md), 3 col (lg+) **/}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6 mb-6 sm:mb-10">
+          {/* Inventory Overview Card */}
+          <div>
             <InventoryOverviewCard
               totalProducts={dashboardMetrics.inventory.totalProducts}
               inStockCount={dashboardMetrics.inventory.inStockCount}
@@ -131,9 +132,19 @@ export default function DashboardContent({
             />
           </div>
 
+          {/* Stock Risk Card */}
+          <div>
+            <StockRiskCard
+              totalAtRisk={dashboardMetrics.risk.totalAtRisk}
+              outOfStock={dashboardMetrics.risk.outOfStock}
+              lowStock={dashboardMetrics.risk.lowStock}
+              items={dashboardMetrics.risk.items}
+            />
+          </div>
+
           {/* Total Value Card */}
-          <div className="2xl:col-start-2 2xl:row-start-1">
-            <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:border-gray-300 hover:shadow-sm transition-all duration-200 flex flex-col justify-between">
+          <div>
+            <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:border-gray-300 hover:shadow-sm transition-all duration-200 flex flex-col justify-between h-full">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl text-gray-700 font-semibold">
