@@ -1,9 +1,11 @@
 "use client";
 
-import Sidebar from "../components/layout/sidebar-unified";
-import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton";
+
+import { TopNavBarSkeleton } from "@/components/skeletons";
+import Sidebar from "@/components/layout/sidebar-unified";
+import { useState } from "react";
 
 export default function Loading() {
   const pathname = usePathname();
@@ -13,6 +15,7 @@ export default function Loading() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <TopNavBarSkeleton />
       {showSidebar && (
         <Sidebar
           collapsed={collapsed}
