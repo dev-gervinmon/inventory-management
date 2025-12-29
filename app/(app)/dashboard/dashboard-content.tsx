@@ -5,6 +5,7 @@ import InventoryOverviewCard from "@/components/common/inventory-overview-card";
 import StockRiskCard from "@/components/dashboard/stock-risk-card";
 import PageLayout from "@/components/layout/page-layout";
 import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
+import { StockRiskItem } from "@/lib/types/dashboard";
 
 interface DashboardContentProps {
   dashboardMetrics: {
@@ -28,14 +29,7 @@ interface DashboardContentProps {
       totalAtRisk: number;
       outOfStock: number;
       lowStock: number;
-      items: {
-        id: string;
-        name: string;
-        sku: string;
-        quantity: number;
-        lowStockAt: number;
-        severity: string;
-      }[];
+      items: StockRiskItem[];
     };
   };
 }
