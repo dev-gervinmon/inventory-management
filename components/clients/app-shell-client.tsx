@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Sidebar from "@/components/layout/sidebar-unified";
+import clsx from "clsx";
 
 export default function AppShellClient({
   children,
@@ -21,16 +22,14 @@ export default function AppShellClient({
       />
 
       <main
-        className="flex-1 px-4 sm:px-6 md:px-8 py-4 mt-16"
-        style={{
-          transition: "margin-left 0.45s cubic-bezier(0.4,0,0.2,1)",
-          marginLeft:
-            typeof window !== "undefined" && window.innerWidth < 1024
-              ? 0
-              : collapsed
-              ? "5rem"
-              : "10rem",
-        }}
+        className={clsx(
+          "flex-1 px-4 sm:px-6 md:px-8 py-4 mt-16",
+          "transition-[margin-left] duration-300 ease-in-out",
+          // Desktop sidebar spacing only
+          collapsed ? "lg:ml-20" : "lg:ml-40",
+          // Mobile: no margin
+          "ml-0"
+        )}
       >
         {children}
       </main>
