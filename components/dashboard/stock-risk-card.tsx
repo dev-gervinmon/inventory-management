@@ -1,17 +1,12 @@
+import { ITEM_SEVERITY_COLOR, RISK_STYLES } from "@/lib/constants/dashboard";
+import { StockRiskItem } from "@/lib/types/dashboard";
 import Link from "next/link";
 
 interface StockRiskCardProps {
   totalAtRisk: number;
   outOfStock: number;
   lowStock: number;
-  items: {
-    id: string;
-    name: string;
-    sku: string;
-    quantity: number;
-    lowStockAt: number;
-    severity: string;
-  }[];
+  items: StockRiskItem[];
 }
 
 export default function StockRiskCard({
@@ -20,13 +15,10 @@ export default function StockRiskCard({
   lowStock,
   items,
 }: StockRiskCardProps) {
-  const severity = outOfStock > 0 ? "high" : lowStock > 0 ? "medium" : "low";
-  const color =
-    severity === "high"
-      ? "text-red-600 bg-red-50 border-red-200"
-      : severity === "medium"
-      ? "text-yellow-700 bg-yellow-50 border-yellow-200"
-      : "text-green-700 bg-green-50 border-green-200";
+  const riskLevel: "high" | "medium" | "low" =
+    outOfStock > 0 ? "high" : lowStock > 0 ? "medium" : "low";
+
+  const color = RISK_STYLES[riskLevel];
 
   return (
     <div
@@ -38,9 +30,9 @@ export default function StockRiskCard({
             className="inline-block w-2 h-2 rounded-full"
             style={{
               backgroundColor:
-                severity === "high"
+                riskLevel === "high"
                   ? "#dc2626"
-                  : severity === "medium"
+                  : riskLevel === "medium"
                   ? "#facc15"
                   : "#22c55e",
             }}
@@ -82,11 +74,7 @@ export default function StockRiskCard({
                 >
                   <span
                     className={`inline-block w-2 h-2 rounded-full ${
-                      item.severity === "high"
-                        ? "bg-red-500"
-                        : item.severity === "medium"
-                        ? "bg-yellow-400"
-                        : "bg-green-500"
+                      ITEM_SEVERITY_COLOR[item.severity]
                     }`}
                   />
                   <span className="truncate text-xs text-gray-800 font-medium underline group-hover:underline group-focus:underline">
