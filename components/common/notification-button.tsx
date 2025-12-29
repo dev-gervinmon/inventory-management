@@ -1,7 +1,7 @@
 "use client";
 
 import { Bell, Activity as ActivityIcon, AlertCircle } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Tabs, { TabPanel } from "@/components/common/tabs";
 
@@ -27,6 +27,29 @@ export default function NotificationButton({
   activities: Activity[];
 }) {
   const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function handlePointerDown(event: PointerEvent) {
+      const target = event.target as Node;
+      if (containerRef.current && !containerRef.current.contains(target)) {
+        setOpen(false);
+      }
+    }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open]);
 
   function formatActivityTime(date: Date | string): string {
     const d = typeof date === "string" ? new Date(date) : date;
@@ -52,9 +75,10 @@ export default function NotificationButton({
   }
 
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       <button
-        className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-150 shadow-sm"
+        ref={buttonRef}
+        className="cursor-pointer p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-150 shadow-sm"
         aria-label="Open notifications"
         onClick={() => setOpen((v) => !v)}
       >
@@ -117,7 +141,8 @@ export default function NotificationButton({
                 {stockItems.length > 0 ? (
                   <div className="flex flex-col gap-2">
                     {stockItems.slice(0, 5).map((item) => (
-                      <div
+                      <Link
+                        href={`/inventory/${item.id}/edit-product`}
                         key={item.id}
                         className="flex items-center gap-3 p-3 rounded-lg bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-800/50 transition-colors"
                       >
@@ -131,7 +156,7 @@ export default function NotificationButton({
                               : `Low stock (${item.quantity} units): ${item.name} (SKU: ${item.sku})`}
                           </span>
                         </div>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 ) : (
