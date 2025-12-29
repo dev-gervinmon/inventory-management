@@ -30,3 +30,6 @@ export {
 
 // Loading state component
 export { LoadingState } from "./loading-state";
+
+// Top navbar skeleton
+export { TopNavBarSkeleton } from "./top-navbar-skeleton";
