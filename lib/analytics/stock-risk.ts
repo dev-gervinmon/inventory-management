@@ -1,4 +1,5 @@
 import prisma from "../db/prisma";
+import { StockRiskItem } from "../types/dashboard";
 
 export async function getStockRiskOverview(userId: string) {
   const products = await prisma.product.findMany({
@@ -12,7 +13,7 @@ export async function getStockRiskOverview(userId: string) {
     },
   });
 
-  const atRiskItems = products
+  const atRiskItems: StockRiskItem[] = products
     .filter((p) => p.lowStockAt !== null && p.quantity <= (p.lowStockAt ?? 0))
     .map((p) => ({
       id: p.id,
