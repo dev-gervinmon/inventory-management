@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Sidebar from "@/components/layout/sidebar-unified";
 import clsx from "clsx";
+import TopNavBarClient from "./top-navbar-client";
 
 export default function AppShellClient({
   children,
@@ -14,6 +15,8 @@ export default function AppShellClient({
 
   return (
     <div className="min-h-screen flex bg-gray-50">
+      <TopNavBarClient onMobileMenu={() => setMobileOpen(true)} />
+
       <Sidebar
         collapsed={collapsed}
         setCollapsed={setCollapsed}
@@ -26,7 +29,7 @@ export default function AppShellClient({
           "flex-1 px-4 sm:px-6 md:px-8 py-4 mt-16",
           "transition-[margin-left] duration-300 ease-in-out",
           // Desktop sidebar spacing only
-          collapsed ? "lg:ml-20" : "lg:ml-40",
+          collapsed ? "lg:ml-15" : "lg:ml-40",
           // Mobile: no margin
           "ml-0"
         )}
