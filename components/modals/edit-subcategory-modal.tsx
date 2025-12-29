@@ -109,7 +109,7 @@ export default function EditSubcategoryModal({
 
       {/* Smooth Slide-in Panel from Right with Elegant Animation */}
       <div
-        className={`fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl z-50 transform transition-all duration-700 overflow-y-auto ${
+        className={`fixed right-0 top-15 h-full w-full max-w-md bg-white shadow-2xl z-50 transform transition-all duration-700 overflow-y-auto ${
           isOpen ? "translate-x-0 opacity-100" : "translate-x-96 opacity-0"
         }`}
         style={{ transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)" }}
