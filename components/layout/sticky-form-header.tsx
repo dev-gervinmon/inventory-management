@@ -71,7 +71,6 @@ export default function StickyFormHeader({
   // Try to use navigation transition, fall back to Link if provider not available
   let navigateTo: ((href: string) => void) | null = null;
   try {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const navContext = useNavigationTransition();
     navigateTo = navContext.push;
   } catch {
@@ -142,14 +141,14 @@ export default function StickyFormHeader({
     <div
       className={`${
         isSticky
-          ? "fixed top-0 left-0 right-0 z-20 border-b border-gray-200 bg-white shadow-md"
+          ? "fixed top-13 left-0 right-0 z-20 border-b border-gray-200 bg-white shadow-md"
           : ""
       } transition-all duration-200`}
     >
       <div
         className={`${
           isSticky
-            ? "md:ml-64 px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-4"
+            ? "md:ml-10 px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-4"
             : "mb-6 sm:mb-8 md:mb-8 px-4 sm:px-6 md:px-0"
         }`}
       >
