@@ -35,14 +35,15 @@ export interface TopMovingProduct {
   totalMoved: number;
 }
 
-export interface StockMovementAnalytics {
-  summary: StockMovementSummary;
-  trends: StockMovementTrend[];
-  topMovingProducts: TopMovingProduct[];
-}
-
 export interface StockMovementTrendIndicator {
   direction: "up" | "down" | "flat";
   percentage: number;
   label: string;
+}
+
+export interface StockMovementAnalytics {
+  summary: StockMovementSummary;
+  trends: StockMovementTrend[];
+  topMovingProducts: TopMovingProduct[];
+  trendIndicator: StockMovementTrendIndicator;
 }
