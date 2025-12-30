@@ -1,6 +1,7 @@
 import prisma from "../db/prisma";
+import { ValueMetrics } from "../domain/dashboard-metrics";
 
-export async function getInventoryValue(userId: string) {
+export async function getInventoryValue(userId: string): Promise<ValueMetrics> {
   const products = await prisma.product.findMany({
     where: { userId },
     select: {
