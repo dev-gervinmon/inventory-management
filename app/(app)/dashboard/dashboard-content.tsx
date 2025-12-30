@@ -1,41 +1,22 @@
 import AddProductButton from "@/components/buttons/add-product-button";
 import QuickActionButton from "@/components/buttons/quick-action-button";
 import ProductChart from "@/components/charts/products-chart";
+import StockMovementTrendChart from "@/components/charts/stock-movement-trend-chart";
 import InventoryOverviewCard from "@/components/common/inventory-overview-card";
 import StockRiskCard from "@/components/dashboard/stock-risk-card";
 import PageLayout from "@/components/layout/page-layout";
 import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
-import { StockRiskItem } from "@/lib/types/dashboard";
+import { DashboardMetrics } from "@/lib/domain/dashboard-metrics";
+import { StockMovementAnalytics } from "@/lib/domain/stock-movement";
 
 interface DashboardContentProps {
-  dashboardMetrics: {
-    inventory: {
-      totalProducts: number;
-      inStockCount: number;
-      lowStockCount: number;
-      outOfStockCount: number;
-      inStockPercentage: number;
-      lowStockPercentage: number;
-      outOfStockPercentage: number;
-    };
-    value: {
-      totalValue: number;
-    };
-    weeklyProductStats: {
-      week: string;
-      products: number;
-    }[];
-    risk: {
-      totalAtRisk: number;
-      outOfStock: number;
-      lowStock: number;
-      items: StockRiskItem[];
-    };
-  };
+  dashboardMetrics: DashboardMetrics;
+  analyticsMetrics: StockMovementAnalytics;
 }
 
 export default function DashboardContent({
   dashboardMetrics,
+  analyticsMetrics,
 }: DashboardContentProps) {
   return (
     <PageLayout>
@@ -173,6 +154,19 @@ export default function DashboardContent({
               style={{ aspectRatio: "4/1" }}
             >
               <ProductChart data={dashboardMetrics.weeklyProductStats} />
+            </div>
+          </div>
+          <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-5 lg:p-4 hover:shadow-sm transition-all duration-200">
+            <div className="flex items-center justify-between mb-3 md:mb-4 lg:mb-5">
+              <h2 className="text-base md:text-lg font-semibold text-gray-900">
+                Stock Movement
+              </h2>
+            </div>
+            <div
+              className="w-full min-w-0 min-h-0 lg:max-h-80"
+              style={{ aspectRatio: "4/1" }}
+            >
+              <StockMovementTrendChart data={analyticsMetrics.trends} />
             </div>
           </div>
         </div>
