@@ -30,6 +30,7 @@ model Product {
 
   @@index([userId, name])
   @@index([createdAt])
+  stockMovements StockMovement[]
 }
 
 model Category {
@@ -69,4 +70,17 @@ model Activity {
 
   @@index([userId, createdAt])
   @@index([entityType, createdAt])
+}
+
+model StockMovement {
+  id String @id @default(cuid())
+  productId String
+  product Product @relation(fields: [productId], references: [id])
+  quantity Int
+  direction String
+  source String?
+  reason String
+  createdAt DateTime @default(now())
+
+  @@index([productId, createdAt])
 }
