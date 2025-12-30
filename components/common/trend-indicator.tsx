@@ -8,6 +8,7 @@ export interface TrendIndicatorProps {
   percentage: number;
   label?: string;
   size?: "sm" | "md";
+  isLoading?: boolean;
 }
 
 export default function TrendIndicator({
@@ -15,21 +16,28 @@ export default function TrendIndicator({
   percentage,
   label,
   size = "sm",
+  isLoading = false,
 }: TrendIndicatorProps) {
   const prevValue = useRef<number | null>(null);
   const [animate, setAnimate] = useState(false);
 
   useEffect(() => {
-    if (prevValue.current !== null && prevValue.current !== percentage) {
+    if (
+      !isLoading &&
+      prevValue.current !== null &&
+      prevValue.current !== percentage &&
+      direction !== "flat"
+    ) {
       const startAnimation = setTimeout(() => setAnimate(true), 0);
-      const timer = setTimeout(() => setAnimate(false), 600);
+      const timer = setTimeout(() => setAnimate(false), 500);
       return () => {
         clearTimeout(startAnimation);
         clearTimeout(timer);
       };
     }
+
     prevValue.current = percentage;
-  }, [percentage]);
+  }, [percentage, direction, isLoading]);
 
   const styles = {
     up: {
@@ -51,14 +59,19 @@ export default function TrendIndicator({
 
   const style = styles[direction];
 
+  const formattedPercentage =
+    direction === "flat" ? "0%" : `${percentage > 0 ? "+" : ""}${percentage}%`;
+
   return (
     <div
+      aria-live="polite"
       className={clsx(
-        "inline-flex items-center gap-1 rounded-full text-xs font-medium transition-all",
+        "inline-flex items-center gap-1 rounded-full font-medium transition-all",
         style.bg,
         style.color,
-        animate && "scale-105 ring-2 ring-offset-1 ring-current/20",
-        size === "sm" ? "px-2 py-0.5 text-xs" : "px-3 py-1 text-sm"
+        size === "sm" ? "px-2 py-0.5 text-xs" : "px-3 py-1 text-sm",
+        animate && "scale-105 ring-2 ring-current/20",
+        isLoading && "opacity-60"
       )}
     >
       <span
@@ -71,8 +84,12 @@ export default function TrendIndicator({
       >
         {style.icon}
       </span>
-      <span>{percentage}%</span>
-      {label && <span className="hidden sm:inline ml-1">{label}</span>}
+
+      <span>{formattedPercentage}</span>
+
+      {label && (
+        <span className="hidden sm:inline ml-1 text-gray-500">{label}</span>
+      )}
     </div>
   );
 }
