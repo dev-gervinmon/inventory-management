@@ -5,6 +5,7 @@ import prisma from "../db/prisma";
 import { parseProductData } from "../schemas/products";
 import { logActivity } from "./activities";
 import { formatPrice } from "../utils/products";
+import { createStockMovement } from "../analytics/stock-movement";
 
 /**
  * Extract IDs from FormData for a given key
@@ -20,10 +21,13 @@ function extractIdsFromFormData(formData: FormData, key: string): string[] {
 function trackFieldChanges(
   oldData: Record<string, unknown>,
   newData: Record<string, unknown>
-): Record<string, { old: string | number; new: string | number }> {
+): Record<
+  string,
+  { old: string | number; new: string | number; diff: string | number }
+> {
   const changes: Record<
     string,
-    { old: string | number; new: string | number }
+    { old: string | number; new: string | number; diff: string | number }
   > = {};
 
   for (const key of Object.keys(oldData)) {
@@ -31,6 +35,7 @@ function trackFieldChanges(
       changes[key] = {
         old: String(oldData[key]),
         new: String(newData[key]),
+        diff: Number(newData[key]) - Number(oldData[key]),
       };
     }
   }
@@ -42,12 +47,16 @@ function trackFieldChanges(
  * Flatten changes into single-level record for database storage
  */
 function flattenChanges(
-  changes: Record<string, { old: string | number; new: string | number }>
+  changes: Record<
+    string,
+    { old: string | number; new: string | number; diff: string | number }
+  >
 ): Record<string, string | number | boolean> {
   const flattened: Record<string, string | number | boolean> = {};
   for (const [key, value] of Object.entries(changes)) {
     flattened[`${key}_old`] = value.old;
     flattened[`${key}_new`] = value.new;
+    flattened[`${key}_diff`] = value.diff;
   }
   return flattened;
 }
@@ -74,19 +83,21 @@ export async function bulkDeleteProducts(ids: string[]) {
     }
 
     // Delete all products
-    await prisma.product.deleteMany({
-      where: { id: { in: ids }, userId: user.id },
-    });
+    await prisma.$transaction(async (tx) => {
+      await tx.product.deleteMany({
+        where: { id: { in: ids }, userId: user.id },
+      });
 
-    // Log activity for bulk delete
-    const productNames = products
-      .map((p: { id: string; name: string }) => p.name)
-      .join(", ");
-    await logActivity(user.id, {
-      entityType: "PRODUCT",
-      actionType: "DELETED",
-      entityName: `${products.length} products`,
-      message: `Bulk deleted ${products.length} product(s): ${productNames}`,
+      // Log activity for bulk delete
+      const productNames = products
+        .map((p: { id: string; name: string }) => p.name)
+        .join(", ");
+      await logActivity(tx, user.id, {
+        entityType: "PRODUCT",
+        actionType: "DELETED",
+        entityName: `${products.length} products`,
+        message: `Bulk deleted ${products.length} product(s): ${productNames}`,
+      });
     });
 
     return { success: true, deletedCount: products.length };
@@ -106,35 +117,36 @@ export async function createProduct(formData: FormData) {
   const subcategoryIds = extractIdsFromFormData(formData, "subcategoryIds");
 
   try {
-    const createdProduct = await prisma.product.create({
-      data: {
-        ...data,
-        userId: user.id,
-        categories: {
-          connect: categoryIds.map((id) => ({ id })),
+    await prisma.$transaction(async (tx) => {
+      const createdProduct = await tx.product.create({
+        data: {
+          ...data,
+          userId: user.id,
+          categories: {
+            connect: categoryIds.map((id) => ({ id })),
+          },
+          subcategories: {
+            connect: subcategoryIds.map((id) => ({ id })),
+          },
         },
-        subcategories: {
-          connect: subcategoryIds.map((id) => ({ id })),
+      });
+
+      await logActivity(tx, user.id, {
+        entityType: "PRODUCT",
+        actionType: "ADDED",
+        entityId: createdProduct.id,
+        entityName: createdProduct.name,
+        message: `Added new product "${createdProduct.name}" (${formatPrice(
+          createdProduct.price.toNumber()
+        )})`,
+        details: {
+          sku: createdProduct.sku || "",
+          price: createdProduct.price.toNumber(),
+          quantity: createdProduct.quantity,
         },
-      },
+      });
+      return { success: true, productId: createdProduct.id };
     });
-
-    await logActivity(user.id, {
-      entityType: "PRODUCT",
-      actionType: "ADDED",
-      entityId: createdProduct.id,
-      entityName: createdProduct.name,
-      message: `Added new product "${createdProduct.name}" (${formatPrice(
-        createdProduct.price.toNumber()
-      )})`,
-      details: {
-        sku: createdProduct.sku || "",
-        price: createdProduct.price.toNumber(),
-        quantity: createdProduct.quantity,
-      },
-    });
-
-    return { success: true, productId: createdProduct.id };
   } catch (error) {
     console.error("Create product error:", error);
     if (error instanceof Error) {
@@ -170,82 +182,97 @@ export async function editProduct(formData: FormData) {
     throw new Error("Product not found or unauthorized");
   }
 
-  const data = parseProductData(formData);
+  const { quantity, ...productData } = parseProductData(formData);
   const categoryIds = extractIdsFromFormData(formData, "categoryIds");
   const subcategoryIds = extractIdsFromFormData(formData, "subcategoryIds");
 
   try {
-    const updatedProduct = await prisma.product.update({
-      where: { id },
-      data: {
-        ...data,
-        categories: {
-          set: categoryIds.map((id) => ({ id })),
+    await prisma.$transaction(async (tx) => {
+      const updatedProduct = await tx.product.update({
+        where: { id },
+        data: {
+          ...productData,
+          categories: {
+            set: categoryIds.map((id) => ({ id })),
+          },
+          subcategories: {
+            set: subcategoryIds.map((id) => ({ id })),
+          },
         },
-        subcategories: {
-          set: subcategoryIds.map((id) => ({ id })),
-        },
-      },
-    });
+      });
 
-    // Track field changes
-    const changes = trackFieldChanges(
-      {
-        name: oldProduct.name,
-        price: oldProduct.price.toNumber(),
-        quantity: oldProduct.quantity,
-      },
-      {
-        name: updatedProduct.name,
-        price: updatedProduct.price.toNumber(),
-        quantity: updatedProduct.quantity,
-      }
-    );
+      const quantityChanged =
+        typeof quantity === "number" && quantity !== oldProduct.quantity;
 
-    // Only log if something actually changed
-    if (Object.keys(changes).length > 0) {
-      const flattenedChanges = flattenChanges(changes);
+      if (quantityChanged) {
+        const diff = quantity - oldProduct.quantity;
+        await createStockMovement(tx, {
+          productId: id,
+          quantity: Math.abs(diff),
+          direction: diff > 0 ? "IN" : "OUT",
+          reason: "ADJUSTMENT",
+          source: "USER",
+        });
 
-      // Log each type of change separately
-      if (changes.quantity) {
-        await logActivity(user.id, {
+        await logActivity(tx, user.id, {
           entityType: "PRODUCT",
           actionType: "STOCK_UPDATED",
           entityId: id,
           entityName: updatedProduct.name,
-          message: `Updated stock for "${updatedProduct.name}": ${oldProduct.quantity} → ${updatedProduct.quantity} units`,
-          details: flattenedChanges,
+          message: `Updated stock for "${updatedProduct.name}"`,
+          details: {
+            from: oldProduct.quantity,
+            to: quantity,
+            difference: diff,
+          },
         });
       }
 
-      if (changes.price) {
-        await logActivity(user.id, {
-          entityType: "PRODUCT",
-          actionType: "PRICE_UPDATED",
-          entityId: id,
-          entityName: updatedProduct.name,
-          message: `Updated price for "${updatedProduct.name}": ${formatPrice(
-            oldProduct.price.toNumber()
-          )} → ${formatPrice(updatedProduct.price.toNumber())}`,
-          details: flattenedChanges,
-        });
-      }
-
-      // Log general edit if other fields changed (but not if only stock/price changed)
-      const otherChanges = Object.keys(changes).filter(
-        (key) => key !== "quantity" && key !== "price"
+      // Track field changes
+      const changes = trackFieldChanges(
+        {
+          name: oldProduct.name,
+          price: oldProduct.price.toNumber(),
+        },
+        {
+          name: updatedProduct.name,
+          price: updatedProduct.price.toNumber(),
+        }
       );
-      if (otherChanges.length > 0 && !changes.quantity && !changes.price) {
-        await logActivity(user.id, {
-          entityType: "PRODUCT",
-          actionType: "EDITED",
-          entityId: id,
-          entityName: updatedProduct.name,
-          message: `Updated product "${updatedProduct.name}"`,
-          details: flattenedChanges,
-        });
+
+      // Only log if something actually changed
+      if (Object.keys(changes).length > 0) {
+        const flattenedChanges = flattenChanges(changes);
+
+        if (changes.price) {
+          await logActivity(tx, user.id, {
+            entityType: "PRODUCT",
+            actionType: "PRICE_UPDATED",
+            entityId: id,
+            entityName: updatedProduct.name,
+            message: `Updated price for "${updatedProduct.name}": ${formatPrice(
+              oldProduct.price.toNumber()
+            )} → ${formatPrice(updatedProduct.price.toNumber())}`,
+            details: flattenedChanges,
+          });
+        }
+
+        // Log general edit if other fields changed (but not if only stock/price changed)
+        const otherChanges = Object.keys(changes).filter(
+          (key) => key !== "quantity" && key !== "price"
+        );
+        if (otherChanges.length > 0 && !changes.price) {
+          await logActivity(tx, user.id, {
+            entityType: "PRODUCT",
+            actionType: "EDITED",
+            entityId: id,
+            entityName: updatedProduct.name,
+            message: `Updated product "${updatedProduct.name}"`,
+            details: flattenedChanges,
+          });
+        }
       }
-    }
+    });
   } catch (error) {
     if (error instanceof Error && error.message.includes("Unique constraint")) {
       throw new Error("SKU already exists");
@@ -273,20 +300,22 @@ export async function deleteProduct(id: string) {
   }
 
   try {
-    await prisma.product.delete({
-      where: { id },
-    });
+    await prisma.$transaction(async (tx) => {
+      await prisma.product.delete({
+        where: { id },
+      });
 
-    // Log the deletion
-    await logActivity(user.id, {
-      entityType: "PRODUCT",
-      actionType: "DELETED",
-      entityId: id,
-      entityName: product.name,
-      message: `Deleted product "${product.name}"`,
-    });
+      // Log the deletion
+      await logActivity(tx, user.id, {
+        entityType: "PRODUCT",
+        actionType: "DELETED",
+        entityId: id,
+        entityName: product.name,
+        message: `Deleted product "${product.name}"`,
+      });
 
-    return { success: true };
+      return { success: true };
+    });
   } catch (error) {
     if (error instanceof Error) throw error;
     throw new Error("Failed to delete product");
@@ -391,44 +420,46 @@ export async function revertActivity(
       );
     }
 
-    // Update the product with old values
-    const revertedProduct = await prisma.product.update({
-      where: { id: productId },
-      data: updateData,
+    const result = await prisma.$transaction(async (tx) => {
+      // Update the product with old values
+      const revertedProduct = await tx.product.update({
+        where: { id: productId },
+        data: updateData,
+      });
+
+      // Log the revert as a new activity
+      const revertedFields = Object.keys(updateData)
+        .map((field) => {
+          if (field === "quantity") {
+            return `quantity: ${product.quantity} → ${details.quantity_old}`;
+          } else if (field === "price") {
+            return `price: ${formatPrice(
+              product.price.toNumber()
+            )} → ${formatPrice(Number(details.price_old))}`;
+          } else if (field === "name") {
+            return `name: ${product.name} → ${details.name_old}`;
+          }
+          return field;
+        })
+        .join(", ");
+
+      await logActivity(tx, user.id, {
+        entityType: "PRODUCT",
+        actionType: "EDITED",
+        entityId: productId,
+        entityName: revertedProduct.name,
+        message: `Reverted "${revertedProduct.name}" to previous version (${revertedFields})`,
+        details: {
+          reverted_from: activityId,
+          timestamp: activity.createdAt.toISOString(),
+        },
+      });
+      return {
+        success: true,
+        message: `Successfully reverted "${revertedProduct.name}" to previous version`,
+      };
     });
-
-    // Log the revert as a new activity
-    const revertedFields = Object.keys(updateData)
-      .map((field) => {
-        if (field === "quantity") {
-          return `quantity: ${product.quantity} → ${details.quantity_old}`;
-        } else if (field === "price") {
-          return `price: ${formatPrice(
-            product.price.toNumber()
-          )} → ${formatPrice(Number(details.price_old))}`;
-        } else if (field === "name") {
-          return `name: ${product.name} → ${details.name_old}`;
-        }
-        return field;
-      })
-      .join(", ");
-
-    await logActivity(user.id, {
-      entityType: "PRODUCT",
-      actionType: "EDITED",
-      entityId: productId,
-      entityName: revertedProduct.name,
-      message: `Reverted "${revertedProduct.name}" to previous version (${revertedFields})`,
-      details: {
-        reverted_from: activityId,
-        timestamp: activity.createdAt.toISOString(),
-      },
-    });
-
-    return {
-      success: true,
-      message: `Successfully reverted "${revertedProduct.name}" to previous version`,
-    };
+    return result;
   } catch (error) {
     console.error("Revert activity error:", error);
     if (error instanceof Error) throw error;
