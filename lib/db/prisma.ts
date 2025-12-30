@@ -1,6 +1,11 @@
 import { PrismaClient } from "@/app/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
+export type PrismaTx = Omit<
+  PrismaClient,
+  "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends"
+>;
+
 const globalForPrisma = global as unknown as {
   prisma: PrismaClient;
 };
