@@ -8,3 +8,5 @@ export const ITEM_SEVERITY_COLOR = {
   out: "bg-red-500",
   low: "bg-yellow-400",
 } as const;
+
+export const DEFAULT_DAYS = 7;
