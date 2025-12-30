@@ -1,5 +1,8 @@
 import { getCurrentUser } from "@/lib/auth/auth";
-import { getDashboardMetrics } from "@/lib/analytics/dashboard-metrics";
+import {
+  getDashboardMetrics,
+  getStockMovementAnalytics,
+} from "@/lib/analytics/dashboard-metrics";
 import DashboardContent from "./dashboard-content";
 
 export default async function DashboardPage() {
@@ -7,6 +10,12 @@ export default async function DashboardPage() {
   const userId = user.id;
 
   const dashboardMetrics = await getDashboardMetrics(userId);
+  const analyticsMetrics = await getStockMovementAnalytics(userId);
 
-  return <DashboardContent dashboardMetrics={dashboardMetrics} />;
+  return (
+    <DashboardContent
+      dashboardMetrics={dashboardMetrics}
+      analyticsMetrics={analyticsMetrics}
+    />
+  );
 }
