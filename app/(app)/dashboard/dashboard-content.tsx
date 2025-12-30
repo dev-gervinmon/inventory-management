@@ -7,16 +7,15 @@ import StockRiskCard from "@/components/dashboard/stock-risk-card";
 import PageLayout from "@/components/layout/page-layout";
 import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
 import { DashboardMetrics } from "@/lib/domain/dashboard-metrics";
-import { StockMovementAnalytics } from "@/lib/domain/stock-movement";
 
 interface DashboardContentProps {
   dashboardMetrics: DashboardMetrics;
-  analyticsMetrics: StockMovementAnalytics;
+  userId: string;
 }
 
 export default function DashboardContent({
   dashboardMetrics,
-  analyticsMetrics,
+  userId,
 }: DashboardContentProps) {
   return (
     <PageLayout>
@@ -157,7 +156,7 @@ export default function DashboardContent({
           </div>
 
           {/* Stock Movement Chart */}
-          <StockMovementCard analytics={analyticsMetrics} />
+          <StockMovementCard userId={userId} />
         </div>
       </PullToRefreshWrapper>
     </PageLayout>
