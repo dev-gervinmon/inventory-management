@@ -141,31 +141,31 @@ export default function DashboardContent({
         </div>
 
         {/** Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-8 mb-6 sm:mb-10">
-          {/* Weekly Products Chart - Full width on tablet, 2 cols on desktop */}
-          <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-5 lg:p-4 hover:shadow-sm transition-all duration-200">
-            <div className="flex items-center justify-between mb-3 md:mb-4 lg:mb-5">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-10">
+          {/* Weekly Products Chart */}
+          <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-sm transition-all duration-200 flex flex-col min-w-0">
+            <div className="flex items-center justify-between mb-3">
               <h2 className="text-base md:text-lg font-semibold text-gray-900">
                 New Products Per Week
               </h2>
             </div>
-            <div
-              className="w-full min-w-0 min-h-0 lg:max-h-80"
-              style={{ aspectRatio: "4/1" }}
-            >
+
+            {/* Chart container */}
+            <div className="flex-1 min-h-[180px] sm:min-h-[220px] min-w-0">
               <ProductChart data={dashboardMetrics.weeklyProductStats} />
             </div>
           </div>
-          <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-5 lg:p-4 hover:shadow-sm transition-all duration-200">
-            <div className="flex items-center justify-between mb-3 md:mb-4 lg:mb-5">
+
+          {/* Stock Movement Chart */}
+          <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-sm transition-all duration-200 flex flex-col min-w-0">
+            <div className="flex items-center justify-between mb-3">
               <h2 className="text-base md:text-lg font-semibold text-gray-900">
                 Stock Movement
               </h2>
             </div>
-            <div
-              className="w-full min-w-0 min-h-0 lg:max-h-80"
-              style={{ aspectRatio: "4/1" }}
-            >
+
+            {/* Chart container */}
+            <div className="flex-1 min-h-[180px] sm:min-h-[220px] min-w-0">
               <StockMovementTrendChart data={analyticsMetrics.trends} />
             </div>
           </div>
