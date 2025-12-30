@@ -40,3 +40,9 @@ export interface StockMovementAnalytics {
   trends: StockMovementTrend[];
   topMovingProducts: TopMovingProduct[];
 }
+
+export interface StockMovementTrendIndicator {
+  direction: "up" | "down" | "flat";
+  percentage: number;
+  label: string;
+}
