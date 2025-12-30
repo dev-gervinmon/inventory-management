@@ -6,6 +6,7 @@ import {
   getStockMovements,
   getTopMovingProducts,
   getStockMovementTrend,
+  getStockMovementTrendIndicator,
 } from "./stock-movement";
 import { getStockRiskOverview } from "./stock-risk";
 import { getWeeklyProductStats } from "./weekly-products";
@@ -31,15 +32,19 @@ export async function getDashboardMetrics(
 export async function getStockMovementAnalytics(
   userId: string
 ): Promise<StockMovementAnalytics> {
-  const [summary, trend, topMovingProducts] = await Promise.all([
-    getStockMovements(userId),
-    getStockMovementTrend(userId),
-    getTopMovingProducts(userId),
-  ]);
+  const [summary, trend, topMovingProducts, trendIndicator] = await Promise.all(
+    [
+      getStockMovements(userId),
+      getStockMovementTrend(userId),
+      getTopMovingProducts(userId),
+      getStockMovementTrendIndicator(userId),
+    ]
+  );
 
   return {
     summary,
     trends: trend,
     topMovingProducts,
+    trendIndicator,
   };
 }
