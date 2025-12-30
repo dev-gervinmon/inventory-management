@@ -1,5 +1,6 @@
 import { StockMovementAnalytics } from "@/lib/domain/stock-movement";
 import StockMovementTrendChart from "../charts/stock-movement-trend-chart";
+import TrendIndicator from "../common/trend-indicator";
 
 interface StockMovementCardProps {
   analytics: StockMovementAnalytics;
@@ -44,19 +45,7 @@ export default function StockMovementCard({
   }
 
   return (
-    <div
-      className="
-        bg-white
-        rounded-2xl
-        border border-gray-100
-        shadow-sm
-        p-4 sm:p-6
-        flex flex-col
-        gap-5
-        min-w-0
-        overflow-hidden
-      "
-    >
+    <div className="bg-white rounded-2xl border border-gray-200 hover:shadow-sm p-4 sm:p-6 flex flex-col gap-5 min-w-0 overflow-hidden transition-all duration-200">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
         <div className="flex items-center gap-2">
@@ -78,9 +67,17 @@ export default function StockMovementCard({
               />
             </svg>
           </span>
-          <h3 className="font-bold text-base sm:text-lg text-gray-900">
-            Stock Movement
-          </h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-base sm:text-lg text-gray-900">
+              Stock Movement
+            </h3>
+            <TrendIndicator
+              direction={analytics.trendIndicator.direction}
+              percentage={analytics.trendIndicator.percentage}
+              label="vs last period"
+              size="sm"
+            />
+          </div>
         </div>
         <span className="text-xs text-gray-400 font-medium">Last 30 days</span>
       </div>
