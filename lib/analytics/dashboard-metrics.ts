@@ -1,3 +1,5 @@
+import { DashboardMetrics } from "../domain/dashboard-metrics";
+import { StockMovementAnalytics } from "../domain/stock-movement";
 import { getInventoryOverview } from "./inventory-overview";
 import { getInventoryValue } from "./inventory-value";
 import {
@@ -8,7 +10,9 @@ import {
 import { getStockRiskOverview } from "./stock-risk";
 import { getWeeklyProductStats } from "./weekly-products";
 
-export async function getDashboardMetrics(userId: string) {
+export async function getDashboardMetrics(
+  userId: string
+): Promise<DashboardMetrics> {
   const [inventory, value, weeklyProductStats, risk] = await Promise.all([
     getInventoryOverview(userId),
     getInventoryValue(userId),
@@ -24,12 +28,13 @@ export async function getDashboardMetrics(userId: string) {
   };
 }
 
-export async function getStockMovementAnalytics(userId: string) {
+export async function getStockMovementAnalytics(
+  userId: string
+): Promise<StockMovementAnalytics> {
   const [summary, trend, topMovingProducts] = await Promise.all([
     getStockMovements(userId),
     getStockMovementTrend(userId),
     getTopMovingProducts(userId),
-    1,
   ]);
 
   return {
