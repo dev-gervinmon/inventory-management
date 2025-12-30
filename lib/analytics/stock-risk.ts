@@ -1,7 +1,10 @@
 import prisma from "../db/prisma";
+import { RiskMetrics } from "../domain/dashboard-metrics";
 import { StockRiskItem } from "../types/dashboard";
 
-export async function getStockRiskOverview(userId: string) {
+export async function getStockRiskOverview(
+  userId: string
+): Promise<RiskMetrics> {
   const products = await prisma.product.findMany({
     where: { userId },
     select: {
