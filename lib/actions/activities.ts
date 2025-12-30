@@ -1,6 +1,6 @@
 "use server";
 
-import prisma from "@/lib/db/prisma";
+import { PrismaTx } from "@/lib/db/prisma";
 
 export interface ActivityLog {
   entityType: "PRODUCT" | "CATEGORY" | "SUBCATEGORY";
@@ -16,9 +16,13 @@ export interface ActivityLog {
   details?: Record<string, string | number | boolean>;
 }
 
-export async function logActivity(userId: string, activity: ActivityLog) {
+export async function logActivity(
+  tx: PrismaTx,
+  userId: string,
+  activity: ActivityLog
+) {
   try {
-    await prisma.activity.create({
+    await tx.activity.create({
       data: {
         userId,
         entityType: activity.entityType,
