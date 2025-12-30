@@ -1,4 +1,5 @@
 import prisma, { PrismaTx } from "../db/prisma";
+import { AnalyticsPeriod } from "../domain/period";
 import {
   StockDirection,
   StockMovementReason,
@@ -44,10 +45,10 @@ function calculatePercentageChange(current: number, previous: number): number {
 
 export async function getStockMovements(
   userId: string,
-  days = 30
+  period: AnalyticsPeriod = 30
 ): Promise<StockMovementSummary> {
   const since = new Date();
-  since.setDate(since.getDate() - days);
+  since.setDate(since.getDate() - period);
 
   const movements = await prisma.stockMovement.findMany({
     where: {
@@ -80,10 +81,10 @@ export async function getStockMovements(
 
 export async function getStockMovementTrend(
   userId: string,
-  days = 14
+  period: AnalyticsPeriod = 14
 ): Promise<StockMovementTrend[]> {
   const since = new Date();
-  since.setDate(since.getDate() - days);
+  since.setDate(since.getDate() - period);
 
   const movements = await prisma.stockMovement.findMany({
     where: {
@@ -120,17 +121,17 @@ export async function getStockMovementTrend(
     ...data,
   }));
 
-  const filled = fillMissingDays(raw, days);
+  const filled = fillMissingDays(raw, period);
   filled.sort((a, b) => a.date.localeCompare(b.date));
   return filled;
 }
 
 export async function getStockMovementTrendIndicator(
   userId: string,
-  days = 14
+  period: AnalyticsPeriod = 14
 ): Promise<StockMovementTrendIndicator> {
-  const current = await getStockMovements(userId, days);
-  const previous = await getStockMovements(userId, days * 2);
+  const current = await getStockMovements(userId, period);
+  const previous = await getStockMovements(userId, period * 2 as AnalyticsPeriod);
 
   const currentNet = current.netChange;
   const previousNet = previous.netChange - currentNet;
@@ -156,10 +157,10 @@ export async function getStockMovementTrendIndicator(
 export async function getTopMovingProducts(
   userId: string,
   limit = 5,
-  days = 30
+  period: AnalyticsPeriod = 30
 ): Promise<TopMovingProduct[]> {
   const since = new Date();
-  since.setDate(since.getDate() - days);
+  since.setDate(since.getDate() - period);
 
   const movements = await prisma.stockMovement.groupBy({
     by: ["productId"],
