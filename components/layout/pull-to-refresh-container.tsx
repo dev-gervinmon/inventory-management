@@ -98,7 +98,7 @@ export default function PullToRefreshContainer({
   }, [isLoading, isRefreshing]);
 
   return (
-    <div ref={containerRef} className="w-full overflow-x-hidden">
+    <div ref={containerRef} className="w-full overflow-hidden">
       {/* Pull-to-Refresh Indicator - Always visible when pulling/refreshing/loading */}
       <div
         className="flex items-center justify-center bg-linear-to-b from-purple-50 to-transparent overflow-visible"
