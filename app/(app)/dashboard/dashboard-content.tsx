@@ -1,8 +1,8 @@
 import AddProductButton from "@/components/buttons/add-product-button";
 import QuickActionButton from "@/components/buttons/quick-action-button";
 import ProductChart from "@/components/charts/products-chart";
-import StockMovementTrendChart from "@/components/charts/stock-movement-trend-chart";
 import InventoryOverviewCard from "@/components/common/inventory-overview-card";
+import StockMovementCard from "@/components/dashboard/stock-movement-card";
 import StockRiskCard from "@/components/dashboard/stock-risk-card";
 import PageLayout from "@/components/layout/page-layout";
 import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
@@ -157,18 +157,7 @@ export default function DashboardContent({
           </div>
 
           {/* Stock Movement Chart */}
-          <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-sm transition-all duration-200 flex flex-col min-w-0">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base md:text-lg font-semibold text-gray-900">
-                Stock Movement
-              </h2>
-            </div>
-
-            {/* Chart container */}
-            <div className="flex-1 min-h-[180px] sm:min-h-[220px] min-w-0">
-              <StockMovementTrendChart data={analyticsMetrics.trends} />
-            </div>
-          </div>
+          <StockMovementCard analytics={analyticsMetrics} />
         </div>
       </PullToRefreshWrapper>
     </PageLayout>
