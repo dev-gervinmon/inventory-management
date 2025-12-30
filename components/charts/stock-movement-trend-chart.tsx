@@ -18,54 +18,82 @@ interface StockMovementTrendChartProps {
 export default function StockMovementTrendChart({
   data,
 }: StockMovementTrendChartProps) {
+  const isMobile = useMediaQuery("(max-width: 640px)");
+
   if (!data || data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-40 text-sm text-gray-500">
+      <div className="flex items-center justify-center h-40 text-sm text-gray-400 bg-gray-50 rounded-lg border border-dashed border-gray-200">
         No movement data available
       </div>
     );
   }
 
   return (
-    <div className="w-full h-48 sm:h-56">
+    <div className="w-full min-w-0 h-40 sm:h-56 md:h-64 lg:h-72">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} barGap={4}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+        <BarChart
+          data={data}
+          barGap={isMobile ? 2 : 6}
+          barCategoryGap={isMobile ? 6 : 12}
+          margin={{
+            top: 10,
+            right: isMobile ? 8 : 20,
+            left: isMobile ? -8 : 0,
+            bottom: 10,
+          }}
+        >
+          {!isMobile && (
+            <CartesianGrid
+              strokeDasharray="3 3"
+              vertical={false}
+              stroke="#f3f4f6"
+            />
+          )}
 
           <XAxis
             dataKey="date"
             tickFormatter={formatDate}
-            tick={{ fontSize: 12 }}
+            tick={{
+              fontSize: isMobile ? 10 : 12,
+              fill: "#6b7280",
+              fontWeight: 500,
+            }}
             axisLine={false}
             tickLine={false}
+            interval={isMobile ? "preserveStartEnd" : 0}
+            minTickGap={isMobile ? 20 : 8}
           />
 
           <YAxis
-            tick={{ fontSize: 12 }}
+            tick={{
+              fontSize: isMobile ? 10 : 12,
+              fill: "#6b7280",
+              fontWeight: 500,
+            }}
             axisLine={false}
             tickLine={false}
             allowDecimals={false}
+            width={isMobile ? 24 : 32}
           />
 
           <Tooltip
             content={<CustomTooltip />}
-            cursor={{ fill: "rgba(0,0,0,0.04)" }}
+            cursor={isMobile ? false : { fill: "rgba(34,197,94,0.06)" }}
           />
 
           <Bar
             dataKey="in"
             stackId="movement"
-            fill="#22c55e" // green-500
+            fill="#22c55e"
             radius={[4, 4, 0, 0]}
-            name="Stock In"
+            maxBarSize={isMobile ? 14 : 28}
           />
-
           <Bar
             dataKey="out"
             stackId="movement"
-            fill="#ef4444" // red-500
+            fill="#ef4444"
             radius={[4, 4, 0, 0]}
-            name="Stock Out"
+            maxBarSize={isMobile ? 14 : 28}
           />
         </BarChart>
       </ResponsiveContainer>
@@ -77,6 +105,23 @@ export default function StockMovementTrendChart({
 /* Helpers */
 /* -------------------------------- */
 
+function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(
+    () => window.matchMedia(query).matches
+  );
+
+  useEffect(() => {
+    const media = window.matchMedia(query);
+
+    const listener = () => setMatches(media.matches);
+    media.addEventListener("change", listener);
+
+    return () => media.removeEventListener("change", listener);
+  }, [query]);
+
+  return matches;
+}
+
 function formatDate(value: string) {
   const date = new Date(value);
   return date.toLocaleDateString(undefined, {
@@ -86,6 +131,7 @@ function formatDate(value: string) {
 }
 
 import type { Payload } from "recharts/types/component/DefaultTooltipContent";
+import { useEffect, useState } from "react";
 
 function CustomTooltip({
   active,
@@ -100,16 +146,59 @@ function CustomTooltip({
 
   const inValue = payload.find((p) => p.dataKey === "in")?.value ?? 0;
   const outValue = payload.find((p) => p.dataKey === "out")?.value ?? 0;
+  const net = inValue - outValue;
 
   return (
-    <div className="bg-white border rounded-md px-3 py-2 shadow-sm text-xs">
-      <p className="font-medium text-gray-900 mb-1">{formatDate(label!)}</p>
-
-      <div className="flex flex-col gap-0.5">
-        <span className="text-green-600">In: {inValue}</span>
-        <span className="text-red-600">Out: {outValue}</span>
-        <span className="text-gray-700 font-semibold border-t pt-1 mt-1">
-          Net: {inValue - outValue}
+    <div className="bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-lg text-xs min-w-[140px]">
+      <p className="font-semibold text-gray-900 mb-2 text-sm">
+        {formatDate(label!)}
+      </p>
+      <div className="flex flex-col gap-1">
+        <span className="flex items-center gap-2 text-green-600">
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24">
+            <path
+              d="M12 4v16m0 0l-6-6m6 6l6-6"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          In: <span className="font-bold">{inValue}</span>
+        </span>
+        <span className="flex items-center gap-2 text-red-600">
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24">
+            <path
+              d="M12 20V4m0 0l6 6m-6-6L6 10"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          Out: <span className="font-bold">{outValue}</span>
+        </span>
+        <span
+          className={`flex items-center gap-2 font-semibold border-t pt-2 mt-2 ${
+            net >= 0 ? "text-green-700" : "text-red-700"
+          }`}
+        >
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24">
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            />
+            <path
+              d="M8 12h8"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+          </svg>
+          Net: <span>{net}</span>
         </span>
       </div>
     </div>
