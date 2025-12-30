@@ -1,6 +1,9 @@
 import prisma from "../db/prisma";
+import { WeeklyProductStat } from "../domain/dashboard-metrics";
 
-export async function getWeeklyProductStats(userId: string) {
+export async function getWeeklyProductStats(
+  userId: string
+): Promise<WeeklyProductStat[]> {
   const products = await prisma.product.findMany({
     where: { userId },
     select: { createdAt: true },
