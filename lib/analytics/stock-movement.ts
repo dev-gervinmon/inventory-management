@@ -4,6 +4,7 @@ import {
   StockMovementReason,
   StockMovementSummary,
   StockMovementTrend,
+  StockMovementTrendIndicator,
   TopMovingProduct,
 } from "../domain/stock-movement";
 
@@ -32,6 +33,13 @@ function fillMissingDays(
   }
 
   return result;
+}
+
+function calculatePercentageChange(current: number, previous: number): number {
+  if (previous === 0) {
+    return current === 0 ? 0 : 100;
+  }
+  return ((current - previous) / Math.abs(previous)) * 100;
 }
 
 export async function getStockMovements(
@@ -115,6 +123,34 @@ export async function getStockMovementTrend(
   const filled = fillMissingDays(raw, days);
   filled.sort((a, b) => a.date.localeCompare(b.date));
   return filled;
+}
+
+export async function getStockMovementTrendIndicator(
+  userId: string,
+  days = 14
+): Promise<StockMovementTrendIndicator> {
+  const current = await getStockMovements(userId, days);
+  const previous = await getStockMovements(userId, days * 2);
+
+  const currentNet = current.netChange;
+  const previousNet = previous.netChange - currentNet;
+
+  const change = calculatePercentageChange(currentNet, previousNet);
+
+  let direction: "up" | "down" | "flat" = "flat";
+  if (change > 5) direction = "up";
+  else if (change < -5) direction = "down";
+
+  return {
+    direction,
+    percentage: Math.abs(Math.round(change)),
+    label:
+      direction === "flat"
+        ? "No significant change"
+        : direction === "up"
+        ? "Stock movement increasing"
+        : "Stock movement decreasing",
+  };
 }
 
 export async function getTopMovingProducts(
