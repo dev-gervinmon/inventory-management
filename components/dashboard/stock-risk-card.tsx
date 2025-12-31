@@ -1,6 +1,7 @@
 import { ITEM_SEVERITY_COLOR, RISK_STYLES } from "@/lib/constants/dashboard";
 import { StockRiskItem } from "@/lib/types/dashboard";
 import Link from "next/link";
+import clsx from "clsx";
 
 interface StockRiskCardProps {
   totalAtRisk: number;
@@ -23,230 +24,133 @@ export default function StockRiskCard({
     ? "high"
     : "medium";
 
-  const color = RISK_STYLES[riskLevel];
+  const containerColor = RISK_STYLES[riskLevel];
+
+  const ctaStyles =
+    outOfStock > 0
+      ? "from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600"
+      : lowStock > 0
+      ? "from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600"
+      : "from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600";
 
   return (
     <div
-      className={`bg-white rounded-lg border p-4 sm:p-5 md:p-6 hover:border-gray-300 hover:shadow-sm transition-all duration-200 flex flex-col justify-between ${color}`}
+      className={clsx(
+        "bg-white rounded-xl border p-4 sm:p-5 md:p-6 transition-all duration-200 flex flex-col",
+        "hover:shadow-sm hover:border-gray-300",
+        containerColor
+      )}
     >
-      {/* Healthy State */}
+      {/* ================= Healthy State ================= */}
       {isHealthy ? (
-        <div className="flex flex-col items-center justify-center text-center py-8 sm:py-12 px-2 sm:px-6">
-          <div className="relative flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 mb-4">
-            {/* Subtle glowing effect */}
-            <span className="absolute inset-0 rounded-full bg-green-400 opacity-15 blur-xl" />
-            <span className="relative flex items-center justify-center w-full h-full rounded-full bg-green-50 border-4 border-green-100 shadow-inner">
+        <div className="flex flex-col items-center justify-center text-center py-6 sm:py-8">
+          <div className="relative mb-3">
+            <span className="absolute inset-0 rounded-full bg-green-400/20 blur-lg" />
+            <div className="relative flex items-center justify-center w-16 h-16 rounded-full bg-green-50 border border-green-200">
               <svg
-                className="w-12 h-12 sm:w-16 sm:h-16 text-green-500"
+                className="w-8 h-8 text-green-600"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="3"
+                strokeWidth="2.5"
                 viewBox="0 0 24 24"
               >
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="#22c55e"
-                  strokeWidth="2.5"
-                  fill="#bbf7d0"
-                />
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="M8 12.5l3 3 5-5"
-                  stroke="#22c55e"
-                  strokeWidth="3"
+                  d="M5 13l4 4L19 7"
                 />
               </svg>
-            </span>
+            </div>
           </div>
-          <h4 className="text-lg sm:text-2xl font-bold text-green-700 mb-1 tracking-tight">
-            All Stocks Healthy
+
+          <h4 className="text-lg sm:text-xl font-semibold text-green-700">
+            Inventory Healthy
           </h4>
-          <p className="text-sm sm:text-base text-gray-600 font-medium mb-1">
+          <p className="mt-1 text-sm text-gray-600">
             No low or out-of-stock items detected
-          </p>
-          <p className="text-xs sm:text-sm text-gray-400">
-            Your inventory is in great shape. Keep it up!
           </p>
         </div>
       ) : (
-        <div className="flex flex-col gap-4">
-          {/* Header with icon and badge */}
-          <div className="flex items-center justify-between mb-2">
+        <>
+          {/* ================= Header ================= */}
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              {/* Icon circle and icon color based on urgency */}
               <div
-                className={`flex items-center justify-center w-10 h-10 rounded-full border-2 shadow-inner
-                  ${
-                    outOfStock > 0
-                      ? "bg-linear-to-tr from-red-100 to-pink-100 border-red-200"
-                      : lowStock > 0
-                      ? "bg-linear-to-tr from-yellow-100 to-yellow-50 border-yellow-300"
-                      : "bg-linear-to-tr from-green-100 to-green-50 border-green-300"
-                  }
-                `}
-              >
-                {outOfStock > 0 ? (
-                  <svg
-                    className="w-6 h-6 text-red-500"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="#ef4444"
-                      strokeWidth="2.5"
-                      fill="#fee2e2"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 9v2m0 4h.01"
-                      stroke="#ef4444"
-                      strokeWidth="2.5"
-                    />
-                  </svg>
-                ) : lowStock > 0 ? (
-                  <svg
-                    className="w-6 h-6 text-yellow-500"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="#eab308"
-                      strokeWidth="2.5"
-                      fill="#fef9c3"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 8v4m0 4h.01"
-                      stroke="#eab308"
-                      strokeWidth="2.5"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    className="w-6 h-6 text-green-500"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="#22c55e"
-                      strokeWidth="2.5"
-                      fill="#bbf7d0"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M8 12.5l3 3 5-5"
-                      stroke="#22c55e"
-                      strokeWidth="2.5"
-                    />
-                  </svg>
-                )}
-              </div>
-              <h4
-                className={`text-lg sm:text-xl font-bold tracking-tight
-                ${
+                className={clsx(
+                  "flex items-center justify-center w-9 h-9 rounded-full border",
                   outOfStock > 0
-                    ? "text-red-700"
-                    : lowStock > 0
-                    ? "text-yellow-700"
-                    : "text-green-700"
-                }`}
+                    ? "bg-red-50 border-red-200 text-red-600"
+                    : "bg-yellow-50 border-yellow-200 text-yellow-600"
+                )}
               >
-                Stock Risk Overview
-              </h4>
+                {outOfStock > 0 ? "⛔" : "⚠️"}
+              </div>
+              <div>
+                <h4 className="text-base sm:text-lg font-semibold text-gray-900">
+                  Stock Risk Overview
+                </h4>
+                <p className="text-xs text-gray-500">
+                  Items requiring attention
+                </p>
+              </div>
             </div>
+
             <span
-              className={`text-xs font-semibold px-3 py-1 rounded-full border shadow-sm
-              ${
+              className={clsx(
+                "text-xs font-semibold px-2.5 py-1 rounded-full border",
                 outOfStock > 0
-                  ? "bg-linear-to-tr from-red-100 to-pink-100 text-red-700 border-red-200"
-                  : lowStock > 0
-                  ? "bg-linear-to-tr from-yellow-100 to-yellow-50 text-yellow-800 border-yellow-300"
-                  : "bg-linear-to-tr from-green-100 to-green-50 text-green-700 border-green-300"
-              }`}
+                  ? "bg-red-50 text-red-700 border-red-200"
+                  : "bg-yellow-50 text-yellow-700 border-yellow-200"
+              )}
             >
               {totalAtRisk} at risk
             </span>
           </div>
 
-          {/* Risk Summary */}
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-1">
+          {/* ================= Summary ================= */}
+          <div className="flex flex-col sm:flex-row gap-2 mb-3">
             {outOfStock > 0 && (
-              <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2 flex-1 min-w-0">
-                <span className="text-red-600 text-xl">⛔</span>
-                <span className="text-sm font-semibold text-red-700 truncate">
+              <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2 flex-1">
+                <span className="text-red-600">⛔</span>
+                <span className="text-sm font-medium text-red-700">
                   {outOfStock} out of stock
                 </span>
               </div>
             )}
             {lowStock > 0 && (
-              <div className="flex items-center gap-2 bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 flex-1 min-w-0">
-                <span className="text-yellow-500 text-xl">⚠️</span>
-                <span className="text-sm font-semibold text-yellow-700 truncate">
+              <div className="flex items-center gap-2 bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 flex-1">
+                <span className="text-yellow-600">⚠️</span>
+                <span className="text-sm font-medium text-yellow-700">
                   {lowStock} low stock
                 </span>
               </div>
             )}
           </div>
 
-          {/* Critical Items */}
+          {/* ================= Critical Items ================= */}
           {items.length > 0 && (
-            <div className="mb-1">
-              <div className="text-xs font-semibold text-gray-600 mb-1 pl-1">
+            <div className="mb-4">
+              <div className="text-xs font-semibold text-gray-500 mb-2">
                 Critical items
               </div>
-              <ul className="max-h-28 overflow-y-auto divide-y divide-gray-100">
+              <ul className="max-h-28 overflow-y-auto divide-y divide-gray-100 pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
                 {items.slice(0, 3).map((item) => (
                   <li key={item.id}>
                     <Link
                       href={`/inventory/${item.id}/edit-product`}
-                      className="flex items-center gap-2 py-2 px-2 rounded-lg group hover:bg-gray-50 transition-colors"
+                      className="flex items-center gap-2 py-2 px-2 rounded-lg transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500"
                     >
                       <span
-                        className={`inline-block w-2 h-2 rounded-full ${
+                        className={clsx(
+                          "w-2.5 h-2.5 rounded-full shrink-0",
                           ITEM_SEVERITY_COLOR[item.severity]
-                        }`}
+                        )}
                       />
-                      <span className="truncate text-xs sm:text-sm text-gray-800 font-semibold underline group-hover:underline">
+                      <span className="truncate text-sm font-medium text-gray-800">
                         {item.name}
                       </span>
-                      <span className="ml-auto text-xs sm:text-sm text-gray-500">
+                      <span className="ml-auto text-xs text-gray-500">
                         {item.quantity === 0 ? "Out" : `Low (${item.quantity})`}
-                      </span>
-                      <span className="ml-1 text-gray-400 group-hover:text-gray-700 transition-colors">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M9 5l7 7-7 7"
-                          />
-                        </svg>
                       </span>
                     </Link>
                   </li>
@@ -255,14 +159,18 @@ export default function StockRiskCard({
             </div>
           )}
 
-          {/* CTA */}
+          {/* ================= CTA ================= */}
           <Link
             href="/inventory?filter=critical"
-            className="mt-2 inline-block w-full px-4 py-2 rounded-lg bg-linear-to-r from-red-500 to-pink-500 text-white text-sm font-bold shadow hover:from-red-600 hover:to-pink-600 transition-colors text-center tracking-tight"
+            className={clsx(
+              "mt-auto inline-flex items-center justify-center w-full px-4 py-2 rounded-lg",
+              "bg-linear-to-r text-white text-sm font-semibold shadow-sm transition-colors",
+              ctaStyles
+            )}
           >
-            Review all critical items
+            Review critical items
           </Link>
-        </div>
+        </>
       )}
     </div>
   );
