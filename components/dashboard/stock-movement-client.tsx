@@ -2,43 +2,49 @@
 
 import { useState, useTransition } from "react";
 import { AnalyticsPeriod } from "@/lib/domain/period";
-import { StockMovementAnalytics } from "@/lib/domain/stock-movement";
+import {
+  StockMovementAnalytics,
+  StockMovementTrendIndicator,
+} from "@/lib/domain/stock-movement";
 
 import PeriodSelector from "./period-selector";
 import TrendIndicator from "../common/trend-indicator";
 import StockMovementTrendChart from "../charts/stock-movement-trend-chart";
+
+/* ────────────────────────────────────────────── */
+/* Types */
+/* ────────────────────────────────────────────── */
 
 interface Props {
   initialAnalytics: StockMovementAnalytics;
   initialPeriod: AnalyticsPeriod;
 }
 
+/* ────────────────────────────────────────────── */
+/* Main Component */
+/* ────────────────────────────────────────────── */
+
 export default function StockMovementClient({
   initialAnalytics,
   initialPeriod,
 }: Props) {
-  const [period, setPeriod] = useState<AnalyticsPeriod>(initialPeriod);
+  const [period, setPeriod] = useState(initialPeriod);
   const [analytics, setAnalytics] =
     useState<StockMovementAnalytics>(initialAnalytics);
   const [isPending, startTransition] = useTransition();
 
   const { summary, trends, topMovingProducts, trendIndicator } = analytics;
 
-  async function fetchAnalytics(period: AnalyticsPeriod) {
-    const res = await fetch(`/api/analytics/stock-movement?period=${period}`, {
+  async function fetchAnalytics(next: AnalyticsPeriod) {
+    const res = await fetch(`/api/analytics/stock-movement?period=${next}`, {
       cache: "no-store",
     });
-
-    if (!res.ok) {
-      throw new Error("Failed to fetch stock movement analytics");
-    }
-
+    if (!res.ok) throw new Error("Failed to fetch stock movement analytics");
     return res.json() as Promise<StockMovementAnalytics>;
   }
 
   function handlePeriodChange(next: AnalyticsPeriod) {
     setPeriod(next);
-
     startTransition(async () => {
       const nextAnalytics = await fetchAnalytics(next);
       setAnalytics(nextAnalytics);
@@ -49,97 +55,190 @@ export default function StockMovementClient({
     summary.totalIn > 0 || summary.totalOut > 0 || topMovingProducts.length > 0;
 
   if (!hasData) {
-    return (
-      <div className="p-6 bg-white rounded-xl border border-gray-100 shadow-sm text-center">
-        <h3 className="font-semibold text-gray-700 mb-1">Stock Movement</h3>
-        <p className="text-sm text-gray-400">
-          No stock movement data available.
-        </p>
-      </div>
-    );
+    return <EmptyState />;
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6 flex flex-col gap-5 transition-opacity">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="w-8 h-8 rounded-full bg-green-50 text-green-600 flex items-center justify-center">
-            ↑↓
-          </span>
-          <h3 className="font-semibold text-gray-900">Stock Movement</h3>
-        </div>
+    <section
+      className="relative rounded-2xl border border-gray-200 dark:border-gray-800
+                 bg-white dark:bg-gray-900 p-4 sm:p-6 shadow-sm"
+      aria-busy={isPending}
+      aria-live="polite"
+    >
+      <Header
+        period={period}
+        onPeriodChange={handlePeriodChange}
+        trend={trendIndicator}
+        isLoading={isPending}
+      />
 
-        <div className="flex items-center gap-3">
-          <PeriodSelector value={period} onChange={handlePeriodChange} />
-          <TrendIndicator
-            direction={trendIndicator.direction}
-            percentage={trendIndicator.percentage}
-            label="vs previous"
-            size="sm"
-            isLoading={isPending}
-          />
-        </div>
+      <SummaryGrid summary={summary} />
+
+      <div className="mt-4 min-h-[220px]">
+        {isPending ? (
+          <ChartSkeleton />
+        ) : (
+          <StockMovementTrendChart data={trends} />
+        )}
       </div>
 
-      {/* Summary */}
-      <div className="grid grid-cols-3 gap-3 text-center">
-        <Summary label="In" value={summary.totalIn} color="text-green-600" />
-        <Summary label="Out" value={summary.totalOut} color="text-red-600" />
-        <Summary
-          label="Net"
-          value={summary.netChange}
-          color={summary.netChange >= 0 ? "text-green-700" : "text-red-700"}
+      {topMovingProducts.length > 0 && (
+        <TopProducts products={topMovingProducts} period={period} />
+      )}
+    </section>
+  );
+}
+
+/* ────────────────────────────────────────────── */
+/* Header */
+/* ────────────────────────────────────────────── */
+
+function Header({
+  period,
+  onPeriodChange,
+  trend,
+  isLoading,
+}: {
+  period: AnalyticsPeriod;
+  onPeriodChange: (p: AnalyticsPeriod) => void;
+  trend: StockMovementTrendIndicator;
+  isLoading: boolean;
+}) {
+  return (
+    <header className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">
+        Stock Movement
+      </h2>
+
+      <div className="flex items-center gap-2 flex-wrap">
+        <PeriodSelector value={period} onChange={onPeriodChange} />
+        <TrendIndicator
+          direction={trend.direction}
+          percentage={trend.percentage}
+          label="vs previous"
+          size="sm"
+          isLoading={isLoading}
         />
       </div>
+    </header>
+  );
+}
 
-      {/* Chart */}
-      <div
-        className={`min-h-[220px] transition-opacity ${
-          isPending ? "opacity-60" : "opacity-100"
-        }`}
-      >
-        <StockMovementTrendChart data={trends} />
-      </div>
+/* ────────────────────────────────────────────── */
+/* Summary */
+/* ────────────────────────────────────────────── */
 
-      {/* Top products */}
-      {topMovingProducts.length > 0 && (
-        <div>
-          <p className="text-xs font-semibold text-gray-500 mb-2 uppercase">
-            Top Moving Products
-          </p>
-          <ul className="divide-y divide-gray-100">
-            {topMovingProducts.slice(0, 3).map((p, i) => (
-              <li
-                key={p.productId}
-                className="flex justify-between py-2 text-sm"
-              >
-                <span className="truncate font-medium text-gray-800">
-                  {i + 1}. {p.name}
-                </span>
-                <span className="text-xs text-gray-500">{p.totalMoved}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+function SummaryGrid({
+  summary,
+}: {
+  summary: StockMovementAnalytics["summary"];
+}) {
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      <Metric label="In" value={summary.totalIn} tone="success" />
+      <Metric label="Out" value={summary.totalOut} tone="danger" />
+      <Metric
+        label="Net"
+        value={summary.netChange}
+        tone={summary.netChange >= 0 ? "neutral" : "danger"}
+      />
     </div>
   );
 }
 
-function Summary({
+function Metric({
   label,
   value,
-  color,
+  tone,
 }: {
   label: string;
   value: number;
-  color: string;
+  tone: "success" | "danger" | "neutral";
+}) {
+  const tones = {
+    success: "text-green-600 dark:text-green-400",
+    danger: "text-red-600 dark:text-red-400",
+    neutral: "text-purple-700 dark:text-purple-300",
+  };
+
+  return (
+    <div
+      className="rounded-xl border border-gray-200 dark:border-gray-800
+                 bg-gray-50 dark:bg-gray-800/40 p-3 text-center"
+    >
+      <div className={`text-xl font-semibold ${tones[tone]}`}>{value}</div>
+      <div className="mt-0.5 text-xs uppercase tracking-wide text-gray-500">
+        {label}
+      </div>
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────── */
+/* Top Products */
+/* ────────────────────────────────────────────── */
+
+function TopProducts({
+  products,
+  period,
+}: {
+  products: StockMovementAnalytics["topMovingProducts"];
+  period: AnalyticsPeriod;
 }) {
   return (
-    <div>
-      <div className={`text-lg font-bold ${color}`}>{value}</div>
-      <div className="text-xs text-gray-500">{label}</div>
+    <div className="mt-6">
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+          Top Moving Products
+        </h3>
+        <span className="text-xs text-gray-500">
+          Last {String(period)} days
+        </span>
+      </div>
+
+      <ul className="divide-y divide-gray-200 dark:divide-gray-800 rounded-xl border border-gray-200 dark:border-gray-800">
+        {products.slice(0, 3).map((p, i) => (
+          <li
+            key={p.productId}
+            className="flex items-center justify-between px-3 py-2"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-xs font-mono text-gray-400">#{i + 1}</span>
+              <span className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
+                {p.name}
+              </span>
+            </div>
+
+            <span className="text-sm font-mono text-gray-700 dark:text-gray-300">
+              {p.totalMoved}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────── */
+/* Loading Skeletons */
+/* ────────────────────────────────────────────── */
+
+function ChartSkeleton() {
+  return (
+    <div className="h-[220px] rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
+  );
+}
+
+/* ────────────────────────────────────────────── */
+/* Empty State */
+/* ────────────────────────────────────────────── */
+
+function EmptyState() {
+  return (
+    <div className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-gray-50 text-center">
+      <p className="text-sm font-medium text-gray-600">
+        No stock movement data available
+      </p>
     </div>
   );
 }
