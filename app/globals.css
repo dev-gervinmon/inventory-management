@@ -1,130 +1,137 @@
 @import "tailwindcss";
 
-/* ---------------------------------------------
-   DESIGN TOKENS (Semantic, not literal colors)
----------------------------------------------- */
+/* =========================================================
+   DESIGN TOKENS — LIGHT MODE
+   ========================================================= */
+:root {
+  --brand: #6b40ff;
 
-@layer base {
-  :root {
-    /* ===== LIGHT MODE ===== */
+  --canvas: #f6f7fb;
+  --surface: #ffffff;
+  --surface-elevated: #ffffff;
 
-    /* Canvas / Backgrounds */
-    --color-canvas: 248 249 251; /* soft gray, not pure white */
-    --color-canvas-muted: 242 244 247;
+  --border-subtle: #e5e7eb;
+  --border-strong: #d1d5db;
 
-    --color-surface: 255 255 255; /* cards, nav */
-    --color-surface-hover: 246 247 249;
-    --color-surface-elevated: 255 255 255;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-inverted: #ffffff;
 
-    /* Borders */
-    --color-border-subtle: 229 231 235;
-    --color-border-default: 222 225 230;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+}
 
-    /* Text */
-    --color-text-primary: 17 24 39;
-    --color-text-secondary: 75 85 99;
-    --color-text-muted: 107 114 128;
+/* =========================================================
+   DESIGN TOKENS — DARK MODE
+   ========================================================= */
+.dark {
+  --brand: #8a63ff;
 
-    /* Brand */
-    --color-brand: 124 58 237; /* purple-600 */
-    --color-brand-hover: 109 40 217;
+  --canvas: #0b0f19;
+  --surface: #111827;
+  --surface-elevated: #1f2937;
 
-    /* Utility */
-    --color-focus: 124 58 237;
+  --border-subtle: #1f2937;
+  --border-strong: #374151;
+
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --text-inverted: #0b0f19;
+
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+}
+
+/* =========================================================
+   HTML / BODY PRIMITIVES (IMPORTANT)
+   ========================================================= */
+html {
+  color-scheme: light dark;
+
+  /* 👇 Explicitly re-expose vars for browser UI */
+  --scrollbar-thumb: var(--border-strong);
+}
+
+body {
+  background-color: var(--canvas);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* =========================================================
+   SCROLLBAR — SAFE IMPLEMENTATION
+   ========================================================= */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 9999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+/* =========================================================
+   SELECTION
+   ========================================================= */
+::selection {
+  background-color: color-mix(in oklab, var(--brand) 30%, transparent);
+}
+
+/* =========================================================
+   OPTIONAL UTILITIES
+   ========================================================= */
+@layer utilities {
+  .bg-glass {
+    background-color: color-mix(in oklab, var(--surface) 70%, transparent);
+    backdrop-filter: blur(12px);
   }
 
-  .dark {
-    /* ===== DARK MODE ===== */
-
-    --color-canvas: 10 10 11;
-    --color-canvas-muted: 14 14 16;
-
-    --color-surface: 18 18 20;
-    --color-surface-hover: 26 26 28;
-    --color-surface-elevated: 22 22 24;
-
-    --color-border-subtle: 39 39 42;
-    --color-border-default: 63 63 70;
-
-    --color-text-primary: 244 244 245;
-    --color-text-secondary: 161 161 170;
-    --color-text-muted: 113 113 122;
-
-    --color-brand: 167 139 250; /* purple-400 */
-    --color-brand-hover: 192 132 252;
-
-    --color-focus: 167 139 250;
-  }
-
-  html {
-    color-scheme: light dark;
-  }
-
-  body {
-    @apply antialiased;
-    background-color: rgb(var(--color-canvas));
-    color: rgb(var(--color-text-primary));
+  .text-gradient-brand {
+    background-image: linear-gradient(
+      90deg,
+      var(--brand),
+      color-mix(in oklab, var(--brand) 60%, white)
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
   }
 }
 
-/* ---------------------------------------------
-   SEMANTIC UTILITY CLASSES
----------------------------------------------- */
-
-@layer utilities {
-  /* Backgrounds */
-  .bg-canvas {
-    background-color: rgb(var(--color-canvas));
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
   }
-
-  .bg-canvas-muted {
-    background-color: rgb(var(--color-canvas-muted));
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
+}
 
-  .bg-surface {
-    background-color: rgb(var(--color-surface));
+@keyframes floatSlow {
+  0%,
+  100% {
+    transform: translateY(0);
   }
-
-  .bg-surface-hover {
-    background-color: rgb(var(--color-surface-hover));
-  }
-
-  .bg-surface-elevated {
-    background-color: rgb(var(--color-surface-elevated));
-  }
-
-  /* Text */
-  .text-primary {
-    color: rgb(var(--color-text-primary));
-  }
-
-  .text-secondary {
-    color: rgb(var(--color-text-secondary));
-  }
-
-  .text-muted {
-    color: rgb(var(--color-text-muted));
-  }
-
-  /* Borders */
-  .border-subtle {
-    border-color: rgb(var(--color-border-subtle));
-  }
-
-  .border-default {
-    border-color: rgb(var(--color-border-default));
-  }
-
-  /* Brand */
-  .text-brand {
-    color: rgb(var(--color-brand));
-  }
-
-  .bg-brand {
-    background-color: rgb(var(--color-brand));
-  }
-
-  .bg-brand-hover:hover {
-    background-color: rgb(var(--color-brand-hover));
+  50% {
+    transform: translateY(-14px);
   }
 }
