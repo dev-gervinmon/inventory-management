@@ -1,6 +1,5 @@
 import { Badge } from "@/components/common/badge";
 import { Card } from "@/components/common/card";
-import Image from "next/image";
 
 export function PreviewSection() {
   return (
@@ -75,7 +74,7 @@ export function PreviewSection() {
                   </div>
                 )}
                 {/* Image */}
-                <Image
+                <img
                   src={item.src}
                   alt={item.alt}
                   className="object-cover w-full h-full opacity-95 transition group-hover:scale-[1.03] group-hover:opacity-100 duration-300"
@@ -87,7 +86,6 @@ export function PreviewSection() {
                     e.currentTarget.src = item.fallback;
                   }}
                   loading="eager"
-                  unoptimized={item.src.startsWith("http")}
                 />
               </div>
               <span
