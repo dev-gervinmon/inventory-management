@@ -1,6 +1,4 @@
 import { Badge } from "@/components/common/badge";
-import { Card } from "@/components/common/card";
-import Image from "next/image";
 
 export function SocialProofSection() {
   return (
@@ -17,7 +15,7 @@ export function SocialProofSection() {
             Social Proof & Metrics
           </h2>
           <p className="mt-6 text-lg text-(--text-secondary)">
-            InventoryApp is powering businesses of all sizes, everywhere. Here’s
+            InventoryApp is powering businesses of all sizes, everywhere. Here`s
             a snapshot of our growing community and their success stories.
           </p>
         </div>
@@ -54,7 +52,7 @@ export function SocialProofSection() {
             "/logo4.svg",
             "/logo5.svg",
           ].map((src, i) => (
-            <Image
+            <img
               key={src}
               src={src}
               alt={`Customer logo ${i + 1}`}
@@ -65,54 +63,106 @@ export function SocialProofSection() {
                 e.currentTarget.onerror = null;
                 e.currentTarget.src = "https://placehold.co/120x40?text=Logo";
               }}
-              unoptimized={src.startsWith("http")}
             />
           ))}
         </div>
 
-        {/* Testimonial Card */}
-        <div
-          className="max-w-2xl mx-auto animate-fade-in"
-          style={{ animationDelay: "300ms" }}
-        >
-          <Card className="p-8 flex flex-col items-center text-center bg-white/70 dark:bg-black/30 backdrop-blur-xl rounded-2xl shadow-xl border border-(--border-subtle)">
-            <div className="flex items-center gap-3 mb-4">
-              <Image
-                src="/avatar-demo.jpg"
-                alt="Customer"
-                className="w-12 h-12 rounded-full border-2 border-(--brand) shadow"
-                width={48}
-                height={48}
-                onError={(e) => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src = "https://placehold.co/48x48?text=User";
-                }}
-              />
-              <div className="text-left">
+        {/* Modern/Futuristic Testimonials Carousel */}
+        <div className="relative max-w-5xl mx-auto mt-10">
+          <div className="absolute -inset-2 -z-10 bg-gradient-to-r from-(--brand)/30 via-(--surface-elevated)/60 to-(--brand)/30 blur-2xl rounded-3xl animate-gradient-x" />
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                name: "Jane Doe",
+                title: "COO, ExampleCorp",
+                avatar: "/avatar-demo.jpg",
+                text: "InventoryApp transformed our operations. The real-time insights and seamless integrations are a game changer for our team!",
+              },
+              {
+                name: "Carlos Rivera",
+                title: "Inventory Lead, FreshMart",
+                avatar: "/avatar-demo2.jpg",
+                text: "We reduced stockouts by 40% in the first month. The dashboard is beautiful and the mobile experience is top-notch.",
+              },
+              {
+                name: "Aisha Bello",
+                title: "Founder, Bello Supplies",
+                avatar: "/avatar-demo3.jpg",
+                text: "Setup was instant, and the analytics help us make smarter decisions every day. Highly recommended!",
+              },
+              {
+                name: "Liam Chen",
+                title: "Ops Manager, Techify",
+                avatar: "/avatar-demo4.jpg",
+                text: "The automation features save us hours weekly. Support is responsive and genuinely helpful.",
+              },
+              {
+                name: "Sofia Rossi",
+                title: "Logistics, Rossi Retail",
+                avatar: "/avatar-demo5.jpg",
+                text: "Love the futuristic UI and how easy it is to onboard new staff. InventoryApp is a must-have!",
+              },
+              {
+                name: "David Kim",
+                title: "Warehouse Lead, KimCo",
+                avatar: "/avatar-demo6.jpg",
+                text: "We finally have a single source of truth for all our inventory. The metrics and alerts are spot on.",
+              },
+            ].map((t, i) => (
+              <div
+                key={t.name}
+                className="relative group bg-white/70 dark:bg-black/30 backdrop-blur-xl border border-(--border-subtle) rounded-2xl shadow-xl p-7 flex flex-col items-center text-center overflow-hidden hover:scale-[1.03] transition-transform duration-300 animate-fade-in"
+                style={{ animationDelay: `${i * 80}ms` }}
+              >
+                {/* Animated glass highlight */}
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-2/3 h-16 bg-gradient-to-r from-(--brand)/30 via-white/40 to-(--brand)/30 blur-2xl opacity-60 pointer-events-none" />
+                {/* Animated border pulse */}
+                <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-(--brand) transition-all duration-300 pointer-events-none" />
+                <img
+                  src={t.avatar}
+                  alt={t.name}
+                  className="w-14 h-14 rounded-full border-2 border-(--brand) shadow mb-3 object-cover"
+                  width={56}
+                  height={56}
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src =
+                      "https://placehold.co/56x56?text=User";
+                  }}
+                />
                 <div className="font-semibold text-(--text-primary)">
-                  Jane Doe
+                  {t.name}
                 </div>
-                <div className="text-xs text-(--text-secondary)">
-                  COO, ExampleCorp
+                <div className="text-xs text-(--text-secondary) mb-2">
+                  {t.title}
                 </div>
+                <div className="text-base italic text-(--text-secondary) relative z-10">
+                  “{t.text}”
+                </div>
+                {/* Futuristic animated accent */}
+                <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-(--brand) via-(--brand)/40 to-(--brand) opacity-60 animate-pulse" />
               </div>
-            </div>
-            <div className="text-lg italic text-(--text-secondary)">
-              “InventoryApp transformed our operations. The real-time insights
-              and seamless integrations are a game changer for our team!”
-            </div>
-          </Card>
+            ))}
+          </div>
         </div>
       </div>
       <style>{`
-          @keyframes fade-in {
-            from { opacity: 0; transform: translateY(32px); }
-            to { opacity: 1; transform: none; }
-          }
-          .animate-fade-in {
-            animation: fade-in 0.8s cubic-bezier(.4,0,.2,1) both;
-          }
-        `}</style>
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(32px); }
+          to { opacity: 1; transform: none; }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.8s cubic-bezier(.4,0,.2,1) both;
+        }
+        @keyframes gradient-x {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        .animate-gradient-x {
+          background-size: 200% 200%;
+          animation: gradient-x 8s ease-in-out infinite;
+        }
+      `}</style>
     </section>
   );
 }
