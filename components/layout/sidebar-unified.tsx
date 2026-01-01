@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: BarChart3 },
@@ -21,23 +22,17 @@ const navigation = [
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
-export default function Sidebar({
-  collapsed,
-  setCollapsed,
-  mobileOpen,
-  setMobileOpen,
-}: {
-  collapsed: boolean;
-  setCollapsed: (c: boolean) => void;
-  mobileOpen: boolean;
-  setMobileOpen: (open: boolean) => void;
-}) {
+export default function Sidebar() {
   const pathname = usePathname();
+  const [collapsed, setCollapsed] = useState(true);
+  const [mobileOpen, setMobileOpen] = useState(false);
   // Desktop Sidebar
   const sidebarContent = (
     <div
-      className={`bg-gray-900 cursor-pointer text-white min-h-screen p-3 z-30 hidden lg:flex flex-col fixed left-0 top-5 group ${
-        collapsed ? "sidebar-collapsed" : "sidebar-expanded"
+      className={`bg-gray-900 text-white min-h-screen p-3 z-30 hidden lg:flex flex-col fixed left-0 top-(--top-nav-height) ${
+        collapsed
+          ? "w-(--sidebar-width-collapsed)"
+          : "w-(--sidebar-width-expanded)"
       }`}
       onClick={(e) => {
         // Only expand/collapse if not clicking a link or its children
