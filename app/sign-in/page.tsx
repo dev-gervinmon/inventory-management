@@ -28,7 +28,7 @@ export default function SignInPage() {
         </div>
         {/* Auth form */}
         <div className="w-full">
-          <SignIn />
+          <SignIn automaticRedirect={true} />{" "}
         </div>
         {/* Go back link */}
         <Link
