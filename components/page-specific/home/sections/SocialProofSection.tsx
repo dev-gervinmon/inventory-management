@@ -69,7 +69,7 @@ export function SocialProofSection() {
 
         {/* Modern/Futuristic Testimonials Carousel */}
         <div className="relative max-w-5xl mx-auto mt-10">
-          <div className="absolute -inset-2 -z-10 bg-gradient-to-r from-(--brand)/30 via-(--surface-elevated)/60 to-(--brand)/30 blur-2xl rounded-3xl animate-gradient-x" />
+          <div className="absolute -inset-2 -z-10 bg-linear-to-r from-(--brand)/30 via-(--surface-elevated)/60 to-(--brand)/30 blur-2xl rounded-3xl animate-gradient-x" />
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {[
               {
@@ -115,7 +115,7 @@ export function SocialProofSection() {
                 style={{ animationDelay: `${i * 80}ms` }}
               >
                 {/* Animated glass highlight */}
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-2/3 h-16 bg-gradient-to-r from-(--brand)/30 via-white/40 to-(--brand)/30 blur-2xl opacity-60 pointer-events-none" />
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-2/3 h-16 bg-linear-to-r from-(--brand)/30 via-white/40 to-(--brand)/30 blur-2xl opacity-60 pointer-events-none" />
                 {/* Animated border pulse */}
                 <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-(--brand) transition-all duration-300 pointer-events-none" />
                 <img
@@ -140,7 +140,7 @@ export function SocialProofSection() {
                   “{t.text}”
                 </div>
                 {/* Futuristic animated accent */}
-                <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-(--brand) via-(--brand)/40 to-(--brand) opacity-60 animate-pulse" />
+                <div className="absolute bottom-0 left-0 w-full h-1 bg-linear-to-r from-(--brand) via-(--brand)/40 to-(--brand) opacity-60 animate-pulse" />
               </div>
             ))}
           </div>
