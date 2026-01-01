@@ -1,7 +1,7 @@
 import { Skeleton } from "../skeletons/skeleton";
 import { BarChart3 } from "lucide-react";
 import { UserButton } from "@stackframe/stack";
-import NotificationButton from "../common/notification-button";
+import NotificationButton from "../layout/top-nav/notification-button";
 
 /**
  * TopNavBarSkeleton
