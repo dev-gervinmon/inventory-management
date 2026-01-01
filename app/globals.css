@@ -47,6 +47,25 @@
 }
 
 /* =========================================================
+   LAYOUT TOKENS
+   ========================================================= */
+:root {
+  /* Sidebar widths */
+  --sidebar-width-expanded: 16rem; /* 256px */
+  --sidebar-width-collapsed: 3.75rem; /* 60px */
+
+  /* Top nav height */
+  --top-nav-height: 4rem; /* 64px */
+}
+
+.dark {
+  /* Usually identical, but overridable if needed */
+  --sidebar-width-expanded: 16rem;
+  --sidebar-width-collapsed: 3.75rem;
+  --top-nav-height: 4rem;
+}
+
+/* =========================================================
    HTML / BODY PRIMITIVES (IMPORTANT)
    ========================================================= */
 html {
