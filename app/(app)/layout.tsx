@@ -1,6 +1,5 @@
 import "@/styles/theme.css";
-import AppShellClient from "@/components/clients/app-shell-client";
-import TopNavBarServer from "@/components/layout/top-navbar-server";
+import AppShell from "@/components/clients/app-shell-client";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -12,8 +11,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         antialiased
       "
     >
-      <TopNavBarServer />
-      <AppShellClient>{children}</AppShellClient>
+      <AppShell>{children}</AppShell>
     </div>
   );
 }
