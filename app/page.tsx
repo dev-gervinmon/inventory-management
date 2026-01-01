@@ -5,24 +5,13 @@ import { HeroSection } from "@/components/page-specific/home/sections/HeroSectio
 import { FeaturesSection } from "@/components/page-specific/home/sections/FeaturesSection";
 import { PreviewSection } from "@/components/page-specific/home/sections/PreviewSection";
 import { SocialProofSection } from "@/components/page-specific/home/sections/SocialProofSection";
-import { Footer } from "@/components/footer/Footer";
+import { Footer } from "@/components/page-specific/home/sections/Footer";
 
 export default function HomePage() {
-  const [navSolid, setNavSolid] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     startTransition(() => setMounted(true));
-  }, []);
-
-  useEffect(() => {
-    const listener = () => {
-      const solid = window.scrollY > 20;
-      setNavSolid((prev) => (prev !== solid ? solid : prev));
-    };
-    listener();
-    window.addEventListener("scroll", listener);
-    return () => window.removeEventListener("scroll", listener);
   }, []);
 
   if (!mounted) {
