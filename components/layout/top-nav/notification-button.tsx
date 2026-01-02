@@ -78,18 +78,18 @@ export default function NotificationButton({
     <div className="relative" ref={containerRef}>
       <button
         ref={buttonRef}
-        className="cursor-pointer p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-150 shadow-sm"
+        className="cursor-pointer p-2 rounded-2xl bg-white/4 hover:bg-white/6 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
         aria-label="Open notifications"
         onClick={() => setOpen((v) => !v)}
       >
-        <Bell className="w-6 h-6 text-gray-700 dark:text-gray-200" />
+        <Bell className="w-5 h-5 text-gray-200" />
         {/* Notification dot */}
         <span className="absolute top-1 right-1 block w-2 h-2 bg-red-500 rounded-full animate-pulse" />
       </button>
       {/* Dropdown panel */}
       {open && (
-        <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-50 animate-fadeIn">
-          <div className="p-4 border-b border-gray-100 dark:border-gray-800 font-bold text-lg text-gray-900 dark:text-white tracking-tight">
+        <div className="absolute right-0 mt-2 w-80 bg-gray-950/95 backdrop-blur border border-white/10 rounded-xl shadow-2xl z-50 animate-fadeIn">
+          <div className="p-4 border-b border-white/10 font-bold text-lg text-white tracking-tight">
             Notifications
           </div>
           <Tabs
@@ -97,10 +97,10 @@ export default function NotificationButton({
               {
                 id: "alerts",
                 label: (
-                  <span className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 text-gray-900 dark:text-white">
+                  <span className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 text-white">
                     <AlertCircle className="w-4 h-4 text-red-600" /> Alerts
                     {stockItems.length > 0 && (
-                      <span className="ml-1 px-2 py-0.5 bg-red-100 text-red-700 text-xs font-semibold rounded-full">
+                      <span className="ml-1 px-2 py-0.5 bg-red-500/15 text-red-200 text-xs font-semibold rounded-full ring-1 ring-red-500/20">
                         {stockItems.length}
                       </span>
                     )}
@@ -110,10 +110,10 @@ export default function NotificationButton({
               {
                 id: "activities",
                 label: (
-                  <span className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 text-gray-900 dark:text-white">
+                  <span className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 text-white">
                     <ActivityIcon className="w-4 h-4 text-blue-600" /> Activity
                     {activities.length > 0 && (
-                      <span className="ml-1 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                      <span className="ml-1 px-2 py-0.5 bg-blue-500/15 text-blue-200 text-xs font-semibold rounded-full ring-1 ring-blue-500/20">
                         {activities.length}
                       </span>
                     )}
@@ -126,7 +126,7 @@ export default function NotificationButton({
             <TabPanel tabId="alerts">
               <div className="p-2 sm:p-3">
                 <div className="flex items-center mb-2 justify-between">
-                  <span className="text-sm font-bold text-gray-900 dark:text-white">
+                  <span className="text-sm font-bold text-white">
                     Critical Alerts
                   </span>
                   {stockItems.length > 0 && (
@@ -169,7 +169,7 @@ export default function NotificationButton({
             <TabPanel tabId="activities">
               <div className="p-2 sm:p-3">
                 <div className="flex items-center mb-2 justify-between">
-                  <span className="text-sm font-bold text-gray-900 dark:text-white">
+                  <span className="text-sm font-bold text-white">
                     Recent Activity
                   </span>
                   {activities.length > 0 && (
