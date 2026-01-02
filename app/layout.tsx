@@ -8,6 +8,20 @@ import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "./api/uploadthing/core";
 import { ThemeProvider } from "./theme-provider";
 
+const themeInitScript = `(() => {
+  try {
+    const stored = localStorage.getItem('theme');
+    const theme = (stored === 'light' || stored === 'dark')
+      ? stored
+      : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    const root = document.documentElement;
+    root.classList.remove('light', 'dark');
+    root.classList.add(theme);
+  } catch {
+    // no-op
+  }
+})();`;
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -30,15 +44,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body
         className={`
           ${geistSans.variable}
           ${geistMono.variable}
           antialiased
-          bg-gray-50
-          text-gray-900
-          dark:bg-black
-          dark:text-gray-100
         `}
       >
         <ThemeProvider>
