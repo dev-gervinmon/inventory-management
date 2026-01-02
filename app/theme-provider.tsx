@@ -12,9 +12,24 @@ type ThemeContextType = {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("light");
+  const [theme, setThemeState] = useState<Theme>(() => {
+    if (typeof document !== "undefined") {
+      const root = document.documentElement;
+      if (root.classList.contains("dark")) return "dark";
+      if (root.classList.contains("light")) return "light";
+    }
 
-  // Apply theme to <html>
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("theme") as Theme | null;
+      if (stored === "light" || stored === "dark") return stored;
+      return window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+    }
+
+    return "light";
+  });
+
   const applyTheme = (t: Theme) => {
     const root = document.documentElement;
     root.classList.remove("light", "dark");
@@ -22,27 +37,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   const setTheme = (t: Theme) => {
-    setThemeState(t);
     localStorage.setItem("theme", t);
-    applyTheme(t);
+    setThemeState(t);
   };
 
   useEffect(() => {
-    const stored = localStorage.getItem("theme") as Theme | null;
-
-    if (stored && stored !== theme) {
-      setThemeState(stored);
-      applyTheme(stored);
-    } else if (!stored) {
-      const prefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      ).matches;
-      const systemTheme: Theme = prefersDark ? "dark" : "light";
-      setThemeState(systemTheme);
-      applyTheme(systemTheme);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (typeof document === "undefined") return;
+    applyTheme(theme);
+  }, [theme]);
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>
