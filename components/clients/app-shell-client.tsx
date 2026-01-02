@@ -1,15 +1,25 @@
-import Sidebar from "@/components/layout/sidebar-unified";
-import TopNavBar from "../layout/top-nav/top-nav";
+"use client";
+
+import Sidebar from "@/components/layout/sidebar/sidebar";
+import { useSidebar } from "../layout/sidebar/sidebar-context";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <TopNavBar />
+  const { isDesktopCollapsed } = useSidebar();
 
+  return (
+    <div
+      className="min-h-screen bg-gray-50"
+      style={{
+        ["--sidebar-current-width" as never]: isDesktopCollapsed
+          ? "var(--sidebar-width-collapsed)"
+          : "var(--sidebar-width-expanded)",
+      }}
+    >
       <div className="grid lg:grid-cols-[auto_1fr]">
         <Sidebar />
-
-        <main className="px-4 sm:px-6 md:px-8 py-4 mt-16">{children}</main>
+        <main className="px-4 sm:px-6 md:px-4 pb-4 pt-(--top-nav-height) lg:ml-(--sidebar-current-width)">
+          {children}
+        </main>
       </div>
     </div>
   );
