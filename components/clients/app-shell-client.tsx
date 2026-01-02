@@ -8,7 +8,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div
-      className="min-h-screen bg-gray-50"
+      className="min-h-screen bg-(--canvas)"
       style={{
         ["--sidebar-current-width" as never]: isDesktopCollapsed
           ? "var(--sidebar-width-collapsed)"
