@@ -64,13 +64,13 @@ export default function NotificationButton({
   function getActivityIcon(type: string) {
     switch (type) {
       case "PRODUCT_ADDED":
-        return <ActivityIcon className="w-5 h-5 text-green-600" />;
+        return <ActivityIcon className="w-5 h-5 text-(--success)" />;
       case "PRODUCT_EDITED":
-        return <ActivityIcon className="w-5 h-5 text-blue-600" />;
+        return <ActivityIcon className="w-5 h-5 text-(--brand)" />;
       case "PRODUCT_DELETED":
-        return <ActivityIcon className="w-5 h-5 text-red-600" />;
+        return <ActivityIcon className="w-5 h-5 text-(--danger)" />;
       default:
-        return <ActivityIcon className="w-5 h-5 text-gray-400" />;
+        return <ActivityIcon className="w-5 h-5 text-(--text-muted)" />;
     }
   }
 
@@ -78,18 +78,18 @@ export default function NotificationButton({
     <div className="relative" ref={containerRef}>
       <button
         ref={buttonRef}
-        className="cursor-pointer p-2 rounded-2xl bg-white/4 hover:bg-white/6 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+        className="cursor-pointer p-2 rounded-2xl bg-(--surface-elevated)/60 hover:bg-(--surface-elevated)/80 ring-1 ring-(--border-subtle) focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
         aria-label="Open notifications"
         onClick={() => setOpen((v) => !v)}
       >
-        <Bell className="w-5 h-5 text-gray-200" />
+        <Bell className="w-5 h-5 text-(--text-primary)" />
         {/* Notification dot */}
         <span className="absolute top-1 right-1 block w-2 h-2 bg-red-500 rounded-full animate-pulse" />
       </button>
       {/* Dropdown panel */}
       {open && (
-        <div className="absolute right-0 mt-2 w-80 bg-gray-950/95 backdrop-blur border border-white/10 rounded-xl shadow-2xl z-50 animate-fadeIn">
-          <div className="p-4 border-b border-white/10 font-bold text-lg text-white tracking-tight">
+        <div className="absolute right-0 mt-2 w-80 bg-glass border border-(--border-subtle) rounded-xl shadow-2xl z-50 animate-fadeIn">
+          <div className="p-4 border-b border-(--border-subtle) font-bold text-lg text-(--text-primary) tracking-tight">
             Notifications
           </div>
           <Tabs
@@ -97,10 +97,10 @@ export default function NotificationButton({
               {
                 id: "alerts",
                 label: (
-                  <span className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 text-white">
-                    <AlertCircle className="w-4 h-4 text-red-600" /> Alerts
+                  <span className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500">
+                    <AlertCircle className="w-4 h-4 text-(--danger)" /> Alerts
                     {stockItems.length > 0 && (
-                      <span className="ml-1 px-2 py-0.5 bg-red-500/15 text-red-200 text-xs font-semibold rounded-full ring-1 ring-red-500/20">
+                      <span className="ml-1 px-2 py-0.5 bg-(--danger)/12 text-(--danger) text-xs font-semibold rounded-full ring-1 ring-(--danger)/25">
                         {stockItems.length}
                       </span>
                     )}
@@ -110,10 +110,10 @@ export default function NotificationButton({
               {
                 id: "activities",
                 label: (
-                  <span className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 text-white">
-                    <ActivityIcon className="w-4 h-4 text-blue-600" /> Activity
+                  <span className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500">
+                    <ActivityIcon className="w-4 h-4 text-(--brand)" /> Activity
                     {activities.length > 0 && (
-                      <span className="ml-1 px-2 py-0.5 bg-blue-500/15 text-blue-200 text-xs font-semibold rounded-full ring-1 ring-blue-500/20">
+                      <span className="ml-1 px-2 py-0.5 bg-(--brand)/12 text-(--brand) text-xs font-semibold rounded-full ring-1 ring-(--brand)/25">
                         {activities.length}
                       </span>
                     )}
@@ -126,7 +126,7 @@ export default function NotificationButton({
             <TabPanel tabId="alerts">
               <div className="p-2 sm:p-3">
                 <div className="flex items-center mb-2 justify-between">
-                  <span className="text-sm font-bold text-white">
+                  <span className="text-sm font-bold text-(--text-primary)">
                     Critical Alerts
                   </span>
                   {stockItems.length > 0 && (
@@ -144,13 +144,13 @@ export default function NotificationButton({
                       <Link
                         href={`/inventory/${item.id}/edit-product`}
                         key={item.id}
-                        className="flex items-center gap-3 p-3 rounded-lg bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-800/50 transition-colors"
+                        className="flex items-center gap-3 p-3 rounded-lg bg-(--danger)/10 hover:bg-(--danger)/15 transition-colors"
                       >
                         <div className="text-lg shrink-0">
-                          <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400" />
+                          <AlertCircle className="w-5 h-5 text-(--danger)" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className="block text-xs font-medium text-gray-900 dark:text-gray-100 truncate">
+                          <span className="block text-xs font-medium text-(--text-primary) truncate">
                             {item.quantity === 0
                               ? `Out of stock: ${item.name} (SKU: ${item.sku})`
                               : `Low stock (${item.quantity} units): ${item.name} (SKU: ${item.sku})`}
@@ -160,7 +160,7 @@ export default function NotificationButton({
                     ))}
                   </div>
                 ) : (
-                  <div className="py-6 text-center text-gray-400 text-sm">
+                  <div className="py-6 text-center text-(--text-muted) text-sm">
                     No critical alerts.
                   </div>
                 )}
@@ -169,7 +169,7 @@ export default function NotificationButton({
             <TabPanel tabId="activities">
               <div className="p-2 sm:p-3">
                 <div className="flex items-center mb-2 justify-between">
-                  <span className="text-sm font-bold text-white">
+                  <span className="text-sm font-bold text-(--text-primary)">
                     Recent Activity
                   </span>
                   {activities.length > 0 && (
@@ -186,16 +186,16 @@ export default function NotificationButton({
                     {activities.slice(0, 5).map((activity) => (
                       <div
                         key={activity.id}
-                        className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/60 hover:bg-gray-100 dark:hover:bg-gray-700/80 transition-colors"
+                        className="flex items-center gap-3 p-3 rounded-lg bg-(--surface-elevated)/60 hover:bg-(--surface-elevated)/80 transition-colors"
                       >
                         <div className="text-lg shrink-0">
                           {getActivityIcon(activity.type)}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className="block text-xs font-medium text-gray-900 dark:text-gray-100 truncate">
+                          <span className="block text-xs font-medium text-(--text-primary) truncate">
                             {activity.message}
                           </span>
-                          <span className="block text-[11px] text-gray-500 dark:text-gray-400">
+                          <span className="block text-[11px] text-(--text-muted)">
                             {formatActivityTime(activity.createdAt)}
                           </span>
                         </div>
@@ -203,7 +203,7 @@ export default function NotificationButton({
                     ))}
                   </div>
                 ) : (
-                  <div className="py-6 text-center text-gray-400 text-sm">
+                  <div className="py-6 text-center text-(--text-muted) text-sm">
                     No activity yet.
                   </div>
                 )}
