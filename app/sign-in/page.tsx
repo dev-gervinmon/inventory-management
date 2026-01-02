@@ -6,7 +6,7 @@ import Link from "next/link";
 export default function SignInPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-(--brand)/10 via-(--surface)/60 to-(--brand)/10 bg-noise bg-fixed">
-      <div className="relative max-w-md w-full p-8 rounded-2xl shadow-2xl border border-(--border-subtle) bg-white/80 dark:bg-black/40 backdrop-blur-xl flex flex-col items-center space-y-8 animate-fade-in">
+      <div className="relative max-w-md w-full p-8 rounded-2xl shadow-2xl border border-(--border-subtle) bg-glass flex flex-col items-center space-y-8 animate-fade-in">
         {/* Logo and headline */}
         <div className="flex flex-col items-center gap-2 mb-2">
           <img
@@ -33,7 +33,7 @@ export default function SignInPage() {
         {/* Go back link */}
         <Link
           href="/"
-          className="inline-block mt-2 text-sm font-medium text-(--brand) hover:underline hover:text-(--brand-dark) transition"
+          className="inline-block mt-2 text-sm font-medium text-(--brand) hover:underline opacity-90 hover:opacity-100 transition"
         >
           ← Go Back Home
         </Link>
