@@ -16,7 +16,7 @@
 function PageLayout({ children }: { children: React.ReactNode }) {
   return (
     <div>
-      <main>{children}</main>
+      <main className="py-5 px-3">{children}</main>
     </div>
   );
 }
