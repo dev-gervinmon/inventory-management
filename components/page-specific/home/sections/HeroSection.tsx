@@ -4,30 +4,35 @@ import { useTheme } from "@/app/theme-provider";
 import { Button } from "@/components/buttons/button";
 import { Badge } from "@/components/common/badge";
 import { Card } from "@/components/common/card";
-import { useState, useEffect, startTransition } from "react";
+import { useState, useEffect } from "react";
 
 export function HeroSection() {
   const { theme, setTheme } = useTheme();
   const [navSolid, setNavSolid] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    startTransition(() => setMounted(true));
-  }, []);
+    let rafId: number | null = null;
 
-  useEffect(() => {
-    const listener = () => {
+    const update = () => {
       const solid = window.scrollY > 20;
       setNavSolid((prev) => (prev !== solid ? solid : prev));
+      rafId = null;
     };
-    listener();
-    window.addEventListener("scroll", listener);
-    return () => window.removeEventListener("scroll", listener);
-  }, []);
 
-  if (!mounted) {
-    return <div className="min-h-screen bg-(--canvas)" />;
-  }
+    const onScroll = () => {
+      if (rafId != null) return;
+      rafId = window.requestAnimationFrame(update);
+    };
+
+    // Schedule initial update asynchronously (avoids setState synchronously in effect body)
+    onScroll();
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (rafId != null) window.cancelAnimationFrame(rafId);
+    };
+  }, []);
 
   return (
     <>
@@ -73,7 +78,12 @@ export function HeroSection() {
               className="p-2 rounded-lg hover:bg-(--surface-elevated) transition cursor-pointer"
               aria-label="Toggle theme"
             >
-              {theme === "light" ? "🌙" : "☀️"}
+              <span className="dark:hidden" aria-hidden="true">
+                🌙
+              </span>
+              <span className="hidden dark:inline" aria-hidden="true">
+                ☀️
+              </span>
             </button>
 
             <Button asChild href="/sign-in" className="hidden sm:inline-flex">
