@@ -1,5 +1,7 @@
 import "@/styles/theme.css";
 import AppShell from "@/components/clients/app-shell-client";
+import TopNavBar from "@/components/layout/top-nav/top-nav";
+import { SidebarProvider } from "@/components/layout/sidebar/sidebar-context";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -11,7 +13,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         antialiased
       "
     >
-      <AppShell>{children}</AppShell>
+      <SidebarProvider>
+        <TopNavBar />
+        <AppShell>{children}</AppShell>
+      </SidebarProvider>
     </div>
   );
 }
