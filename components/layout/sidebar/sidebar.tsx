@@ -74,7 +74,7 @@ export default function Sidebar() {
   // Desktop Sidebar
   const sidebarContent = (
     <aside
-      className={`hidden lg:flex fixed left-0 top-(--top-nav-height) z-30 flex-col text-white ${
+      className={`hidden lg:flex fixed left-0 top-(--top-nav-height) z-30 flex-col text-(--text-primary) ${
         collapsed
           ? "w-(--sidebar-width-collapsed)"
           : "w-(--sidebar-width-expanded)"
@@ -85,7 +85,7 @@ export default function Sidebar() {
       aria-label="Primary"
     >
       <div
-        className={`relative h-full min-h-screen bg-gray-950/90 backdrop-blur supports-backdrop-filter:bg-gray-950/75 border-r border-white/10 shadow-xl ${
+        className={`relative h-full min-h-screen bg-glass border-r border-(--border-subtle) shadow-xl ${
           collapsed ? "cursor-pointer" : "cursor-default"
         }`}
         ref={desktopSidebarRef}
@@ -114,7 +114,7 @@ export default function Sidebar() {
             <button
               type="button"
               onClick={expandDesktop}
-              className="cursor-pointer hidden lg:flex w-full items-center justify-center rounded-2xl py-2.5 text-gray-300 hover:text-white hover:bg-white/6 ring-1 ring-white/12 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+              className="cursor-pointer hidden lg:flex w-full items-center justify-center rounded-2xl py-2.5 text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--surface-elevated)/70 ring-1 ring-(--border-subtle) focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
               aria-label="Expand sidebar"
             >
               <ChevronRight className="w-5 h-5" />
@@ -123,21 +123,23 @@ export default function Sidebar() {
         ) : (
           <div className="flex items-center gap-3 px-3 pt-4 justify-between">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="grid place-items-center w-10 h-10 rounded-xl bg-white/5 ring-1 ring-white/10">
+              <div className="grid place-items-center w-10 h-10 rounded-xl bg-(--surface-elevated)/70 ring-1 ring-(--border-subtle)">
                 <BarChart3 className="w-6 h-6 text-purple-300" />
               </div>
               <div className="min-w-0">
-                <div className="text-sm font-semibold tracking-wide text-white truncate">
+                <div className="text-sm font-semibold tracking-wide text-(--text-primary) truncate">
                   Inventory App
                 </div>
-                <div className="text-xs text-gray-400 truncate">Workspace</div>
+                <div className="text-xs text-(--text-muted) truncate">
+                  Workspace
+                </div>
               </div>
             </div>
 
             <button
               type="button"
               onClick={collapseDesktop}
-              className="cursor-pointer hidden lg:inline-flex items-center justify-center w-10 h-10 rounded-xl text-gray-300 hover:text-white hover:bg-white/6 ring-1 ring-white/12 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+              className="cursor-pointer hidden lg:inline-flex items-center justify-center w-10 h-10 rounded-xl text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--surface-elevated)/70 ring-1 ring-(--border-subtle) focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
               aria-label="Collapse sidebar"
             >
               <ChevronLeft className="w-5 h-5" />
@@ -147,7 +149,7 @@ export default function Sidebar() {
 
         <div className={`${collapsed ? "px-2 mt-3" : "px-3 mt-4"}`}>
           <div
-            className={`h-px bg-linear-to-r from-transparent via-white/10 to-transparent ${
+            className={`h-px bg-linear-to-r from-transparent via-(--border-subtle) to-transparent ${
               collapsed ? "opacity-60" : "opacity-100"
             }`}
           />
@@ -172,8 +174,8 @@ export default function Sidebar() {
                         : "px-3 py-2.5"
                     } ${
                       item.isActive
-                        ? "bg-white/9 text-white ring-white/14"
-                        : "text-gray-300 hover:text-white hover:bg-white/6"
+                        ? "bg-(--surface-elevated)/70 text-(--text-primary) ring-(--border-subtle)"
+                        : "text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--surface-elevated)/50"
                     }`}
                   >
                     <span
@@ -192,7 +194,7 @@ export default function Sidebar() {
                       className={`shrink-0 transition-colors ${
                         item.isActive
                           ? "text-purple-300"
-                          : "text-gray-300 group-hover:text-white"
+                          : "text-(--text-secondary) group-hover:text-(--text-primary)"
                       } ${collapsed ? "w-5 h-5" : "w-5 h-5"}`}
                     />
 
@@ -231,7 +233,7 @@ export default function Sidebar() {
         role="dialog"
         aria-modal="true"
         aria-label="Mobile navigation"
-        className={`lg:hidden fixed left-0 top-0 bottom-0 z-50 w-72 max-w-[85vw] bg-gray-950/90 backdrop-blur supports-backdrop-filter:bg-gray-950/75 text-white shadow-2xl border-r border-white/10 transform transition-transform duration-300 ease-out ${
+        className={`lg:hidden fixed left-0 top-0 bottom-0 z-50 w-72 max-w-[85vw] bg-glass text-(--text-primary) shadow-2xl border-r border-(--border-subtle) transform transition-transform duration-300 ease-out ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -239,20 +241,22 @@ export default function Sidebar() {
 
         <div className="flex items-center justify-between px-4 pt-4">
           <div className="flex items-center gap-3">
-            <div className="grid place-items-center w-10 h-10 rounded-xl bg-white/4 ring-1 ring-white/12">
+            <div className="grid place-items-center w-10 h-10 rounded-xl bg-(--surface-elevated)/70 ring-1 ring-(--border-subtle)">
               <BarChart3 className="w-6 h-6 text-purple-300" />
             </div>
             <div className="min-w-0">
-              <div className="text-sm font-semibold tracking-wide text-white truncate">
+              <div className="text-sm font-semibold tracking-wide text-(--text-primary) truncate">
                 Inventory App
               </div>
-              <div className="text-xs text-gray-400 truncate">Navigation</div>
+              <div className="text-xs text-(--text-muted) truncate">
+                Navigation
+              </div>
             </div>
           </div>
 
           <button
             type="button"
-            className="inline-flex items-center justify-center rounded-2xl p-2.5 text-gray-200 hover:text-white hover:bg-white/6 ring-1 ring-white/12 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+            className="inline-flex items-center justify-center rounded-2xl p-2.5 text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--surface-elevated)/70 ring-1 ring-(--border-subtle) focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
             onClick={closeSidebar}
             aria-label="Close menu"
           >
@@ -261,7 +265,7 @@ export default function Sidebar() {
         </div>
 
         <div className="px-4 mt-4">
-          <div className="h-px bg-linear-to-r from-transparent via-white/10 to-transparent" />
+          <div className="h-px bg-linear-to-r from-transparent via-(--border-subtle) to-transparent" />
         </div>
 
         <div className="px-3 py-4">
@@ -276,8 +280,8 @@ export default function Sidebar() {
                       aria-current={item.isActive ? "page" : undefined}
                       className={`group relative flex items-center gap-3 rounded-xl px-3 py-3 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                         item.isActive
-                          ? "bg-white/9 text-white ring-1 ring-white/14"
-                          : "text-gray-300 hover:text-white hover:bg-white/6"
+                          ? "bg-(--surface-elevated)/70 text-(--text-primary) ring-1 ring-(--border-subtle)"
+                          : "text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--surface-elevated)/50"
                       }`}
                       onClick={closeSidebar}
                     >
@@ -295,7 +299,7 @@ export default function Sidebar() {
                         className={`w-5 h-5 shrink-0 transition-colors ${
                           item.isActive
                             ? "text-purple-300"
-                            : "text-gray-300 group-hover:text-white"
+                            : "text-(--text-secondary) group-hover:text-(--text-primary)"
                         }`}
                       />
 
