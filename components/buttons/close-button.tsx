@@ -1,3 +1,6 @@
+import { X } from "lucide-react";
+import TouchOptimizedIconButton from "@/components/buttons/touch-optimized-icon-button";
+
 interface CloseButtonProps {
   onClick: () => void;
   variant?: "purple" | "blue" | "gray";
@@ -11,38 +14,21 @@ export default function CloseButton({
   size = "md",
   title = "Close",
 }: CloseButtonProps) {
-  const variants = {
-    purple:
-      "text-purple-700 hover:bg-purple-200 hover:text-purple-900 p-1 rounded",
-    blue: "text-blue-700 hover:bg-blue-200 hover:text-blue-900 p-1 rounded",
-    gray: "text-gray-400 hover:bg-gray-200 hover:text-gray-700 p-2 rounded-md",
-  };
+  const iconSize = size === "sm" ? "w-4 h-4" : "w-5 h-5";
 
-  const sizes = {
-    sm: "w-4 h-4",
-    md: "w-5 h-5",
-  };
+  // Map legacy variants to a minimal set.
+  // "blue" and "purple" both become brand-tinted.
+  const mappedVariant = variant === "gray" ? "secondary" : "primary";
 
   return (
-    <button
+    <TouchOptimizedIconButton
       type="button"
       onClick={onClick}
-      className={`${variants[variant]} transition-all duration-200 cursor-pointer`}
-      title={title}
-    >
-      <svg
-        className={sizes[size]}
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M6 18L18 6M6 6l12 12"
-        />
-      </svg>
-    </button>
+      label={title}
+      variant={mappedVariant}
+      size={size}
+      icon={<X className={iconSize} />}
+      className={mappedVariant === "primary" ? "" : ""}
+    />
   );
 }
