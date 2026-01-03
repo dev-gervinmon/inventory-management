@@ -1,6 +1,5 @@
 "use server";
 
-import PageLayout from "@/components/layout/page-layout";
 import EditProductPageWrapper from "../edit-product-page-wrapper";
 import NotFoundPage from "@/components/layout/not-found-page";
 import { getCurrentUser } from "@/lib/auth/auth";
@@ -76,8 +75,7 @@ export default async function EditProductPage({
   }
 
   return (
-    <PageLayout>
-      <EditProductPageWrapper>
+    <EditProductPageWrapper>
         <ProductEditClient
           product={{
             id: product.id,
@@ -109,7 +107,7 @@ export default async function EditProductPage({
             categories={categories}
           />
         </ProductEditClient>
-      </EditProductPageWrapper>
-    </PageLayout>
+    </EditProductPageWrapper>
+    </ProductEditClient>
   );
 }
