@@ -1,5 +1,4 @@
 import AddProductButton from "@/components/buttons/add-product-button";
-import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
 import InventoryPageWrapper from "./inventory-page-wrapper";
@@ -33,7 +32,7 @@ export default async function InventoryPage({
 
   return (
     <InventoryPageWrapper>
-      <PullToRefreshWrapper>
+      <>
         {/* Header Section */}
         <div className="mb-4 sm:mb-6 md:mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
@@ -60,7 +59,7 @@ export default async function InventoryPage({
             />
           </div>
         </div>
-      </PullToRefreshWrapper>
+      </>
     </InventoryPageWrapper>
   );
 }
