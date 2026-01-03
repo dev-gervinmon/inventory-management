@@ -9,16 +9,16 @@ import NotificationButton from "../layout/top-nav/notification-button";
  */
 export function TopNavBarSkeleton() {
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+    <header className="fixed top-0 left-0 right-0 z-40 w-full bg-glass border-b border-(--border-subtle)">
       <div className="w-full h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Left: Hamburger (mobile) + Logo + Title */}
         <div className="flex items-center gap-3 min-w-0">
           {/* Hamburger skeleton */}
           <Skeleton className="lg:hidden h-10 w-10 rounded-lg mr-1" />
           {/* Logo */}
-          <BarChart3 className="w-8 h-8 shrink-0 text-purple-600" />
+          <BarChart3 className="w-8 h-8 shrink-0 text-(--brand)" />
           {/* Title */}
-          <span className="hidden lg:block text-xl font-semibold truncate select-none text-gray-900 dark:text-white">
+          <span className="hidden lg:block text-xl font-semibold truncate select-none text-(--text-primary)">
             Inventory App
           </span>
         </div>
