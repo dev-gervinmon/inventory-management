@@ -48,14 +48,23 @@ export function usePullToRefresh({
   const touchStartedRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const isRefreshingRef = useRef(false);
+  useEffect(() => {
+    isRefreshingRef.current = state.isRefreshing;
+  }, [state.isRefreshing]);
+
   // Calculate progress percentage (0-100)
   const progress = Math.min((state.pullDistance / triggerDistance) * 100, 100);
   const shouldTrigger = state.pullDistance >= triggerDistance;
 
   const handleTouchStart = useCallback((e: TouchEvent) => {
+    if (isRefreshingRef.current) return;
+
     // Only start pull-to-refresh if scrolled to top of page
     const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
     if (scrollTop !== 0) return;
+
+    if (e.touches.length !== 1) return;
 
     startYRef.current = e.touches[0].clientY;
     touchStartedRef.current = true;
@@ -65,21 +74,38 @@ export function usePullToRefresh({
     (e: TouchEvent) => {
       if (!touchStartedRef.current) return;
 
+      // Only process if scrolled to top of page
+      const scrollTop =
+        window.scrollY || document.documentElement.scrollTop || 0;
+      if (scrollTop !== 0) return;
+
       const currentY = e.touches[0].clientY;
       const diff = currentY - startYRef.current;
 
       // Only process if moving downward
       if (diff > 0) {
+        // Prevent the browser's native overscroll / pull-to-refresh
+        if (e.cancelable) e.preventDefault();
+
         // Apply resistance for natural feel
-        const resistedDistance = diff * resistance;
+        const resistedDistance = Math.min(
+          diff * resistance,
+          triggerDistance * 1.5
+        );
         setState((prev) => ({
           ...prev,
           isPulling: true,
           pullDistance: resistedDistance,
         }));
+      } else if (state.isPulling || state.pullDistance !== 0) {
+        setState((prev) => ({
+          ...prev,
+          isPulling: false,
+          pullDistance: 0,
+        }));
       }
     },
-    [resistance]
+    [resistance, triggerDistance, state.isPulling, state.pullDistance]
   );
 
   const handleTouchEnd = useCallback(async () => {
@@ -130,7 +156,7 @@ export function usePullToRefresh({
       passive: true,
     });
     container.addEventListener("touchmove", handleTouchMove, {
-      passive: true,
+      passive: false,
     });
     container.addEventListener("touchend", handleTouchEnd, {
       passive: true,
