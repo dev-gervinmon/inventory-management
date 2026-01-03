@@ -1,7 +1,6 @@
-import AddProductButton from "@/components/buttons/add-product-button";
-import QuickActionButton from "@/components/buttons/quick-action-button";
 import ProductChart from "@/components/charts/products-chart";
 import InventoryOverviewCard from "@/components/common/inventory-overview-card";
+import DashboardHeader from "@/components/dashboard/dashboard-header";
 import StockMovementCard from "@/components/dashboard/stock-movement-card";
 import StockRiskCard from "@/components/dashboard/stock-risk-card";
 import { DashboardMetrics } from "@/lib/domain/dashboard-metrics";
@@ -9,78 +8,25 @@ import { DashboardMetrics } from "@/lib/domain/dashboard-metrics";
 interface DashboardContentProps {
   dashboardMetrics: DashboardMetrics;
   userId: string;
+  userName: string;
 }
 
 export default function DashboardContent({
   dashboardMetrics,
   userId,
+  userName,
 }: DashboardContentProps) {
   return (
     <>
-      {/** Header with Quick Actions **/}
-      <div className="mb-4 sm:mb-8">
-        <div className="flex items-center justify-between mb-3 sm:mb-6">
-          <div>
-            <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900">
-              Dashboard
-            </h1>
-            <p className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-700 mt-0.5 sm:mt-1">
-              Welcome back! Here is an overview of your inventory.
-            </p>
-          </div>
-        </div>
-
-        {/** Quick Actions */}
-        <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3">
-          <AddProductButton
-            variant="simple"
-            size="sm"
-            className="w-full sm:w-auto justify-center sm:justify-start"
-          />
-          <QuickActionButton
-            href="/inventory"
-            label="View Inventory"
-            icon={
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M20 7l-8-4-8 4m0 0l8 4m-8-4v10l8 4m0-10l8 4m-8-4v10l8-4"
-                />
-              </svg>
-            }
-            variant="secondary"
-            className="w-full sm:w-auto justify-center"
-          />
-          <QuickActionButton
-            href="/categories"
-            label="Manage Categories"
-            icon={
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 0 1 0 2.828l-7 7a2 2 0 0 1-2.828 0l-7-7A1.994 1.994 0 0 1 3 12V7a4 4 0 0 1 4-4z"
-                />
-              </svg>
-            }
-            variant="secondary"
-            className="w-full sm:w-auto justify-center"
-          />
-        </div>
-      </div>
+      <DashboardHeader
+        userName={userName}
+        totalProducts={dashboardMetrics.inventory.totalProducts}
+        criticalCount={
+          dashboardMetrics.inventory.outOfStockCount +
+          dashboardMetrics.inventory.lowStockCount
+        }
+        reportStatus="ready"
+      />
 
       {/** Key Metrics - Responsive Grid: 1 col (mobile), 2 col (md), 3 col (lg+) **/}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6 mb-6 sm:mb-10">
