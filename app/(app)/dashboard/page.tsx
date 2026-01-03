@@ -4,10 +4,15 @@ import DashboardContent from "./dashboard-content";
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
+  const userName = user.displayName || user.primaryEmail || "";
 
   const dashboardMetrics = await getDashboardMetrics(user.id);
 
   return (
-    <DashboardContent dashboardMetrics={dashboardMetrics} userId={user.id} />
+    <DashboardContent
+      dashboardMetrics={dashboardMetrics}
+      userId={user.id}
+      userName={userName}
+    />
   );
 }
