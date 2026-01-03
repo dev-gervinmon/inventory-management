@@ -1,4 +1,4 @@
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/buttons/button";
 
 interface FormButtonProps {
   type: "submit" | "button" | "reset";
@@ -21,31 +21,37 @@ export default function FormButton({
   onClick,
   className = "",
 }: FormButtonProps) {
-  const sizeClass = {
-    sm: "px-3 py-2.5 text-sm", // ~40x44px (meets touch target)
-    md: "px-4 py-3 text-base", // ~44x44px (ideal touch target)
-    lg: "px-6 py-3 text-base", // ~48x44px+ (spacious)
+  const sizeMap = {
+    sm: "sm" as const,
+    md: "default" as const,
+    lg: "lg" as const,
   };
 
-  const variantClass = {
-    primary:
-      "bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 active:from-purple-800 active:to-purple-900 disabled:from-purple-400 disabled:to-purple-500",
-    secondary:
-      "bg-gray-100 text-gray-900 border border-gray-300 hover:bg-gray-200 hover:border-gray-400 active:bg-gray-300 disabled:bg-gray-50 disabled:text-gray-400",
-    edit: "bg-gray-200 text-gray-800 hover:bg-gray-300 active:bg-gray-400 disabled:bg-gray-100 disabled:text-gray-400",
-    delete:
-      "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 disabled:bg-gray-400 disabled:text-gray-200",
+  const variantMap = {
+    primary: "default" as const,
+    secondary: "outline" as const,
+    edit: "outline" as const,
+    delete: "destructive" as const,
   };
 
   return (
-    <button
+    <Button
       type={type}
-      disabled={disabled || isLoading}
+      variant={variantMap[variant]}
+      size={sizeMap[size]}
+      disabled={disabled}
+      isLoading={isLoading}
       onClick={onClick}
-      className={`font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-100 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-md cursor-pointer flex items-center justify-center gap-2 ${sizeClass[size]} ${variantClass[variant]} ${className}`}
+      className={[
+        "rounded-lg",
+        // Preserve the common "form" feel without bespoke colors
+        "gap-2",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
-      {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
       <span>{label}</span>
-    </button>
+    </Button>
   );
 }
