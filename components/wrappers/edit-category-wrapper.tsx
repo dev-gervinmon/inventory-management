@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { PencilIcon, Plus } from "lucide-react";
-import PageLayout from "@/components/layout/page-layout";
 import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
 import SubcategoriesListWrapper from "@/components/wrappers/subcategories-list-wrapper";
 import AddSubcategoryFormWrapper from "@/components/wrappers/add-subcategory-form-wrapper";
@@ -115,7 +114,7 @@ export default function EditCategoryWrapper({
   };
 
   return (
-    <PageLayout currentPath="/categories">
+    <>
       <PullToRefreshWrapper>
         <div className="mb-6 sm:mb-8 relative z-0">
           <div className="mb-3 sm:mb-4">
@@ -245,6 +244,6 @@ export default function EditCategoryWrapper({
         isLoading={isDeleting}
       />
       <MessageBanner message={message} />
-    </PageLayout>
+    </>
   );
 }
