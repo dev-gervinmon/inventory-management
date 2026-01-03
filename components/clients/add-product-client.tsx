@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import AddProductForm from "@/components/forms/add-product-form";
 import ProductFormSidebar from "@/components/forms/product-form-sidebar";
 import StickyFormHeader from "@/components/layout/sticky-form-header";
-import PageLayout from "@/components/layout/page-layout";
 import { useMessage } from "@/lib/hooks/useMessage";
 import { useFormErrors } from "@/lib/hooks/useFormErrors";
 import { ProductFormContext } from "@/lib/contexts/product-form-context";
@@ -101,10 +100,19 @@ export default function AddProductClient({
   const handleSuccessModalClose = () => {
     if (successTimeoutRef.current) {
       clearTimeout(successTimeoutRef.current);
+      successTimeoutRef.current = null;
     }
     setIsSuccessModalOpen(false);
-    redirectToEditPage();
   };
+
+  useEffect(() => {
+    return () => {
+      if (successTimeoutRef.current) {
+        clearTimeout(successTimeoutRef.current);
+        successTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   const handleReset = useCallback(() => {
     formRef.current?.reset();
@@ -112,7 +120,7 @@ export default function AddProductClient({
   }, [clearFormErrors]);
 
   return (
-    <PageLayout>
+    <>
       {/* Success Modal */}
       <SuccessModal
         isOpen={isSuccessModalOpen}
@@ -152,6 +160,6 @@ export default function AddProductClient({
           </div>
         </ProductFormContext.Provider>
       </div>
-    </PageLayout>
+    </>
   );
 }
