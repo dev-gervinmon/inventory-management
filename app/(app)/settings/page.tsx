@@ -1,4 +1,3 @@
-import PageLayout from "@/components/layout/page-layout";
 import { getCurrentUser } from "@/lib/auth/auth";
 import { AccountSettings } from "@stackframe/stack";
 
@@ -6,7 +5,7 @@ export default async function SettingsPage() {
   await getCurrentUser();
 
   return (
-    <PageLayout>
+    <>
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
@@ -23,6 +22,6 @@ export default async function SettingsPage() {
           <AccountSettings fullPage />
         </div>
       </div>
-    </PageLayout>
+    </>
   );
 }
