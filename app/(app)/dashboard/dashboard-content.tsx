@@ -1,8 +1,8 @@
-import ProductChart from "@/components/charts/products-chart";
-import InventoryOverviewCard from "@/components/common/inventory-overview-card";
-import DashboardHeader from "@/components/dashboard/dashboard-header";
-import StockMovementCard from "@/components/dashboard/stock-movement-card";
-import StockRiskCard from "@/components/dashboard/stock-risk-card";
+import ProductChart from "@/components/page-specific/dashboard/charts/products-chart";
+import InventoryOverviewCard from "@/components/page-specific/dashboard/cards/inventory-overview-card";
+import DashboardHeader from "@/components/page-specific/dashboard/sections/dashboard-header";
+import StockMovementCard from "@/components/page-specific/dashboard/cards/stock-movement-card";
+import StockRiskCard from "@/components/page-specific/dashboard/cards/stock-risk-card";
 import { DashboardMetrics } from "@/lib/domain/dashboard-metrics";
 
 interface DashboardContentProps {

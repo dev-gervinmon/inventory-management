@@ -1,6 +1,6 @@
 import { DEFAULT_PERIOD } from "@/lib/domain/period";
-import StockMovementClient from "./stock-movement-client";
 import { getStockMovementAnalytics } from "@/lib/analytics/dashboard-metrics";
+import StockMovementClient from "../client/stock-movement-client";
 
 interface StockMovementCardProps {
   userId: string;

@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import { useEffect, useRef, useState } from "react";
 import { StockMovementTrend } from "@/lib/domain/stock-movement";
-import { CustomTooltip } from "../common/custom-tooltip";
+import { CustomTooltip } from "../../../common/custom-tooltip";
 import useMediaQuery from "@/lib/hooks/useMediaQuery";
 import { format } from "date-fns";
 

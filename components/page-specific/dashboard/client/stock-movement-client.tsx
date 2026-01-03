@@ -7,9 +7,9 @@ import {
   StockMovementTrendIndicator,
 } from "@/lib/domain/stock-movement";
 
-import PeriodSelector from "./period-selector";
 import TrendIndicator from "../common/trend-indicator";
 import StockMovementTrendChart from "../charts/stock-movement-trend-chart";
+import PeriodSelector from "../common/period-selector";
 
 /* ────────────────────────────────────────────── */
 /* Types */
