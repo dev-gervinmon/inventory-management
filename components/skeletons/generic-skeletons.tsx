@@ -20,7 +20,7 @@ export function CardSkeleton({
   image = false,
 }: SkeletonCardProps) {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6">
+    <div className="bg-glass rounded-lg border border-(--border-subtle) p-3 sm:p-4 md:p-6">
       {/* Image placeholder if needed */}
       {image && <Skeleton className="h-40 sm:h-48 w-full mb-3 sm:mb-4" />}
 
@@ -47,7 +47,7 @@ export function CardSkeleton({
  */
 export function TableRowSkeleton({ columns = 4 }: { columns?: number }) {
   return (
-    <div className="flex items-center space-x-3 sm:space-x-4 p-3 sm:p-4 border-b border-gray-200 last:border-b-0">
+    <div className="flex items-center space-x-3 sm:space-x-4 p-3 sm:p-4 border-b border-(--border-subtle) last:border-b-0">
       {Array.from({ length: columns }).map((_, i) => (
         <Skeleton
           key={i}
@@ -95,7 +95,7 @@ export function GridSkeleton({
  */
 export function FormSkeleton({ fields = 5 }: { fields?: number }) {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 md:p-8 max-w-2xl mx-auto">
+    <div className="bg-glass rounded-lg border border-(--border-subtle) p-4 sm:p-6 md:p-8 max-w-2xl mx-auto">
       {/* Form title */}
       <Skeleton className="h-6 sm:h-7 w-40 sm:w-48 mb-6 sm:mb-8" />
 
@@ -126,7 +126,7 @@ export function ListSkeleton({ count = 5 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4"
+          className="bg-glass rounded-lg border border-(--border-subtle) p-3 sm:p-4"
         >
           <div className="flex items-start space-x-2 sm:space-x-3">
             <Skeleton className="w-3 h-3 sm:w-4 sm:h-4 rounded-full mt-1 shrink-0" />
