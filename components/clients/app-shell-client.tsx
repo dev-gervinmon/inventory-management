@@ -17,8 +17,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     >
       <div className="grid lg:grid-cols-[auto_1fr]">
         <Sidebar />
-        <main className="px-4 sm:px-6 md:px-4 pb-4 pt-(--top-nav-height) lg:ml-(--sidebar-current-width)">
-          {children}
+        <main className="pt-(--top-nav-height) lg:ml-(--sidebar-current-width)">
+          <div className="px-4 sm:px-6 md:px-4 pb-4">
+            <div className="py-5 px-3">{children}</div>
+          </div>
         </main>
       </div>
     </div>
