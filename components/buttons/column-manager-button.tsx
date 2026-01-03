@@ -1,6 +1,7 @@
 "use client";
 
 import { Settings } from "lucide-react";
+import TouchOptimizedIconButton from "@/components/buttons/touch-optimized-icon-button";
 
 interface ColumnManagerButtonProps {
   onClick: () => void;
@@ -23,17 +24,19 @@ export default function ColumnManagerButton({
   className = "",
 }: ColumnManagerButtonProps) {
   return (
-    <button
+    <TouchOptimizedIconButton
       onClick={onClick}
-      className={`p-2 rounded-lg transition-colors duration-200 cursor-pointer hover:bg-gray-100 active:bg-gray-200 ${className}`}
-      title="Manage columns"
-      aria-label="Manage column visibility"
-    >
-      <Settings
-        className={`w-5 h-5 shrink-0 transition-colors duration-200 ${
-          isCustomized ? "text-purple-600" : "text-gray-400"
-        }`}
-      />
-    </button>
+      label="Manage columns"
+      variant="secondary"
+      size="md"
+      className={className}
+      icon={
+        <Settings
+          className={`w-5 h-5 shrink-0 ${
+            isCustomized ? "text-(--brand)" : "text-(--text-muted)"
+          }`}
+        />
+      }
+    />
   );
 }
