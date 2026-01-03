@@ -1,7 +1,7 @@
 "use client";
 
 import Sidebar from "@/components/layout/sidebar/sidebar";
-import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
+import PullToRefreshWrapper from "@/components/layout/mobile-features/pull-to-refresh-wrapper";
 import { useSidebar } from "../layout/sidebar/sidebar-context";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
