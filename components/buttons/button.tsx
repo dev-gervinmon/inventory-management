@@ -44,12 +44,15 @@ export function Button({
     lg: "min-h-12 px-6 py-3 text-base",
   };
 
-  const disabledStyles =
+  const buttonDisabledStyles =
     "disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:brightness-100";
+
+  const linkDisabledStyles =
+    "opacity-60 cursor-not-allowed pointer-events-none select-none";
 
   const classes = [
     base,
-    disabledStyles,
+    buttonDisabledStyles,
     variants[variant],
     sizes[size],
     className,
@@ -61,21 +64,20 @@ export function Button({
       throw new Error("Button with asChild requires an href prop.");
     }
 
+    // Avoid passing event handlers to Link from a Server Component.
+    // When "disabled-like", render a non-interactive element instead.
+    if (disabledLike) {
+      return (
+        <span className={[classes, linkDisabledStyles].join(" ")} aria-disabled>
+          {children}
+        </span>
+      );
+    }
+
     // Internal link
     if (href.startsWith("/")) {
       return (
-        <Link
-          href={href}
-          className={classes}
-          aria-disabled={disabledLike}
-          tabIndex={disabledLike ? -1 : undefined}
-          onClick={(e) => {
-            if (disabledLike) {
-              e.preventDefault();
-              return;
-            }
-          }}
-        >
+        <Link href={href} className={classes}>
           {children}
         </Link>
       );
@@ -83,18 +85,7 @@ export function Button({
 
     // Anchor link (#hash or external)
     return (
-      <a
-        href={href}
-        className={classes}
-        aria-disabled={disabledLike}
-        tabIndex={disabledLike ? -1 : undefined}
-        onClick={(e) => {
-          if (disabledLike) {
-            e.preventDefault();
-            return;
-          }
-        }}
-      >
+      <a href={href} className={classes}>
         {children}
       </a>
     );
