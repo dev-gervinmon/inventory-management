@@ -9,17 +9,27 @@ import { Skeleton } from "./skeleton";
 export function DashboardHeaderSkeleton() {
   return (
     <div className="mb-4 sm:mb-8">
-      {/* Title and subtitle */}
-      <div className="mb-3 sm:mb-6">
-        <Skeleton className="h-5 sm:h-8 w-24 sm:w-40 mb-2 sm:mb-3" />
-        <Skeleton className="h-2 sm:h-4 w-40 sm:w-64" />
-      </div>
+      <div className="bg-glass rounded-2xl border border-(--border-strong) p-3 sm:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          {/* Title */}
+          <div className="min-w-0">
+            <Skeleton className="h-6 sm:h-8 w-32 sm:w-44" />
 
-      {/* Quick action buttons skeleton */}
-      <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3">
-        <Skeleton className="h-9 sm:h-10 w-full sm:w-32" />
-        <Skeleton className="h-9 sm:h-10 w-full sm:w-36" />
-        <Skeleton className="h-9 sm:h-10 w-full sm:w-40" />
+            {/* Badges row */}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Skeleton className="h-7 w-40 rounded-full" />
+              <Skeleton className="h-7 w-28 rounded-full" />
+              <Skeleton className="h-7 w-32 rounded-full" />
+              <Skeleton className="h-7 w-24 rounded-full" />
+            </div>
+          </div>
+
+          {/* Controls */}
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Skeleton className="h-11 w-full sm:w-[220px] rounded-xl" />
+            <Skeleton className="h-11 w-full sm:w-[220px] rounded-xl" />
+          </div>
+        </div>
       </div>
     </div>
   );
