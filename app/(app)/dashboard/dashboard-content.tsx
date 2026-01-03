@@ -4,7 +4,6 @@ import ProductChart from "@/components/charts/products-chart";
 import InventoryOverviewCard from "@/components/common/inventory-overview-card";
 import StockMovementCard from "@/components/dashboard/stock-movement-card";
 import StockRiskCard from "@/components/dashboard/stock-risk-card";
-import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
 import { DashboardMetrics } from "@/lib/domain/dashboard-metrics";
 
 interface DashboardContentProps {
@@ -17,7 +16,7 @@ export default function DashboardContent({
   userId,
 }: DashboardContentProps) {
   return (
-    <PullToRefreshWrapper>
+    <>
       {/** Header with Quick Actions **/}
       <div className="mb-4 sm:mb-8">
         <div className="flex items-center justify-between mb-3 sm:mb-6">
@@ -156,6 +155,6 @@ export default function DashboardContent({
         {/* Stock Movement Chart */}
         <StockMovementCard userId={userId} />
       </div>
-    </PullToRefreshWrapper>
+    </>
   );
 }
