@@ -1,4 +1,5 @@
 import { Button } from "@/components/buttons/button";
+import { Plus } from "lucide-react";
 
 interface AddProductButtonProps {
   variant?: "simple" | "with-icon";
@@ -52,19 +53,10 @@ export default function AddProductButton({
         .filter(Boolean)
         .join(" ")}
     >
-      <svg
-        className={`${size === "sm" ? "w-4 h-4" : "w-5 h-5"}`}
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M12 4v16m8-8H4"
-        />
-      </svg>
+      <Plus
+        className={size === "sm" ? "h-4 w-4" : "h-5 w-5"}
+        aria-hidden="true"
+      />
       Add Product
     </Button>
   );
