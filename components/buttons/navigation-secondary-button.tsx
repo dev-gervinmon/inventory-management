@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/buttons/button";
 import { useNavigationTransition } from "@/lib/contexts/navigation-transition-context";
 
 interface NavigationSecondaryButtonProps {
@@ -23,24 +24,28 @@ export function NavigationSecondaryButton({
 }: NavigationSecondaryButtonProps) {
   const { push } = useNavigationTransition();
 
-  const sizeClass = {
-    sm: "px-2 py-2",
-    md: "px-3 py-3",
-    lg: "px-8 py-3",
-  };
-
-  const variantClass = {
-    default:
-      "bg-gray-100 text-gray-900 border border-gray-300 hover:bg-gray-200 hover:border-gray-400",
-    subtle: "text-gray-600 hover:text-gray-900 hover:underline",
+  const sizeMap = {
+    sm: "sm" as const,
+    md: "default" as const,
+    lg: "lg" as const,
   };
 
   return (
-    <button
+    <Button
+      type="button"
       onClick={() => push(href)}
-      className={`inline-block text-center font-semibold rounded-lg transition-all duration-200 cursor-pointer ${sizeClass[size]} ${variantClass[variant]} ${className}`}
+      variant={variant === "subtle" ? "subtle" : "outline"}
+      size={sizeMap[size]}
+      className={[
+        "rounded-lg font-semibold",
+        variant === "default" && "bg-glass text-(--text-primary)",
+        variant === "subtle" && "text-(--text-secondary)",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
       {label}
-    </button>
+    </Button>
   );
 }
