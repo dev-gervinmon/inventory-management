@@ -65,7 +65,8 @@ export default function PullToRefreshContainer({
     });
 
   const prevIsLoadingRef = useRef(false);
-  const checkmarkTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const showTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Simpler approach: show checkmark briefly when refresh completes
   const [showCheckmark, setShowCheckmark] = useState(false);
@@ -74,15 +75,14 @@ export default function PullToRefreshContainer({
     // Show checkmark when loading finishes (transitions from true to false)
     if (prevIsLoadingRef.current && !isLoading) {
       // Clear any existing timeout
-      if (checkmarkTimeoutRef.current) {
-        clearTimeout(checkmarkTimeoutRef.current);
-      }
+      if (showTimeoutRef.current) clearTimeout(showTimeoutRef.current);
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
 
       // Defer state update using setTimeout to avoid cascading renders
-      checkmarkTimeoutRef.current = setTimeout(() => {
+      showTimeoutRef.current = setTimeout(() => {
         setShowCheckmark(true);
         // Hide after configured delay for better visibility
-        setTimeout(() => {
+        hideTimeoutRef.current = setTimeout(() => {
           setShowCheckmark(false);
         }, PTR_CONFIG.CHECKMARK_DISPLAY_MS);
       }, 0);
@@ -91,17 +91,16 @@ export default function PullToRefreshContainer({
     prevIsLoadingRef.current = isLoading;
 
     return () => {
-      if (checkmarkTimeoutRef.current) {
-        clearTimeout(checkmarkTimeoutRef.current);
-      }
+      if (showTimeoutRef.current) clearTimeout(showTimeoutRef.current);
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
     };
-  }, [isLoading, isRefreshing]);
+  }, [isLoading]);
 
   return (
     <div ref={containerRef} className="w-full overflow-hidden">
       {/* Pull-to-Refresh Indicator - Always visible when pulling/refreshing/loading */}
       <div
-        className="flex items-center justify-center bg-linear-to-b from-purple-50 to-transparent overflow-visible"
+        className="flex items-center justify-center bg-glass border-b border-(--border-subtle) overflow-visible"
         style={{
           maxHeight:
             isPulling || isRefreshing || isLoading || showCheckmark
@@ -132,8 +131,8 @@ export default function PullToRefreshContainer({
                 showCheckmark || isRefreshing
                   ? "opacity-0 scale-0"
                   : shouldTrigger
-                  ? "text-purple-600 opacity-100 scale-100"
-                  : "text-gray-400 opacity-75 scale-100"
+                  ? "text-(--brand) opacity-100 scale-100"
+                  : "text-(--text-muted) opacity-75 scale-100"
               }`}
               style={{
                 transform: `rotate(${
@@ -150,7 +149,7 @@ export default function PullToRefreshContainer({
             <RefreshCw
               className={`absolute w-6 h-6 transition-all duration-300 ${
                 isRefreshing && !showCheckmark
-                  ? "opacity-100 scale-100 animate-spin text-purple-600"
+                  ? "opacity-100 scale-100 animate-spin text-(--brand)"
                   : "opacity-0 scale-0"
               }`}
             />
@@ -161,8 +160,8 @@ export default function PullToRefreshContainer({
                 showCheckmark ? "opacity-100 scale-100" : "opacity-0 scale-0"
               }`}
             >
-              <div className="absolute inset-0 bg-green-500 rounded-full animate-ping opacity-75"></div>
-              <Check className="relative w-6 h-6 text-white drop-shadow-lg z-10" />
+              <div className="absolute inset-0 bg-(--success) rounded-full animate-ping opacity-75"></div>
+              <Check className="relative w-6 h-6 text-(--text-inverted) drop-shadow-lg z-10" />
             </div>
           </div>
 
@@ -171,8 +170,8 @@ export default function PullToRefreshContainer({
             <div
               className={`text-sm font-bold transition-all duration-300 ${
                 showCheckmark
-                  ? "text-green-600 scale-100"
-                  : "text-gray-600 scale-90"
+                  ? "text-(--success) scale-100"
+                  : "text-(--text-secondary) scale-90"
               }`}
             >
               {getStatusText({
@@ -186,9 +185,9 @@ export default function PullToRefreshContainer({
 
             {/* Progress indicator during pull */}
             {!isRefreshing && !showCheckmark && isPulling && (
-              <div className="w-12 h-1 bg-gray-200 rounded-full overflow-hidden">
+              <div className="w-12 h-1 bg-skeleton rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-linear-to-r from-purple-400 to-purple-600 transition-all duration-100"
+                  className="h-full bg-(--brand) transition-all duration-100"
                   style={{
                     width: `${Math.min(progress, 100)}%`,
                   }}
@@ -200,7 +199,7 @@ export default function PullToRefreshContainer({
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 bg-white">{children}</div>
+      <div className="relative z-10 bg-transparent">{children}</div>
     </div>
   );
 }
