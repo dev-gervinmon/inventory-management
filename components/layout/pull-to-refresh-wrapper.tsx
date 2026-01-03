@@ -11,7 +11,7 @@
  * </PullToRefreshWrapper>
  */
 
-import React, { ReactNode, useTransition } from "react";
+import React, { ReactNode, useEffect, useRef, useTransition } from "react";
 import PullToRefreshContainer from "@/components/layout/pull-to-refresh-container";
 import { PullToRefreshProvider } from "@/lib/contexts/pull-to-refresh-context";
 import { useRouter } from "next/navigation";
@@ -26,11 +26,24 @@ export default function PullToRefreshWrapper({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const handleRefresh = async () => {
-    // Wrap router.refresh in startTransition to track loading state
-    // This allows parent components to know when data refresh is complete
-    startTransition(() => {
-      router.refresh();
+  const pendingResolveRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    if (!isPending && pendingResolveRef.current) {
+      const resolve = pendingResolveRef.current;
+      pendingResolveRef.current = null;
+      resolve();
+    }
+  }, [isPending]);
+
+  const handleRefresh = () => {
+    // Return a promise that resolves when the transition completes
+    // so the pull-to-refresh hook can stay "refreshing" appropriately.
+    return new Promise<void>((resolve) => {
+      pendingResolveRef.current = resolve;
+      startTransition(() => {
+        router.refresh();
+      });
     });
   };
 
