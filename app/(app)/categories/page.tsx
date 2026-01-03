@@ -1,4 +1,3 @@
-import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
 import CategoriesPageWrapper from "./_components/categories-page-wrapper";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
@@ -24,7 +23,7 @@ export default async function CategoriesPage() {
 
   return (
     <CategoriesPageWrapper>
-      <PullToRefreshWrapper>
+      <>
         <div className="mb-4 sm:mb-6 md:mb-8">
           <div>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
@@ -55,7 +54,7 @@ export default async function CategoriesPage() {
             </div>
           </div>
         </div>
-      </PullToRefreshWrapper>
+      </>
     </CategoriesPageWrapper>
   );
 }
