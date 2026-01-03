@@ -5,6 +5,7 @@
  */
 
 import React from "react";
+import { Button } from "@/components/buttons/button";
 
 interface TouchOptimizedIconButtonProps {
   icon: React.ReactNode;
@@ -34,26 +35,36 @@ export default function TouchOptimizedIconButton({
     lg: "p-3", // 48x48px with icon
   };
 
-  const variantClass = {
-    primary:
-      "text-white bg-purple-600 hover:bg-purple-700 active:bg-purple-800 disabled:bg-gray-300",
-    secondary:
-      "text-gray-700 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400",
-    delete:
-      "text-white bg-red-600 hover:bg-red-700 active:bg-red-800 disabled:bg-gray-400",
-    edit: "text-gray-800 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 disabled:bg-gray-100 disabled:text-gray-400",
+  const variantMap = {
+    primary: "default" as const,
+    secondary: "outline" as const,
+    delete: "destructive" as const,
+    edit: "outline" as const,
   };
 
   return (
-    <button
+    <Button
       type={type}
-      onClick={onClick}
+      variant={variantMap[variant]}
+      size="sm"
       disabled={disabled}
+      onClick={onClick}
+      className={[
+        "rounded-lg",
+        "shadow-none",
+        "active:scale-95",
+        sizeClass[size],
+        // Make secondary/edit icon buttons read well on glass
+        (variant === "secondary" || variant === "edit") &&
+          "bg-glass text-(--text-secondary)",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
       aria-label={label}
       title={label}
-      className={`inline-flex items-center justify-center rounded-lg transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 disabled:cursor-not-allowed disabled:hover:shadow-md ${sizeClass[size]} ${variantClass[variant]} ${className}`}
     >
       {icon}
-    </button>
+    </Button>
   );
 }
