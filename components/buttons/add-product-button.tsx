@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Button } from "@/components/buttons/button";
 
 interface AddProductButtonProps {
   variant?: "simple" | "with-icon";
@@ -11,34 +11,46 @@ export default function AddProductButton({
   size = "md",
   className = "",
 }: AddProductButtonProps) {
-  const baseClass =
-    "inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg font-medium hover:from-purple-700 hover:to-purple-800 transition-all duration-200 shadow-lg hover:shadow-xl min-h-[44px]";
-
   const sizeClass = {
-    sm: "px-4 py-2.5",
-    md: "px-4 sm:px-6 py-2 sm:py-3",
+    sm: "px-4 py-2.5 text-xs sm:text-sm",
+    md: "px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-base",
   };
 
-  const fontClass = {
-    sm: "text-xs sm:text-sm",
-    md: "text-xs sm:text-base font-semibold",
-  };
+  const weightClass = size === "md" ? "font-semibold" : "";
 
   if (variant === "simple") {
     return (
-      <Link
+      <Button
+        asChild
         href="/add-product"
-        className={`${baseClass} ${sizeClass[size]} ${fontClass[size]} ${className}`}
+        size="default"
+        className={[
+          "min-h-11 gap-2 rounded-lg",
+          sizeClass[size],
+          weightClass,
+          className,
+        ]
+          .filter(Boolean)
+          .join(" ")}
       >
-        + Add Product
-      </Link>
+        <>+ Add Product</>
+      </Button>
     );
   }
 
   return (
-    <Link
+    <Button
+      asChild
       href="/add-product"
-      className={`${baseClass} ${sizeClass[size]} ${fontClass[size]} ${className}`}
+      size="default"
+      className={[
+        "min-h-11 gap-2 rounded-lg",
+        sizeClass[size],
+        weightClass,
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
       <svg
         className={`${size === "sm" ? "w-4 h-4" : "w-5 h-5"}`}
@@ -54,6 +66,6 @@ export default function AddProductButton({
         />
       </svg>
       Add Product
-    </Link>
+    </Button>
   );
 }
