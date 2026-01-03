@@ -1,6 +1,7 @@
 "use client";
 
 import Sidebar from "@/components/layout/sidebar/sidebar";
+import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
 import { useSidebar } from "../layout/sidebar/sidebar-context";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
@@ -19,7 +20,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <Sidebar />
         <main className="pt-(--top-nav-height) lg:ml-(--sidebar-current-width)">
           <div className="px-4 sm:px-6 md:px-4 pb-4">
-            <div className="py-5 px-3">{children}</div>
+            <div className="py-5 px-3">
+              <PullToRefreshWrapper>{children}</PullToRefreshWrapper>
+            </div>
           </div>
         </main>
       </div>
