@@ -12,7 +12,7 @@
  */
 
 import React, { ReactNode, useEffect, useRef, useTransition } from "react";
-import PullToRefreshContainer from "@/components/layout/pull-to-refresh-container";
+import PullToRefreshContainer from "@/components/layout/mobile-features/pull-to-refresh-container";
 import { PullToRefreshProvider } from "@/lib/contexts/pull-to-refresh-context";
 import { useRouter } from "next/navigation";
 
