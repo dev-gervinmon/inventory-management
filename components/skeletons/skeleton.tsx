@@ -15,7 +15,7 @@ export function Skeleton({
 
   return (
     <div
-      className={`animate-pulse bg-gray-200 ${baseClasses} ${className}`}
+      className={`animate-pulse bg-skeleton ${baseClasses} ${className}`}
       aria-hidden="true"
     />
   );
