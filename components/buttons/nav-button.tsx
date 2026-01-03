@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Button } from "@/components/buttons/button";
 
 interface PrimaryButtonProps {
   href: string;
@@ -21,19 +21,22 @@ export function PrimaryButton({
   size = "md",
   className = "",
 }: PrimaryButtonProps) {
-  const sizeClass = {
-    sm: "px-4 py-2 text-sm",
-    md: "px-6 py-3",
-    lg: "px-8 py-3",
+  const sizeMap = {
+    sm: "sm" as const,
+    md: "default" as const,
+    lg: "lg" as const,
   };
 
   return (
-    <Link
+    <Button
+      asChild
       href={href}
-      className={`inline-block text-center bg-linear-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-200 shadow-md hover:shadow-lg ${sizeClass[size]} ${className}`}
+      variant="default"
+      size={sizeMap[size]}
+      className={["rounded-lg", className].filter(Boolean).join(" ")}
     >
       {label}
-    </Link>
+    </Button>
   );
 }
 
@@ -44,24 +47,27 @@ export function SecondaryButton({
   className = "",
   variant = "default",
 }: SecondaryButtonProps) {
-  const sizeClass = {
-    sm: "px-4 py-2 text-sm",
-    md: "px-6 py-3",
-    lg: "px-8 py-3",
-  };
-
-  const variantClass = {
-    default:
-      "bg-gray-100 text-gray-900 border border-gray-300 hover:bg-gray-200 hover:border-gray-400",
-    subtle: "text-gray-600 hover:text-gray-900 hover:underline",
+  const sizeMap = {
+    sm: "sm" as const,
+    md: "default" as const,
+    lg: "lg" as const,
   };
 
   return (
-    <Link
+    <Button
+      asChild
       href={href}
-      className={`inline-block text-center font-semibold rounded-lg transition-all duration-200 ${sizeClass[size]} ${variantClass[variant]} ${className}`}
+      variant={variant === "subtle" ? "subtle" : "outline"}
+      size={sizeMap[size]}
+      className={[
+        "rounded-lg",
+        variant === "default" && "bg-glass text-(--text-primary)",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
       {label}
-    </Link>
+    </Button>
   );
 }
