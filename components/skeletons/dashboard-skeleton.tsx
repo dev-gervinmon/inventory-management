@@ -27,7 +27,7 @@ export function DashboardHeaderSkeleton() {
 
 export function MetricCardSkeleton() {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6">
+    <div className="bg-glass rounded-lg border border-(--border-subtle) p-3 sm:p-4 md:p-6">
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <Skeleton className="h-3 sm:h-4 w-20 sm:w-28 mb-2 sm:mb-3" />
@@ -52,7 +52,7 @@ export function DashboardMetricsSkeleton() {
 
 export function ChartSkeleton() {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6">
+    <div className="bg-glass rounded-lg border border-(--border-subtle) p-3 sm:p-4 md:p-6">
       <Skeleton className="h-4 sm:h-5 w-40 sm:w-48 mb-4 md:mb-6" />
       <Skeleton className="w-full h-56" />
     </div>
@@ -77,7 +77,7 @@ export function ChartRowSkeleton() {
 
 export function AlertActivityItemSkeleton() {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6">
+    <div className="bg-glass rounded-lg border border-(--border-subtle) p-3 sm:p-4 md:p-6">
       <div className="flex items-center space-x-3 sm:space-x-4">
         <Skeleton className="w-4 h-4 sm:w-5 sm:h-5 rounded-full shrink-0" />
         <div className="flex-1 min-w-0">
