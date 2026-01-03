@@ -1,4 +1,3 @@
-import PullToRefreshWrapper from "@/components/layout/pull-to-refresh-wrapper";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
 import ActivityTable from "@/components/tables/activity-table";
@@ -49,7 +48,7 @@ export default async function ActivitiesPage({
 
   return (
     <ActivityPageWrapper>
-      <PullToRefreshWrapper>
+      <>
         <div className="mb-4 sm:mb-6 md:mb-8">
           <div>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
@@ -83,7 +82,7 @@ export default async function ActivitiesPage({
             />
           </div>
         </div>
-      </PullToRefreshWrapper>
+      </>
     </ActivityPageWrapper>
   );
 }
