@@ -85,3 +85,17 @@ model StockMovement {
 
   @@index([productId, createdAt])
 }
+
+model InventoryValueSnapshot {
+  id String @id @default(cuid())
+  userId String
+  snapshotDate DateTime @db.Date
+  totalRetailValue Decimal @db.Decimal(14, 2)
+  totalCostValue Decimal @db.Decimal(14, 2)
+  totalPotentialProfit Decimal @db.Decimal(14, 2)
+  productsMissingCost Int
+  createdAt DateTime @default(now())
+
+  @@unique([userId, snapshotDate])
+  @@index([userId, snapshotDate])
+}
