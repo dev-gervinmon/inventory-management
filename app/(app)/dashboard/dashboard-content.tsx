@@ -42,10 +42,7 @@ export default function DashboardContent({
             outOfStockPercentage={
               dashboardMetrics.inventory.outOfStockPercentage
             }
-            criticalStockCount={
-              dashboardMetrics.inventory.outOfStockCount +
-              dashboardMetrics.inventory.lowStockCount
-            }
+            criticalStockCount={dashboardMetrics.inventory.outOfStockCount}
           />
         </div>
 
