@@ -12,23 +12,8 @@ type ThemeContextType = {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof document !== "undefined") {
-      const root = document.documentElement;
-      if (root.classList.contains("dark")) return "dark";
-      if (root.classList.contains("light")) return "light";
-    }
-
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("theme") as Theme | null;
-      if (stored === "light" || stored === "dark") return stored;
-      return window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
-    }
-
-    return "light";
-  });
+  // Important: keep initial render deterministic for SSR/hydration.
+  const [theme, setThemeState] = useState<Theme>("light");
 
   const applyTheme = (t: Theme) => {
     const root = document.documentElement;
@@ -37,9 +22,38 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   const setTheme = (t: Theme) => {
-    localStorage.setItem("theme", t);
+    try {
+      localStorage.setItem("theme", t);
+    } catch {
+      // ignore
+    }
     setThemeState(t);
   };
+
+  useEffect(() => {
+    // Sync from the DOM / localStorage after mount.
+    try {
+      const root = document.documentElement;
+      const stored = localStorage.getItem("theme") as Theme | null;
+
+      let next: Theme | null = null;
+
+      if (stored === "light" || stored === "dark") {
+        next = stored;
+      } else if (root.classList.contains("dark")) {
+        next = "dark";
+      } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        next = "dark";
+      }
+
+      if (next && next !== theme) {
+        setTimeout(() => setThemeState(next as Theme), 0);
+      }
+    } catch {
+      // ignore
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (typeof document === "undefined") return;
