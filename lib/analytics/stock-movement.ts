@@ -6,6 +6,7 @@ import {
   StockMovementSummary,
   StockMovementTrend,
   StockMovementTrendIndicator,
+  NonMovingProduct,
   TopMovingProduct,
 } from "../domain/stock-movement";
 
@@ -131,7 +132,10 @@ export async function getStockMovementTrendIndicator(
   period: AnalyticsPeriod = 14
 ): Promise<StockMovementTrendIndicator> {
   const current = await getStockMovements(userId, period);
-  const previous = await getStockMovements(userId, period * 2 as AnalyticsPeriod);
+  const previous = await getStockMovements(
+    userId,
+    (period * 2) as AnalyticsPeriod
+  );
 
   const currentNet = current.netChange;
   const previousNet = previous.netChange - currentNet;
@@ -184,6 +188,40 @@ export async function getTopMovingProducts(
     productId: m.productId,
     name: productMap.get(m.productId) || "Unknown",
     totalMoved: m._sum.quantity || 0,
+  }));
+}
+
+export async function getNonMovingProducts(
+  userId: string,
+  limit = 5,
+  period: AnalyticsPeriod = 30
+): Promise<NonMovingProduct[]> {
+  const since = new Date();
+  since.setDate(since.getDate() - period);
+
+  const products = await prisma.product.findMany({
+    where: {
+      userId,
+      stockMovements: {
+        none: {
+          createdAt: { gte: since },
+        },
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+      quantity: true,
+      updatedAt: true,
+    },
+    orderBy: { updatedAt: "desc" },
+    take: limit,
+  });
+
+  return products.map((p) => ({
+    productId: p.id,
+    name: p.name,
+    quantity: p.quantity,
   }));
 }
 
