@@ -5,6 +5,7 @@ import { getInventoryOverview } from "./inventory-overview";
 import { getInventoryValue } from "./inventory-value";
 import {
   getStockMovements,
+  getNonMovingProducts,
   getTopMovingProducts,
   getStockMovementTrend,
   getStockMovementTrendIndicator,
@@ -31,19 +32,20 @@ export async function getStockMovementAnalytics(
   userId: string,
   period: AnalyticsPeriod = 30
 ): Promise<StockMovementAnalytics> {
-  const [summary, trend, topMovingProducts, trendIndicator] = await Promise.all(
-    [
+  const [summary, trend, topMovingProducts, nonMovingProducts, trendIndicator] =
+    await Promise.all([
       getStockMovements(userId, period),
       getStockMovementTrend(userId, period),
       getTopMovingProducts(userId, period),
+      getNonMovingProducts(userId, period),
       getStockMovementTrendIndicator(userId, period),
-    ]
-  );
+    ]);
 
   return {
     summary,
     trends: trend,
     topMovingProducts,
+    nonMovingProducts,
     trendIndicator,
   };
 }
