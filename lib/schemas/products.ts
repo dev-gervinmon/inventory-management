@@ -10,6 +10,10 @@ export const ProductSchema = z.object({
   price: z.coerce
     .number()
     .min(PRODUCT_LIMITS.PRICE_MIN, "Price must be non-negative"),
+  unitCost: z.coerce
+    .number()
+    .min(0, "Unit cost must be non-negative")
+    .optional(),
   quantity: z.coerce
     .number()
     .int()
@@ -40,6 +44,13 @@ export function parseProductData(
     if (dataObj.image && !dataObj.imageUrl) {
       dataObj.imageUrl = dataObj.image;
       delete dataObj.image;
+    }
+
+    // Avoid z.coerce.number() turning empty strings into 0 for optional fields.
+    for (const key of ["unitCost", "lowStockAt", "sku"] as const) {
+      if (dataObj[key] === "") {
+        delete dataObj[key];
+      }
     }
   } else {
     dataObj = {
