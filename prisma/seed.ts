@@ -9,16 +9,31 @@ const adapter = new PrismaPg({
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const demoUserId = "292489e6-837a-4520-957b-97f153a5bd53";
+  const userId = process.env.SEED_USER_ID;
+  const reset =
+    process.env.SEED_RESET === "1" || process.env.SEED_RESET === "true";
 
-  // Check if categories already exist
-  const existingCategories = await prisma.category.count();
-
-  if (existingCategories > 0) {
+  if (!userId) {
+    console.log("\n✖ Missing SEED_USER_ID");
     console.log(
-      `✓ Categories already exist (${existingCategories} found), skipping seed`
+      "Run the app, sign in, then open /api/debug/whoami to copy your user id."
     );
-    return;
+    console.log(
+      'Then run: $env:SEED_USER_ID="<your-user-id>"; $env:SEED_RESET="1"; npx prisma db seed\n'
+    );
+    process.exit(1);
+  }
+
+  const userKey = userId.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8) || "demo";
+
+  if (reset) {
+    console.log("\n• Resetting existing demo data for user...");
+    await prisma.stockMovement.deleteMany({ where: { product: { userId } } });
+    await prisma.activity.deleteMany({ where: { userId } });
+    await prisma.inventoryValueSnapshot.deleteMany({ where: { userId } });
+    await prisma.inventoryHealthSnapshot.deleteMany({ where: { userId } });
+    await prisma.product.deleteMany({ where: { userId } });
+    console.log("✓ Cleared user-scoped data");
   }
 
   // Category data with subcategories
@@ -153,18 +168,21 @@ async function main() {
 
   // Create categories with subcategories
   for (const categoryData of categoriesData) {
-    await prisma.category.create({
-      data: {
-        name: categoryData.name,
-        subcategories: {
-          create: categoryData.subcategories.map((name) => ({ name })),
-        },
-      },
-      include: {
-        subcategories: true,
-      },
+    const category = await prisma.category.upsert({
+      where: { name: categoryData.name },
+      update: {},
+      create: { name: categoryData.name },
     });
-    console.log(`✓ Created category: ${categoryData.name}`);
+
+    await prisma.subcategory.createMany({
+      data: categoryData.subcategories.map((name) => ({
+        name,
+        categoryId: category.id,
+      })),
+      skipDuplicates: true,
+    });
+
+    console.log(`✓ Ensured category: ${categoryData.name}`);
   }
 
   console.log(`\n✓ Seed data created successfully!`);
@@ -541,12 +559,20 @@ async function main() {
 
       const product = await prisma.product.create({
         data: {
-          userId: demoUserId,
+          userId,
           name: productData.name,
-          sku: productData.sku,
+          sku: productData.sku
+            ? `${userKey}-${productData.sku}`
+            : `${userKey}-${productData.name
+                .toUpperCase()
+                .replace(/\s+/g, "-")}`,
           price: productData.price.toString(),
+          unitCost: (
+            Number(productData.price) *
+            (0.6 + Math.random() * 0.2)
+          ).toFixed(2),
           quantity: productData.quantity,
-          lowStockAt: 10,
+          lowStockAt: 5 + Math.floor(Math.random() * 16),
           categories: {
             connect: [{ id: category.id }],
           },
@@ -565,6 +591,217 @@ async function main() {
   console.log(
     `\n✓ Created ${totalProductsCreated} products with categories and subcategories`
   );
+
+  // Ensure a few edge-case products (missing cost / low / out)
+  const existingCount = await prisma.product.count({ where: { userId } });
+  if (existingCount > 0) {
+    await prisma.product.createMany({
+      data: [
+        {
+          userId,
+          name: "(Demo) Sachet Shampoo - Small",
+          sku: `${userKey}-SACHET-SHAMPOO-SMALL`,
+          price: "8.00",
+          unitCost: null,
+          quantity: 0,
+          lowStockAt: 10,
+        },
+        {
+          userId,
+          name: "(Demo) Sardines Can",
+          sku: `${userKey}-SARDINES-CAN`,
+          price: "28.00",
+          unitCost: "18.00",
+          quantity: 6,
+          lowStockAt: 12,
+        },
+      ],
+      skipDuplicates: true,
+    });
+  }
+
+  // Seed some stock movements and activities if none exist for this user
+  const movementCount = await prisma.stockMovement.count({
+    where: { product: { userId } },
+  });
+
+  if (movementCount === 0) {
+    console.log("\n• Seeding stock movements (last 30 days)...");
+
+    const products = await prisma.product.findMany({
+      where: { userId },
+      select: { id: true, name: true },
+    });
+
+    const now = new Date();
+    const movements: {
+      productId: string;
+      quantity: number;
+      direction: "IN" | "OUT";
+      reason: string;
+      source: string;
+      createdAt: Date;
+    }[] = [];
+
+    for (const product of products.slice(0, 18)) {
+      const count = 3 + Math.floor(Math.random() * 6);
+      for (let i = 0; i < count; i++) {
+        const daysAgo = Math.floor(Math.random() * 30);
+        const createdAt = new Date(now);
+        createdAt.setDate(createdAt.getDate() - daysAgo);
+        createdAt.setHours(10 + Math.floor(Math.random() * 8), 0, 0, 0);
+
+        const direction = Math.random() < 0.55 ? "OUT" : "IN";
+        const quantity = 1 + Math.floor(Math.random() * 8);
+        const reason =
+          direction === "OUT"
+            ? Math.random() < 0.7
+              ? "SALE"
+              : "ADJUSTMENT"
+            : Math.random() < 0.7
+            ? "REFILL"
+            : "DELIVERY";
+
+        movements.push({
+          productId: product.id,
+          quantity,
+          direction,
+          reason,
+          source: "SYSTEM",
+          createdAt,
+        });
+      }
+    }
+
+    await prisma.stockMovement.createMany({ data: movements });
+    console.log(`✓ Created ${movements.length} stock movements`);
+
+    const activityCount = await prisma.activity.count({ where: { userId } });
+    if (activityCount === 0) {
+      const sample = products.slice(0, 8);
+      await prisma.activity.createMany({
+        data: sample.map((p, idx) => ({
+          userId,
+          entityType: "PRODUCT",
+          actionType: idx === 0 ? "ADDED" : "STOCK_UPDATED",
+          entityId: p.id,
+          entityName: p.name,
+          message:
+            idx === 0
+              ? `Added product ${p.name}`
+              : `Updated stock for ${p.name}`,
+          details: undefined,
+          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 12 * idx),
+        })),
+      });
+      console.log(`✓ Created ${sample.length} activity records`);
+    }
+  }
+
+  // Backfill snapshots so trend charts render immediately
+  const snapshotDays = 30;
+  console.log(`\n• Backfilling ${snapshotDays} days of snapshots...`);
+
+  const productsForValue = await prisma.product.findMany({
+    where: { userId },
+    select: {
+      quantity: true,
+      price: true,
+      unitCost: true,
+      lowStockAt: true,
+    },
+  });
+
+  const baseRetail = productsForValue.reduce(
+    (sum, p) => sum + Number(p.quantity) * Number(p.price),
+    0
+  );
+  const baseCost = productsForValue.reduce((sum, p) => {
+    if (p.unitCost === null) return sum;
+    return sum + Number(p.quantity) * Number(p.unitCost);
+  }, 0);
+  const baseProfit = productsForValue.reduce((sum, p) => {
+    if (p.unitCost === null) return sum;
+    const retail = Number(p.quantity) * Number(p.price);
+    const cost = Number(p.quantity) * Number(p.unitCost);
+    return sum + (retail - cost);
+  }, 0);
+  const baseMissingCost = productsForValue.reduce(
+    (count, p) => (p.unitCost === null ? count + 1 : count),
+    0
+  );
+
+  const baseTotalProducts = productsForValue.length;
+  const baseOut = productsForValue.reduce(
+    (count, p) => (Number(p.quantity) <= 0 ? count + 1 : count),
+    0
+  );
+  const baseLow = productsForValue.reduce((count, p) => {
+    const qty = Number(p.quantity);
+    if (qty <= 0) return count;
+    if (typeof p.lowStockAt === "number" && qty <= p.lowStockAt)
+      return count + 1;
+    return count;
+  }, 0);
+  const today = new Date();
+  const dateOnly = (d: Date) =>
+    new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+
+  for (let i = snapshotDays - 1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setUTCDate(d.getUTCDate() - i);
+    const snapshotDate = dateOnly(d);
+
+    // simple deterministic-ish progression + noise
+    const t = (snapshotDays - 1 - i) / Math.max(1, snapshotDays - 1);
+    const drift = 0.92 + t * 0.12;
+    const noise = 0.985 + Math.random() * 0.03;
+    const factor = drift * noise;
+
+    await prisma.inventoryValueSnapshot.upsert({
+      where: { userId_snapshotDate: { userId, snapshotDate } },
+      update: {},
+      create: {
+        userId,
+        snapshotDate,
+        totalRetailValue: (baseRetail * factor).toFixed(2),
+        totalCostValue: (baseCost * factor).toFixed(2),
+        totalPotentialProfit: (baseProfit * factor).toFixed(2),
+        productsMissingCost: baseMissingCost,
+      },
+    });
+
+    // Health snapshots: slightly worse in the past
+    const criticalBias = Math.round((1 - t) * 2);
+    const out = Math.min(
+      baseTotalProducts,
+      baseOut + (Math.random() < 0.3 ? criticalBias : 0)
+    );
+    const low = Math.min(
+      baseTotalProducts - out,
+      baseLow + (Math.random() < 0.5 ? criticalBias : 0)
+    );
+    const inStock = Math.max(0, baseTotalProducts - out - low);
+
+    await prisma.inventoryHealthSnapshot.upsert({
+      where: { userId_snapshotDate: { userId, snapshotDate } },
+      update: {},
+      create: {
+        userId,
+        snapshotDate,
+        totalProducts: baseTotalProducts,
+        inStockCount: inStock,
+        lowStockCount: low,
+        outOfStockCount: out,
+      },
+    });
+  }
+
+  console.log("✓ Snapshots backfilled");
+
+  console.log("\n✓ Seed complete!");
+  console.log(`• Seeded for userId: ${userId}`);
+  console.log("• Open /dashboard to verify cards + pages");
 }
 
 main()
