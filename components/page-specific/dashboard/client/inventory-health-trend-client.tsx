@@ -114,7 +114,7 @@ export default function InventoryHealthTrendClient({
           <Metric label="Total" value={latest.totalProducts} tone="neutral" />
         </div>
 
-        <div className="mt-4 h-[220px] min-h-[220px]">
+        <div className="mt-4 h-[220px] min-h-[220px] min-w-0">
           {isPending ? (
             <ChartSkeleton />
           ) : hasTrend ? (
