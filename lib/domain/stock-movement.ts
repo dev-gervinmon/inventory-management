@@ -35,6 +35,12 @@ export interface TopMovingProduct {
   totalMoved: number;
 }
 
+export interface NonMovingProduct {
+  productId: string;
+  name: string;
+  quantity: number;
+}
+
 export interface StockMovementTrendIndicator {
   direction: "up" | "down" | "flat";
   percentage: number;
@@ -45,5 +51,6 @@ export interface StockMovementAnalytics {
   summary: StockMovementSummary;
   trends: StockMovementTrend[];
   topMovingProducts: TopMovingProduct[];
+  nonMovingProducts: NonMovingProduct[];
   trendIndicator: StockMovementTrendIndicator;
 }
