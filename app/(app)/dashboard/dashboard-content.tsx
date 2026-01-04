@@ -4,6 +4,7 @@ import StockMovementCard from "@/components/page-specific/dashboard/cards/stock-
 import StockRiskCard from "@/components/page-specific/dashboard/cards/stock-risk-card";
 import TotalValueCard from "@/components/page-specific/dashboard/cards/total-value-card";
 import InventoryValueTrendCard from "@/components/page-specific/dashboard/cards/inventory-value-trend-card";
+import InventoryHealthTrendCard from "@/components/page-specific/dashboard/cards/inventory-health-trend-card";
 import { DashboardMetrics } from "@/lib/domain/dashboard-metrics";
 
 interface DashboardContentProps {
@@ -69,12 +70,15 @@ export default function DashboardContent({
       </div>
 
       {/** Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-10">
         {/* Stock Movement Chart */}
         <StockMovementCard userId={userId} />
 
         {/* Inventory Value Trend */}
         <InventoryValueTrendCard userId={userId} />
+
+        {/* Stock Health Trend */}
+        <InventoryHealthTrendCard userId={userId} />
       </div>
     </>
   );
