@@ -27,24 +27,27 @@ export const CustomTooltip = memo(function CustomTooltip({
   const net = inValue - outValue;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-md px-3 py-2 shadow-md text-xs w-[140px]">
-      <p className="font-semibold text-gray-900 mb-1">{formatDate(label!)}</p>
+    <div className="rounded-xl border border-(--border-strong) bg-glass px-3 py-2 text-xs w-[150px]">
+      <p className="font-semibold text-(--text-primary) mb-1">
+        {formatDate(label!)}
+      </p>
 
       <div className="space-y-0.5">
-        <div className="flex justify-between text-green-600">
+        <div className="flex justify-between text-(--success)">
           <span>In</span>
           <span className="font-semibold">{inValue}</span>
         </div>
 
-        <div className="flex justify-between text-red-600">
+        <div className="flex justify-between text-(--danger)">
           <span>Out</span>
           <span className="font-semibold">{outValue}</span>
         </div>
 
         <div
-          className={`flex justify-between border-t pt-1 mt-1 font-semibold ${
-            net >= 0 ? "text-green-700" : "text-red-700"
-          }`}
+          className={[
+            "flex justify-between border-t border-(--border-subtle) pt-1 mt-1 font-semibold",
+            net >= 0 ? "text-(--success)" : "text-(--danger)",
+          ].join(" ")}
         >
           <span>Net</span>
           <span>{net}</span>
