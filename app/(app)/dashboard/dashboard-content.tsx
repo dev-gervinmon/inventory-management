@@ -32,7 +32,7 @@ export default function DashboardContent({
       {/** Key Metrics - Responsive Grid: 1 col (mobile), 2 col (md), 3 col (lg+) **/}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6 mb-6 sm:mb-10">
         {/* Inventory Overview Card */}
-        <div>
+        <div className="h-full">
           <InventoryOverviewCard
             totalProducts={dashboardMetrics.inventory.totalProducts}
             inStockCount={dashboardMetrics.inventory.inStockCount}
@@ -48,7 +48,7 @@ export default function DashboardContent({
         </div>
 
         {/* Stock Risk Card */}
-        <div>
+        <div className="h-full">
           <StockRiskCard
             totalAtRisk={dashboardMetrics.risk.totalAtRisk}
             outOfStock={dashboardMetrics.risk.outOfStock}
@@ -58,7 +58,7 @@ export default function DashboardContent({
         </div>
 
         {/* Total Value Card */}
-        <div>
+        <div className="h-full">
           <TotalValueCard
             totalRetailValue={dashboardMetrics.value.totalRetailValue}
             totalCostValue={dashboardMetrics.value.totalCostValue}
