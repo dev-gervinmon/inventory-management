@@ -76,38 +76,39 @@ export default async function EditProductPage({
 
   return (
     <EditProductPageWrapper>
-        <ProductEditClient
-          product={{
-            id: product.id,
-            name: product.name,
-            price: Number(product.price),
-            quantity: product.quantity,
-            sku: product.sku,
-            lowStockAt: product.lowStockAt,
-            imageUrl: product.imageUrl,
-            createdAt: product.createdAt,
-            updatedAt: product.updatedAt,
-            categories: product.categories,
-            subcategories: product.subcategories,
-          }}
-          formAction={editProduct}
-          deleteAction={deleteProduct}
-          activities={activities}
-        >
-          <ProductForm
-            id={product.id}
-            name={product.name}
-            price={Number(product.price)}
-            quantity={product.quantity}
-            sku={product.sku}
-            lowStockAt={product.lowStockAt}
-            image={product.imageUrl}
-            categoryIds={product.categories.map((c) => c.id)}
-            subcategoryIds={product.subcategories.map((s) => s.id)}
-            categories={categories}
-          />
-        </ProductEditClient>
+      <ProductEditClient
+        product={{
+          id: product.id,
+          name: product.name,
+          price: Number(product.price),
+          unitCost: product.unitCost !== null ? Number(product.unitCost) : null,
+          quantity: product.quantity,
+          sku: product.sku,
+          lowStockAt: product.lowStockAt,
+          imageUrl: product.imageUrl,
+          createdAt: product.createdAt,
+          updatedAt: product.updatedAt,
+          categories: product.categories,
+          subcategories: product.subcategories,
+        }}
+        formAction={editProduct}
+        deleteAction={deleteProduct}
+        activities={activities}
+      >
+        <ProductForm
+          id={product.id}
+          name={product.name}
+          price={Number(product.price)}
+          unitCost={product.unitCost !== null ? Number(product.unitCost) : null}
+          quantity={product.quantity}
+          sku={product.sku}
+          lowStockAt={product.lowStockAt}
+          image={product.imageUrl}
+          categoryIds={product.categories.map((c) => c.id)}
+          subcategoryIds={product.subcategories.map((s) => s.id)}
+          categories={categories}
+        />
+      </ProductEditClient>
     </EditProductPageWrapper>
-    </ProductEditClient>
   );
 }
