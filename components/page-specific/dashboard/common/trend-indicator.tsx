@@ -121,7 +121,7 @@ export default function TrendIndicator({
       <span className="tabular-nums tracking-tight">{formattedPercentage}</span>
 
       {label && (
-        <span className="hidden sm:inline ml-1 text-gray-500 dark:text-gray-400 font-normal">
+        <span className="hidden sm:inline ml-1 text-(--text-muted) font-normal">
           {label}
         </span>
       )}
