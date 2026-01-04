@@ -1,11 +1,11 @@
 import { withApiHandler } from "@/lib/api/handler";
 import prisma from "@/lib/db/prisma";
-import { parseSubcategoryDataJSON } from "@/lib/schemas/subcategories";
+import { parseSubcategoryData } from "@/lib/schemas/subcategories";
+import { apiRequireCategoryExists } from "@/lib/validators/categories";
 import {
-  apiRequireCategoryExists,
+  apiRequireId,
   apiRequireSubcategoryExists,
-} from "@/lib/validators/categories";
-import { apiRequireId } from "@/lib/validators/subcategories";
+} from "@/lib/validators/subcategories";
 import { NextResponse } from "next/server";
 
 export const PUT = withApiHandler(
@@ -15,7 +15,7 @@ export const PUT = withApiHandler(
     const id = apiRequireId(params);
 
     const body = await req.json();
-    const parsed = parseSubcategoryDataJSON(body);
+    const parsed = parseSubcategoryData(body);
 
     await apiRequireCategoryExists(parsed.categoryId);
 
