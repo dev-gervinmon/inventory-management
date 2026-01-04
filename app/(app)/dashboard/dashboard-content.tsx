@@ -3,6 +3,7 @@ import InventoryOverviewCard from "@/components/page-specific/dashboard/cards/in
 import DashboardHeader from "@/components/page-specific/dashboard/sections/dashboard-header";
 import StockMovementCard from "@/components/page-specific/dashboard/cards/stock-movement-card";
 import StockRiskCard from "@/components/page-specific/dashboard/cards/stock-risk-card";
+import TotalValueCard from "@/components/page-specific/dashboard/cards/total-value-card";
 import { DashboardMetrics } from "@/lib/domain/dashboard-metrics";
 
 interface DashboardContentProps {
@@ -58,24 +59,12 @@ export default function DashboardContent({
 
         {/* Total Value Card */}
         <div>
-          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:border-gray-300 hover:shadow-sm transition-all duration-200 flex flex-col justify-between h-full">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl text-gray-700 font-semibold">
-                  Total Value
-                </p>
-                <p className="text-base sm:text-lg md:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 mt-1 sm:mt-2">
-                  ₱{Number(dashboardMetrics.value.totalValue).toFixed(0)}
-                </p>
-              </div>
-              <div className="p-2 md:p-3 bg-green-50 rounded-lg">
-                <div className="w-5 h-5 md:w-6 md:h-6 text-green-600">💰</div>
-              </div>
-            </div>
-            <p className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl text-gray-500 mt-4">
-              Estimated inventory value
-            </p>
-          </div>
+          <TotalValueCard
+            totalRetailValue={dashboardMetrics.value.totalRetailValue}
+            totalCostValue={dashboardMetrics.value.totalCostValue}
+            totalPotentialProfit={dashboardMetrics.value.totalPotentialProfit}
+            productsMissingCost={dashboardMetrics.value.productsMissingCost}
+          />
         </div>
       </div>
 
