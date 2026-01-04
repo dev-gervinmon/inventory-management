@@ -18,6 +18,7 @@ interface Product {
   id: string;
   name: string;
   price: number;
+  unitCost: number | null;
   quantity: number;
   sku: string | null;
   lowStockAt: number | null;
@@ -275,6 +276,7 @@ export default function ProductEditClient({
             productId={product.id}
             sku={product.sku}
             price={product.price}
+            unitCost={product.unitCost}
             quantity={product.quantity}
             lowStockAt={product.lowStockAt}
             createdAt={product.createdAt}
