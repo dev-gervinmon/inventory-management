@@ -25,17 +25,24 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(() => {
+  // Keep initial render deterministic for SSR/hydration.
+  const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(true);
+
+  useEffect(() => {
+    // Restore persisted value after mount.
     try {
-      if (typeof window === "undefined") return true;
       const stored = window.localStorage.getItem("sidebar:collapsed");
-      if (stored === "true") return true;
-      if (stored === "false") return false;
-      return true;
+      let next: boolean | null = null;
+      if (stored === "true") next = true;
+      if (stored === "false") next = false;
+
+      if (next !== null) {
+        setTimeout(() => setIsDesktopCollapsed(next as boolean), 0);
+      }
     } catch {
-      return true;
+      // ignore
     }
-  });
+  }, []);
 
   const openSidebar = useCallback(() => setIsSidebarOpen(true), []);
   const closeSidebar = useCallback(() => setIsSidebarOpen(false), []);
