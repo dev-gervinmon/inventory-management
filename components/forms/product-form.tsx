@@ -12,6 +12,7 @@ interface ProductFormProps {
   id?: string;
   name?: string | null;
   price?: number | null;
+  unitCost?: number | null;
   quantity?: number | null;
   sku?: string | null;
   lowStockAt?: number | null;
@@ -25,6 +26,7 @@ export default function ProductForm({
   id,
   name = "",
   price = null,
+  unitCost = null,
   quantity = null,
   sku = null,
   lowStockAt = null,
@@ -123,6 +125,33 @@ export default function ProductForm({
                     disabled={isSubmitting}
                     className={`w-full px-3 sm:px-4 md:px-4 py-2.5 sm:py-3 md:py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm sm:text-base md:text-base ${
                       formErrors.price
+                        ? "border-red-500 bg-red-50"
+                        : "border-gray-300"
+                    }`}
+                  />
+                </FormField>
+
+                <FormField
+                  id="unitCost"
+                  label="Unit Cost"
+                  error={formErrors.unitCost}
+                  hint="Optional • used for Total Value (at cost)"
+                >
+                  <input
+                    type="number"
+                    id="unitCost"
+                    name="unitCost"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    defaultValue={
+                      unitCost !== null && unitCost !== undefined
+                        ? unitCost
+                        : undefined
+                    }
+                    disabled={isSubmitting}
+                    className={`w-full px-3 sm:px-4 md:px-4 py-2.5 sm:py-3 md:py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm sm:text-base md:text-base ${
+                      formErrors.unitCost
                         ? "border-red-500 bg-red-50"
                         : "border-gray-300"
                     }`}
