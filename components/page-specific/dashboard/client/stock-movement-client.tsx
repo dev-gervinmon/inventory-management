@@ -105,7 +105,7 @@ function Header({
   isLoading: boolean;
 }) {
   return (
-    <header className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <header className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
       <div className="flex items-center gap-2">
         <span className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-(--border-subtle) bg-(--surface-elevated)/40">
           <ArrowLeftRight
