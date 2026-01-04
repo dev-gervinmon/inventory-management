@@ -1,9 +1,9 @@
-import ProductChart from "@/components/page-specific/dashboard/charts/products-chart";
 import InventoryOverviewCard from "@/components/page-specific/dashboard/cards/inventory-overview-card";
 import DashboardHeader from "@/components/page-specific/dashboard/sections/dashboard-header";
 import StockMovementCard from "@/components/page-specific/dashboard/cards/stock-movement-card";
 import StockRiskCard from "@/components/page-specific/dashboard/cards/stock-risk-card";
 import TotalValueCard from "@/components/page-specific/dashboard/cards/total-value-card";
+import InventoryValueTrendCard from "@/components/page-specific/dashboard/cards/inventory-value-trend-card";
 import { DashboardMetrics } from "@/lib/domain/dashboard-metrics";
 
 interface DashboardContentProps {
@@ -70,22 +70,11 @@ export default function DashboardContent({
 
       {/** Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-10">
-        {/* Weekly Products Chart */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-sm transition-all duration-200 flex flex-col min-w-0">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-base md:text-lg font-semibold text-gray-900">
-              New Products Per Week
-            </h2>
-          </div>
-
-          {/* Chart container */}
-          <div className="flex-1 min-h-[180px] sm:min-h-[220px] min-w-0">
-            <ProductChart data={dashboardMetrics.weeklyProductStats} />
-          </div>
-        </div>
-
         {/* Stock Movement Chart */}
         <StockMovementCard userId={userId} />
+
+        {/* Inventory Value Trend */}
+        <InventoryValueTrendCard userId={userId} />
       </div>
     </>
   );
