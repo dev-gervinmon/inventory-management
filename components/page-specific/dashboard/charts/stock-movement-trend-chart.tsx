@@ -10,7 +10,7 @@ import {
   CartesianGrid,
   ReferenceLine,
 } from "recharts";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { StockMovementTrend } from "@/lib/domain/stock-movement";
 import { CustomTooltip } from "../../../common/custom-tooltip";
 import useMediaQuery from "@/lib/hooks/useMediaQuery";
@@ -60,27 +60,6 @@ export default function StockMovementTrendChart({
   const isMobile = useMediaQuery("(max-width: 640px)");
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-
-    const update = () => {
-      setCanScrollLeft(el.scrollLeft > 4);
-      setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
-    };
-
-    update();
-    el.addEventListener("scroll", update);
-    window.addEventListener("resize", update);
-
-    return () => {
-      el.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-    };
-  }, []);
 
   if (!data || data.length === 0) {
     return <EmptyChart />;
@@ -92,111 +71,109 @@ export default function StockMovementTrendChart({
   const lastDate = data[data.length - 1]?.date;
 
   return (
-    <div className="relative w-full">
-      {/* Subtle scroll affordance */}
-      <ScrollFades showLeft={canScrollLeft} showRight={canScrollRight} />
-
-      <div
-        ref={scrollRef}
-        className="relative w-full overflow-x-auto scroll-smooth modern-scrollbar"
-      >
-        {isLoading && <ChartOverlay />}
-
+    <div className="relative w-full h-full">
+      <div className="relative h-full w-full overflow-hidden rounded-xl border border-(--border-subtle) bg-(--surface-elevated)/10">
         <div
-          className="min-w-full snap-x snap-mandatory"
-          style={{
-            width: chartWidth,
-            height: isMobile ? 190 : 270,
-          }}
+          ref={scrollRef}
+          className="relative h-full w-full overflow-x-auto overflow-y-hidden scroll-smooth modern-scrollbar"
         >
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={data}
-              barCategoryGap={isMobile ? 8 : 14}
-              margin={{
-                top: 20,
-                right: 16,
-                left: isMobile ? -8 : 0,
-                bottom: 16,
-              }}
-            >
-              {!isMobile && (
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  vertical={false}
-                  stroke="#e5e7eb"
+          {isLoading && <ChartOverlay />}
+
+          <div
+            className="min-w-full h-full snap-x snap-mandatory"
+            style={{
+              width: chartWidth,
+            }}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={data}
+                barCategoryGap={isMobile ? 8 : 14}
+                margin={{
+                  top: 20,
+                  right: 16,
+                  left: isMobile ? -8 : 0,
+                  bottom: 16,
+                }}
+              >
+                {!isMobile && (
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    vertical={false}
+                    stroke="#e5e7eb"
+                  />
+                )}
+
+                {lastDate && (
+                  <ReferenceLine
+                    x={lastDate}
+                    stroke="#6366f1"
+                    strokeOpacity={0.12}
+                  />
+                )}
+
+                <XAxis
+                  dataKey="date"
+                  interval={0}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={({ x, y, payload, index }) => {
+                    if (!anchorIndexes.includes(index)) return null;
+
+                    return (
+                      <text
+                        x={x}
+                        y={y + 14}
+                        textAnchor="middle"
+                        fill="#6b7280"
+                        fontSize={isMobile ? 10 : 12}
+                        fontWeight={500}
+                      >
+                        {formatAnchorLabel(payload.value, data.length)}
+                      </text>
+                    );
+                  }}
                 />
-              )}
 
-              {lastDate && (
-                <ReferenceLine
-                  x={lastDate}
-                  stroke="#6366f1"
-                  strokeOpacity={0.12}
+                <YAxis
+                  allowDecimals={false}
+                  axisLine={false}
+                  tickLine={false}
+                  width={isMobile ? 24 : 36}
+                  tick={{
+                    fontSize: isMobile ? 10 : 12,
+                    fill: "#6b7280",
+                  }}
                 />
-              )}
 
-              <XAxis
-                dataKey="date"
-                interval={0}
-                axisLine={false}
-                tickLine={false}
-                tick={({ x, y, payload, index }) => {
-                  if (!anchorIndexes.includes(index)) return null;
+                <Tooltip
+                  content={<CustomTooltip />}
+                  cursor={{
+                    fill: "rgba(99, 102, 241, 0.06)",
+                  }}
+                  animationDuration={0}
+                />
 
-                  return (
-                    <text
-                      x={x}
-                      y={y + 14}
-                      textAnchor="middle"
-                      fill="#6b7280"
-                      fontSize={isMobile ? 10 : 12}
-                      fontWeight={500}
-                    >
-                      {formatAnchorLabel(payload.value, data.length)}
-                    </text>
-                  );
-                }}
-              />
+                <Bar
+                  dataKey="in"
+                  stackId="movement"
+                  fill="#22c55e"
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={barWidth}
+                  className="transition-opacity duration-150 hover:opacity-90"
+                />
 
-              <YAxis
-                allowDecimals={false}
-                axisLine={false}
-                tickLine={false}
-                width={isMobile ? 24 : 36}
-                tick={{
-                  fontSize: isMobile ? 10 : 12,
-                  fill: "#6b7280",
-                }}
-              />
-
-              <Tooltip
-                content={<CustomTooltip />}
-                cursor={{
-                  fill: "rgba(99, 102, 241, 0.06)",
-                }}
-                animationDuration={0}
-              />
-
-              <Bar
-                dataKey="in"
-                stackId="movement"
-                fill="#22c55e"
-                radius={[4, 4, 0, 0]}
-                maxBarSize={barWidth}
-                className="transition-opacity duration-150 hover:opacity-90"
-              />
-
-              <Bar
-                dataKey="out"
-                stackId="movement"
-                fill="#ef4444"
-                radius={[4, 4, 0, 0]}
-                maxBarSize={barWidth}
-                className="transition-opacity duration-150 hover:opacity-90"
-              />
-            </BarChart>
-          </ResponsiveContainer>
+                <Bar
+                  dataKey="out"
+                  stackId="movement"
+                  fill="#ef4444"
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={barWidth}
+                  className="transition-opacity duration-150 hover:opacity-90"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
@@ -240,36 +217,9 @@ export default function StockMovementTrendChart({
 /* UI States */
 /* ────────────────────────────────────────────── */
 
-function ScrollFades({
-  showLeft,
-  showRight,
-}: {
-  showLeft: boolean;
-  showRight: boolean;
-}) {
-  return (
-    <>
-      <div
-        className={`pointer-events-none absolute left-0 top-0 h-full w-4
-          bg-linear-to-r from-gray-900/10 to-transparent z-10
-          transition-opacity duration-300 ${
-            showLeft ? "opacity-100" : "opacity-0"
-          }`}
-      />
-      <div
-        className={`pointer-events-none absolute right-0 top-0 h-full w-4
-          bg-linear-to-l from-gray-900/10 to-transparent z-10
-          transition-opacity duration-300 ${
-            showRight ? "opacity-100" : "opacity-0"
-          }`}
-      />
-    </>
-  );
-}
-
 function EmptyChart() {
   return (
-    <div className="flex items-center justify-center h-40 text-sm text-gray-400 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+    <div className="flex items-center justify-center h-40 text-sm text-(--text-muted) bg-(--surface-elevated)/10 rounded-xl border border-dashed border-(--border-subtle)">
       No movement data available
     </div>
   );
@@ -277,8 +227,8 @@ function EmptyChart() {
 
 function ChartOverlay() {
   return (
-    <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-lg">
-      <div className="h-24 w-full mx-6 rounded-lg bg-gray-200 animate-pulse" />
+    <div className="absolute inset-0 z-20 flex items-center justify-center bg-(--surface-elevated)/60 backdrop-blur-sm rounded-xl">
+      <div className="h-24 w-full mx-6 rounded-lg bg-(--surface-elevated)/40 animate-pulse" />
     </div>
   );
 }
