@@ -6,6 +6,7 @@ export interface SerializedProduct {
   name: string;
   sku: string | null;
   price: number;
+  unitCost: number | null;
   quantity: number;
   lowStockAt: number | null;
   imageUrl: string | null;
@@ -16,11 +17,15 @@ export interface SerializedProduct {
 }
 
 export function serializeProduct(
-  product: Product & { categories?: Category[]; subcategories?: (Subcategory & { category: Category })[] }
+  product: Product & {
+    categories?: Category[];
+    subcategories?: (Subcategory & { category: Category })[];
+  }
 ): SerializedProduct {
   return {
     ...product,
     price: Number(product.price),
+    unitCost: product.unitCost !== null ? Number(product.unitCost) : null,
     quantity: Number(product.quantity),
     lowStockAt: product.lowStockAt ? Number(product.lowStockAt) : null,
     categories: product.categories?.map((c) => ({ id: c.id, name: c.name })),
