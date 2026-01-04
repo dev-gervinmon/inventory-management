@@ -35,7 +35,7 @@ export default function StockMovementClient({
     useState<StockMovementAnalytics>(initialAnalytics);
   const [isPending, startTransition] = useTransition();
 
-  const { summary, trends, topMovingProducts, trendIndicator } = analytics;
+  const { summary, trends, trendIndicator } = analytics;
 
   async function fetchAnalytics(next: AnalyticsPeriod) {
     const res = await fetch(`/api/analytics/stock-movement?period=${next}`, {
@@ -53,8 +53,8 @@ export default function StockMovementClient({
     });
   }
 
-  const hasData =
-    summary.totalIn > 0 || summary.totalOut > 0 || topMovingProducts.length > 0;
+  const hasTrendData = trends.some((d) => d.in > 0 || d.out > 0);
+  const hasData = summary.totalIn > 0 || summary.totalOut > 0 || hasTrendData;
 
   if (!hasData) {
     return <EmptyState />;
@@ -77,17 +77,13 @@ export default function StockMovementClient({
 
         <SummaryGrid summary={summary} />
 
-        <div className="mt-4 min-h-[220px]">
+        <div className="mt-4 h-[220px] min-h-[220px] min-w-0">
           {isPending ? (
             <ChartSkeleton />
           ) : (
             <StockMovementTrendChart data={trends} />
           )}
         </div>
-
-        {topMovingProducts.length > 0 && (
-          <TopProducts products={topMovingProducts} period={period} />
-        )}
       </section>
     </Card>
   );
@@ -186,53 +182,6 @@ function Metric({
       <div className="mt-0.5 text-xs uppercase tracking-wide text-(--text-muted)">
         {label}
       </div>
-    </div>
-  );
-}
-
-/* ────────────────────────────────────────────── */
-/* Top Products */
-/* ────────────────────────────────────────────── */
-
-function TopProducts({
-  products,
-  period,
-}: {
-  products: StockMovementAnalytics["topMovingProducts"];
-  period: AnalyticsPeriod;
-}) {
-  return (
-    <div className="mt-6">
-      <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-xs font-semibold text-(--text-muted)">
-          Top Moving Products
-        </h3>
-        <span className="text-xs text-(--text-muted)">
-          Last {String(period)} days
-        </span>
-      </div>
-
-      <ul className="divide-y divide-(--border-subtle) rounded-xl border border-(--border-subtle) bg-(--surface-elevated)/10">
-        {products.slice(0, 3).map((p, i) => (
-          <li
-            key={p.productId}
-            className="flex items-center justify-between px-3 py-2"
-          >
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="text-xs font-mono text-(--text-muted)">
-                #{i + 1}
-              </span>
-              <span className="truncate text-sm font-semibold text-(--text-primary)">
-                {p.name}
-              </span>
-            </div>
-
-            <span className="text-sm font-mono text-(--text-secondary)">
-              {p.totalMoved}
-            </span>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }
