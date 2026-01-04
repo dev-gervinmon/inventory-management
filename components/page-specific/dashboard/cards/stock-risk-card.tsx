@@ -1,7 +1,10 @@
-import { ITEM_SEVERITY_COLOR, RISK_STYLES } from "@/lib/constants/dashboard";
 import { StockRiskItem } from "@/lib/types/dashboard";
 import Link from "next/link";
 import clsx from "clsx";
+import { AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import { Badge } from "@/components/common/badge";
+import { Card } from "@/components/common/card";
+import { Button } from "@/components/buttons/button";
 
 interface StockRiskCardProps {
   totalAtRisk: number;
@@ -24,49 +27,48 @@ export default function StockRiskCard({
     ? "high"
     : "medium";
 
-  const containerColor = RISK_STYLES[riskLevel];
+  const severityDot = {
+    out: "bg-(--danger)",
+    low: "bg-(--warning)",
+  } as const;
 
-  const ctaStyles =
-    outOfStock > 0
-      ? "from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600"
-      : lowStock > 0
-      ? "from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600"
-      : "from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600";
+  const topItems = items.slice(0, 3);
+  const remainingCount = Math.max(0, items.length - topItems.length);
+
+  const statusParam =
+    outOfStock > 0 && lowStock > 0
+      ? "critical-stock"
+      : outOfStock > 0
+      ? "out-of-stock"
+      : "low-stock";
+
+  const ctaLabel =
+    outOfStock > 0 && lowStock > 0
+      ? "Review critical stock"
+      : outOfStock > 0
+      ? "Review out-of-stock items"
+      : "Review low-stock items";
+
+  const badgeText =
+    outOfStock > 0 && lowStock > 0
+      ? `${outOfStock} out • ${lowStock} low`
+      : outOfStock > 0
+      ? `${outOfStock} out`
+      : `${lowStock} low`;
 
   return (
-    <div
-      className={clsx(
-        "bg-white rounded-xl border p-4 sm:p-5 md:p-6 transition-all duration-200 flex flex-col",
-        "hover:shadow-sm hover:border-gray-300",
-        containerColor
-      )}
-    >
+    <Card className="border-(--border-strong) bg-glass p-3 sm:p-5 flex flex-col transition-colors">
       {/* ================= Healthy State ================= */}
       {isHealthy ? (
         <div className="flex flex-col items-center justify-center text-center py-6 sm:py-8">
-          <div className="relative mb-3">
-            <span className="absolute inset-0 rounded-full bg-green-400/20 blur-lg" />
-            <div className="relative flex items-center justify-center w-16 h-16 rounded-full bg-green-50 border border-green-200">
-              <svg
-                className="w-8 h-8 text-green-600"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </div>
-          </div>
+          <span className="mb-3 inline-flex items-center justify-center w-16 h-16 rounded-full border bg-(--success)/10 text-(--success) border-(--success)/20">
+            <CheckCircle2 className="h-8 w-8" aria-hidden="true" />
+          </span>
 
-          <h4 className="text-lg sm:text-xl font-semibold text-green-700">
+          <h4 className="text-lg sm:text-xl font-semibold text-(--text-primary)">
             Inventory Healthy
           </h4>
-          <p className="mt-1 text-sm text-gray-600">
+          <p className="mt-1 text-sm text-(--text-muted)">
             No low or out-of-stock items detected
           </p>
         </div>
@@ -79,48 +81,51 @@ export default function StockRiskCard({
                 className={clsx(
                   "flex items-center justify-center w-9 h-9 rounded-full border",
                   outOfStock > 0
-                    ? "bg-red-50 border-red-200 text-red-600"
-                    : "bg-yellow-50 border-yellow-200 text-yellow-600"
+                    ? "bg-(--danger)/10 border-(--danger)/20 text-(--danger)"
+                    : "bg-(--warning)/10 border-(--warning)/20 text-(--warning)"
                 )}
               >
-                {outOfStock > 0 ? "⛔" : "⚠️"}
+                {outOfStock > 0 ? (
+                  <XCircle className="h-5 w-5" aria-hidden="true" />
+                ) : (
+                  <AlertTriangle className="h-5 w-5" aria-hidden="true" />
+                )}
               </div>
               <div>
-                <h4 className="text-base sm:text-lg font-semibold text-gray-900">
+                <h4 className="text-base sm:text-lg font-semibold text-(--text-primary)">
                   Stock Risk Overview
                 </h4>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-(--text-muted)">
                   Items requiring attention
                 </p>
               </div>
             </div>
 
-            <span
-              className={clsx(
-                "text-xs font-semibold px-2.5 py-1 rounded-full border",
-                outOfStock > 0
-                  ? "bg-red-50 text-red-700 border-red-200"
-                  : "bg-yellow-50 text-yellow-700 border-yellow-200"
-              )}
-            >
-              {totalAtRisk} at risk
-            </span>
+            <Badge tone={outOfStock > 0 ? "danger" : "warning"}>
+              {badgeText}
+            </Badge>
           </div>
 
           {/* ================= Summary ================= */}
           <div className="flex flex-col sm:flex-row gap-2 mb-3">
             {outOfStock > 0 && (
-              <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2 flex-1">
-                <span className="text-red-600">⛔</span>
-                <span className="text-sm font-medium text-red-700">
+              <div className="flex items-center gap-2 bg-(--danger)/10 border border-(--danger)/20 rounded-xl px-3 py-2 flex-1">
+                <XCircle
+                  className="h-4 w-4 text-(--danger)"
+                  aria-hidden="true"
+                />
+                <span className="text-sm font-semibold text-(--danger)">
                   {outOfStock} out of stock
                 </span>
               </div>
             )}
             {lowStock > 0 && (
-              <div className="flex items-center gap-2 bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 flex-1">
-                <span className="text-yellow-600">⚠️</span>
-                <span className="text-sm font-medium text-yellow-700">
+              <div className="flex items-center gap-2 bg-(--warning)/10 border border-(--warning)/20 rounded-xl px-3 py-2 flex-1">
+                <AlertTriangle
+                  className="h-4 w-4 text-(--warning)"
+                  aria-hidden="true"
+                />
+                <span className="text-sm font-semibold text-(--warning)">
                   {lowStock} low stock
                 </span>
               </div>
@@ -128,50 +133,77 @@ export default function StockRiskCard({
           </div>
 
           {/* ================= Critical Items ================= */}
-          {items.length > 0 && (
-            <div className="mb-4">
-              <div className="text-xs font-semibold text-gray-500 mb-2">
-                Critical items
+          <div className="mb-4">
+            <div className="mb-2 flex items-center justify-between">
+              <div className="text-xs font-semibold text-(--text-muted)">
+                Top risk items
               </div>
-              <ul className="max-h-28 overflow-y-auto divide-y divide-gray-100 pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-                {items.slice(0, 3).map((item) => (
+              {remainingCount > 0 && (
+                <Link
+                  href={`/inventory?status=${statusParam}`}
+                  className="text-xs font-semibold text-(--text-secondary) hover:text-(--text-primary) transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40 rounded-md px-1"
+                >
+                  +{remainingCount} more
+                </Link>
+              )}
+            </div>
+
+            {topItems.length > 0 ? (
+              <ul className="max-h-28 overflow-y-auto divide-y divide-(--border-subtle) pr-1">
+                {topItems.map((item) => (
                   <li key={item.id}>
                     <Link
                       href={`/inventory/${item.id}/edit-product`}
-                      className="flex items-center gap-2 py-2 px-2 rounded-lg transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500"
+                      className="flex items-start gap-2 py-2 px-2 rounded-xl transition-colors hover:bg-(--surface-elevated)/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40"
                     >
                       <span
                         className={clsx(
-                          "w-2.5 h-2.5 rounded-full shrink-0",
-                          ITEM_SEVERITY_COLOR[item.severity]
+                          "w-2.5 h-2.5 rounded-full shrink-0 mt-1.5",
+                          severityDot[item.severity]
                         )}
                       />
-                      <span className="truncate text-sm font-medium text-gray-800">
-                        {item.name}
-                      </span>
-                      <span className="ml-auto text-xs text-gray-500">
-                        {item.quantity === 0 ? "Out" : `Low (${item.quantity})`}
-                      </span>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-semibold text-(--text-primary)">
+                          {item.name}
+                        </div>
+                        <div className="truncate text-[11px] text-(--text-muted)">
+                          SKU: {item.sku || "N/A"}
+                        </div>
+                      </div>
+
+                      <div className="shrink-0 text-right">
+                        <div className="text-xs font-semibold text-(--text-secondary)">
+                          {item.quantity === 0
+                            ? "Out"
+                            : `Low (${item.quantity})`}
+                        </div>
+                        <div className="text-[11px] text-(--text-muted)">
+                          Low at {item.lowStockAt}
+                        </div>
+                      </div>
                     </Link>
                   </li>
                 ))}
               </ul>
-            </div>
-          )}
+            ) : (
+              <div className="rounded-xl border border-(--border-subtle) bg-(--surface-elevated)/20 px-3 py-3 text-xs text-(--text-muted)">
+                Risk details are unavailable, but some items are flagged.
+              </div>
+            )}
+          </div>
 
           {/* ================= CTA ================= */}
-          <Link
-            href="/inventory?filter=critical"
-            className={clsx(
-              "mt-auto inline-flex items-center justify-center w-full px-4 py-2 rounded-lg",
-              "bg-linear-to-r text-white text-sm font-semibold shadow-sm transition-colors",
-              ctaStyles
-            )}
+          <Button
+            asChild
+            href={`/inventory?status=${statusParam}`}
+            variant={riskLevel === "high" ? "destructive" : "default"}
+            className="mt-auto w-full"
           >
-            Review critical items
-          </Link>
+            {ctaLabel}
+          </Button>
         </>
       )}
-    </div>
+    </Card>
   );
 }
