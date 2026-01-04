@@ -71,7 +71,7 @@ export default function DashboardContent({
       </div>
 
       {/** Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-10">
         {/* Stock Movement Chart */}
         <StockMovementCard userId={userId} />
 
@@ -83,8 +83,8 @@ export default function DashboardContent({
       </div>
 
       {/** Row 3 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-10">
-        <div className="lg:col-span-2 xl:col-span-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-10">
+        <div className="lg:col-span-2 2xl:col-span-3">
           <MovementInsightsCard userId={userId} />
         </div>
       </div>
