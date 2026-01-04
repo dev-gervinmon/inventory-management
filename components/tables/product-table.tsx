@@ -82,9 +82,17 @@ export default function ProductTable({
 
   // Filter state
   const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
-  const [statusFilter, setStatusFilter] = useState<string>(
-    initialStatusFilter === "critical-stock" ? "critical-stock" : ""
-  );
+  const [statusFilter, setStatusFilter] = useState<string>(() => {
+    const allowed = new Set([
+      "in-stock",
+      "out-of-stock",
+      "low-stock",
+      "critical-stock",
+    ]);
+    return initialStatusFilter && allowed.has(initialStatusFilter)
+      ? initialStatusFilter
+      : "";
+  });
   const [categoriesSearchInput, setCategoriesSearchInput] =
     useState<string>("");
 
