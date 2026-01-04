@@ -6,6 +6,8 @@ import {
   StockMovementAnalytics,
   StockMovementTrendIndicator,
 } from "@/lib/domain/stock-movement";
+import { Card } from "@/components/common/card";
+import { ArrowLeftRight } from "lucide-react";
 
 import TrendIndicator from "../common/trend-indicator";
 import StockMovementTrendChart from "../charts/stock-movement-trend-chart";
@@ -59,33 +61,35 @@ export default function StockMovementClient({
   }
 
   return (
-    <section
-      className="relative rounded-2xl border border-gray-200 dark:border-gray-800
-                 bg-white dark:bg-gray-900 p-4 sm:p-6 shadow-sm"
+    <Card
+      asChild
+      className="border-(--border-strong) bg-glass p-3 sm:p-5 flex flex-col min-w-0"
       aria-busy={isPending}
       aria-live="polite"
     >
-      <Header
-        period={period}
-        onPeriodChange={handlePeriodChange}
-        trend={trendIndicator}
-        isLoading={isPending}
-      />
+      <section>
+        <Header
+          period={period}
+          onPeriodChange={handlePeriodChange}
+          trend={trendIndicator}
+          isLoading={isPending}
+        />
 
-      <SummaryGrid summary={summary} />
+        <SummaryGrid summary={summary} />
 
-      <div className="mt-4 min-h-[220px]">
-        {isPending ? (
-          <ChartSkeleton />
-        ) : (
-          <StockMovementTrendChart data={trends} />
+        <div className="mt-4 min-h-[220px]">
+          {isPending ? (
+            <ChartSkeleton />
+          ) : (
+            <StockMovementTrendChart data={trends} />
+          )}
+        </div>
+
+        {topMovingProducts.length > 0 && (
+          <TopProducts products={topMovingProducts} period={period} />
         )}
-      </div>
-
-      {topMovingProducts.length > 0 && (
-        <TopProducts products={topMovingProducts} period={period} />
-      )}
-    </section>
+      </section>
+    </Card>
   );
 }
 
@@ -106,9 +110,22 @@ function Header({
 }) {
   return (
     <header className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">
-        Stock Movement
-      </h2>
+      <div className="flex items-center gap-2">
+        <span className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-(--border-subtle) bg-(--surface-elevated)/40">
+          <ArrowLeftRight
+            className="h-5 w-5 text-(--text-secondary)"
+            aria-hidden="true"
+          />
+        </span>
+        <div>
+          <h2 className="text-sm sm:text-base font-semibold tracking-tight text-(--text-primary)">
+            Stock Movement
+          </h2>
+          <p className="text-xs text-(--text-muted)">
+            In vs out over the selected period
+          </p>
+        </div>
+      </div>
 
       <div className="flex items-center gap-2 flex-wrap">
         <PeriodSelector value={period} onChange={onPeriodChange} />
@@ -156,18 +173,17 @@ function Metric({
   tone: "success" | "danger" | "neutral";
 }) {
   const tones = {
-    success: "text-green-600 dark:text-green-400",
-    danger: "text-red-600 dark:text-red-400",
-    neutral: "text-purple-700 dark:text-purple-300",
-  };
+    success: "text-(--success)",
+    danger: "text-(--danger)",
+    neutral: "text-(--text-primary)",
+  } as const;
 
   return (
-    <div
-      className="rounded-xl border border-gray-200 dark:border-gray-800
-                 bg-gray-50 dark:bg-gray-800/40 p-3 text-center"
-    >
-      <div className={`text-xl font-semibold ${tones[tone]}`}>{value}</div>
-      <div className="mt-0.5 text-xs uppercase tracking-wide text-gray-500">
+    <div className="rounded-xl border border-(--border-subtle) bg-(--surface-elevated)/30 px-3 py-3 text-center">
+      <div className={["text-xl font-semibold", tones[tone]].join(" ")}>
+        {value}
+      </div>
+      <div className="mt-0.5 text-xs uppercase tracking-wide text-(--text-muted)">
         {label}
       </div>
     </div>
@@ -188,28 +204,30 @@ function TopProducts({
   return (
     <div className="mt-6">
       <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+        <h3 className="text-xs font-semibold text-(--text-muted)">
           Top Moving Products
         </h3>
-        <span className="text-xs text-gray-500">
+        <span className="text-xs text-(--text-muted)">
           Last {String(period)} days
         </span>
       </div>
 
-      <ul className="divide-y divide-gray-200 dark:divide-gray-800 rounded-xl border border-gray-200 dark:border-gray-800">
+      <ul className="divide-y divide-(--border-subtle) rounded-xl border border-(--border-subtle) bg-(--surface-elevated)/10">
         {products.slice(0, 3).map((p, i) => (
           <li
             key={p.productId}
             className="flex items-center justify-between px-3 py-2"
           >
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-xs font-mono text-gray-400">#{i + 1}</span>
-              <span className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
+              <span className="text-xs font-mono text-(--text-muted)">
+                #{i + 1}
+              </span>
+              <span className="truncate text-sm font-semibold text-(--text-primary)">
                 {p.name}
               </span>
             </div>
 
-            <span className="text-sm font-mono text-gray-700 dark:text-gray-300">
+            <span className="text-sm font-mono text-(--text-secondary)">
               {p.totalMoved}
             </span>
           </li>
@@ -225,7 +243,7 @@ function TopProducts({
 
 function ChartSkeleton() {
   return (
-    <div className="h-[220px] rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
+    <div className="h-[220px] rounded-xl border border-(--border-subtle) bg-(--surface-elevated)/20 animate-pulse" />
   );
 }
 
@@ -235,10 +253,13 @@ function ChartSkeleton() {
 
 function EmptyState() {
   return (
-    <div className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-gray-50 text-center">
-      <p className="text-sm font-medium text-gray-600">
+    <Card className="border-(--border-strong) bg-glass p-3 sm:p-5 flex min-h-[220px] flex-col items-center justify-center text-center">
+      <p className="text-sm font-semibold text-(--text-primary)">
         No stock movement data available
       </p>
-    </div>
+      <p className="mt-1 text-xs text-(--text-muted)">
+        Stock updates will appear here once you start adjusting inventory.
+      </p>
+    </Card>
   );
 }
