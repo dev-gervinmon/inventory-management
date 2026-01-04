@@ -174,6 +174,7 @@ export async function editProduct(formData: FormData) {
       userId: true,
       name: true,
       price: true,
+      unitCost: true,
       quantity: true,
     },
   });
@@ -233,10 +234,16 @@ export async function editProduct(formData: FormData) {
         {
           name: oldProduct.name,
           price: oldProduct.price.toNumber(),
+          unitCost:
+            oldProduct.unitCost !== null ? oldProduct.unitCost.toNumber() : "",
         },
         {
           name: updatedProduct.name,
           price: updatedProduct.price.toNumber(),
+          unitCost:
+            updatedProduct.unitCost !== null
+              ? updatedProduct.unitCost.toNumber()
+              : "",
         }
       );
 
@@ -300,8 +307,8 @@ export async function deleteProduct(id: string) {
   }
 
   try {
-    await prisma.$transaction(async (tx) => {
-      await prisma.product.delete({
+    return await prisma.$transaction(async (tx) => {
+      await tx.product.delete({
         where: { id },
       });
 
