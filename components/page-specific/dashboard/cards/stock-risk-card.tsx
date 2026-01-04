@@ -57,7 +57,7 @@ export default function StockRiskCard({
       : `${lowStock} low`;
 
   return (
-    <Card className="border-(--border-strong) bg-glass p-3 sm:p-5 flex flex-col transition-colors">
+    <Card className="border-(--border-strong) bg-glass p-3 sm:p-5 flex flex-col h-full transition-colors">
       {/* ================= Healthy State ================= */}
       {isHealthy ? (
         <div className="flex flex-col items-center justify-center text-center py-6 sm:py-8">
