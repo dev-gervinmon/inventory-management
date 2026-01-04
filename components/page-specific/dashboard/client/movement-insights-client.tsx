@@ -111,7 +111,6 @@ export default function MovementInsightsClient({
             }))}
             emptyText="Everything has moved recently"
             isLoading={isPending}
-            valueLabel="Qty"
           />
         </div>
       </section>
