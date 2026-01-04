@@ -128,7 +128,7 @@ export default function InventoryValueTrendClient({
           </div>
         </div>
 
-        <div className="mt-4 min-h-[220px]">
+        <div className="mt-4 h-[220px] min-h-[220px] min-w-0">
           {isPending ? (
             <ChartSkeleton />
           ) : hasData ? (
