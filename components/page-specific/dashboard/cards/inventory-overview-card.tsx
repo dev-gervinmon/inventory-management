@@ -2,6 +2,13 @@
 
 import { useState } from "react";
 import clsx from "clsx";
+import { Card } from "@/components/common/card";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  ChevronDown,
+  XCircle,
+} from "lucide-react";
 
 interface InventoryOverviewCardProps {
   totalProducts: number;
@@ -18,21 +25,83 @@ export default function InventoryOverviewCard({
   totalProducts,
   inStockCount,
   inStockPercentage,
+  lowStockCount,
   lowStockPercentage,
+  outOfStockCount,
   outOfStockPercentage,
   criticalStockCount,
 }: InventoryOverviewCardProps) {
   const [open, setOpen] = useState(false);
 
+  // Health is count-based: a single critical SKU can matter.
   const healthStatus =
-    outOfStockPercentage > 0
+    criticalStockCount > 0
       ? "critical"
-      : lowStockPercentage > 20
+      : lowStockCount > 0
       ? "warning"
       : "healthy";
 
+  const statusMeta =
+    healthStatus === "critical"
+      ? `${criticalStockCount} item(s) need attention`
+      : healthStatus === "warning"
+      ? `${lowStockCount} low stock item(s)`
+      : "All stock levels look healthy";
+
+  const metrics =
+    criticalStockCount > 0
+      ? ([
+          {
+            key: "critical",
+            label: "Critical",
+            value: criticalStockCount,
+            subtitle:
+              outOfStockCount > 0
+                ? `${outOfStockCount} out • ${lowStockCount} low`
+                : "Needs attention",
+            tone: "danger" as const,
+          },
+          {
+            key: "inStock",
+            label: "In Stock",
+            value: inStockCount,
+            subtitle: `${inStockPercentage}%`,
+            tone: "success" as const,
+          },
+          {
+            key: "total",
+            label: "Total",
+            value: totalProducts,
+            subtitle: "Products",
+            tone: "neutral" as const,
+          },
+        ] as const)
+      : ([
+          {
+            key: "inStock",
+            label: "In Stock",
+            value: inStockCount,
+            subtitle: `${inStockPercentage}%`,
+            tone: "success" as const,
+          },
+          {
+            key: "low",
+            label: "Low Stock",
+            value: lowStockCount,
+            subtitle: `${lowStockPercentage}%`,
+            tone: "warning" as const,
+          },
+          {
+            key: "total",
+            label: "Total",
+            value: totalProducts,
+            subtitle: "Products",
+            tone: "neutral" as const,
+          },
+        ] as const);
+
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6 transition-all hover:shadow-sm col-span-2 flex flex-col">
+    <Card className="border-(--border-strong) bg-glass p-3 sm:p-5">
       {/* Header */}
       <button
         type="button"
@@ -40,79 +109,70 @@ export default function InventoryOverviewCard({
         aria-controls="inventory-overview-details"
         onClick={() => setOpen((o) => !o)}
         className={clsx(
-          "flex items-center justify-between w-full rounded-xl px-2 py-2 transition-colors",
-          open ? "bg-gray-100" : "hover:bg-gray-50"
+          [
+            "cursor-pointer flex items-center justify-between w-full rounded-xl",
+            "px-2 py-2",
+            "transition-colors",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40",
+          ].join(" "),
+          open ? "bg-(--surface-elevated)" : "hover:bg-(--surface-elevated)/60"
         )}
       >
         <div className="flex items-center gap-3">
           <span
             className={clsx(
-              "inline-flex items-center justify-center w-9 h-9 rounded-full ring-2",
+              "inline-flex items-center justify-center w-9 h-9 rounded-full border",
               healthStatus === "critical" &&
-                "bg-red-100 text-red-600 ring-red-200",
+                "bg-(--danger)/10 text-(--danger) border-(--danger)/20",
               healthStatus === "warning" &&
-                "bg-yellow-100 text-yellow-600 ring-yellow-200",
+                "bg-(--warning)/10 text-(--warning) border-(--warning)/20",
               healthStatus === "healthy" &&
-                "bg-green-100 text-green-600 ring-green-200"
+                "bg-(--success)/10 text-(--success) border-(--success)/20"
             )}
           >
-            <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-              <path
-                d="M12 3v18M3 12h18"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
+            {healthStatus === "healthy" ? (
+              <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
+            ) : healthStatus === "warning" ? (
+              <AlertTriangle className="h-5 w-5" aria-hidden="true" />
+            ) : (
+              <XCircle className="h-5 w-5" aria-hidden="true" />
+            )}
           </span>
           <div className="text-left">
-            <h3 className="text-sm sm:text-base font-bold text-gray-900 tracking-tight">
+            <h3 className="text-sm sm:text-base font-semibold tracking-tight text-(--text-primary)">
               Inventory Overview
             </h3>
-            <p className="text-xs text-gray-500">
-              {totalProducts} products tracked
+            <p className="text-xs text-(--text-muted)">
+              {statusMeta} • {totalProducts} tracked
             </p>
           </div>
         </div>
 
-        <svg
-          className={clsx(
-            "w-5 h-5 transition-transform duration-200",
-            open && "rotate-180"
-          )}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 9l-7 7-7-7"
+        <div className="flex items-center gap-2">
+          <span className="hidden sm:inline text-xs font-semibold text-(--text-muted)">
+            {open ? "Hide breakdown" : "View breakdown"}
+          </span>
+          <ChevronDown
+            className={clsx(
+              "h-5 w-5 text-(--text-secondary) transition-transform duration-200",
+              open && "rotate-180"
+            )}
+            aria-hidden="true"
           />
-        </svg>
+        </div>
       </button>
 
       {/* Summary */}
-      <div className="mt-4 grid grid-cols-3 gap-3 text-center">
-        <Metric
-          label="In Stock"
-          value={inStockCount}
-          subtitle={`${inStockPercentage}%`}
-          color="green"
-        />
-        <Metric
-          label="Critical"
-          value={criticalStockCount}
-          subtitle="Needs attention"
-          color="red"
-        />
-        <Metric
-          label="Total"
-          value={totalProducts}
-          subtitle="Products"
-          color="gray"
-        />
+      <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
+        {metrics.map((m) => (
+          <Metric
+            key={m.key}
+            label={m.label}
+            value={m.value}
+            subtitle={m.subtitle}
+            tone={m.tone}
+          />
+        ))}
       </div>
 
       {/* Expanded */}
@@ -123,25 +183,41 @@ export default function InventoryOverviewCard({
           open ? "max-h-[400px] opacity-100" : "max-h-0 opacity-0"
         )}
       >
-        <div className="mt-6 border-t pt-4 space-y-4">
-          <StockBar
-            label="In Stock"
-            value={inStockPercentage}
-            color="bg-green-500"
-          />
-          <StockBar
-            label="Low Stock"
-            value={lowStockPercentage}
-            color="bg-yellow-500"
-          />
-          <StockBar
-            label="Out of Stock"
-            value={outOfStockPercentage}
-            color="bg-red-500"
-          />
+        <div className="mt-5 border-t border-(--border-subtle) pt-4">
+          <div className="mb-3 flex items-center justify-between">
+            <div>
+              <div className="text-sm font-semibold text-(--text-primary)">
+                Breakdown
+              </div>
+              <div className="text-xs text-(--text-muted)">
+                Distribution by stock status
+              </div>
+            </div>
+            <div className="text-xs font-semibold text-(--text-muted)">
+              % of products
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <StockBar
+              label="In Stock"
+              value={inStockPercentage}
+              tone="success"
+            />
+            <StockBar
+              label="Low Stock"
+              value={lowStockPercentage}
+              tone="warning"
+            />
+            <StockBar
+              label="Out of Stock"
+              value={outOfStockPercentage}
+              tone="danger"
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -151,26 +227,38 @@ function Metric({
   label,
   value,
   subtitle,
-  color,
+  tone,
 }: {
   label: string;
   value: number;
   subtitle: string;
-  color: "green" | "red" | "gray";
+  tone: "success" | "warning" | "danger" | "neutral";
 }) {
-  const colors = {
-    green: "text-green-600",
-    red: "text-red-600",
-    gray: "text-gray-900",
+  const valueTone = {
+    success: "text-(--success)",
+    warning: "text-(--warning)",
+    danger: "text-(--danger)",
+    neutral: "text-(--text-primary)",
   };
 
   return (
-    <div className="flex flex-col items-center gap-0.5">
-      <span className="text-xs text-gray-500 font-medium">{label}</span>
-      <span className={clsx("text-xl sm:text-2xl font-bold", colors[color])}>
+    <div
+      className={[
+        "rounded-xl border border-(--border-subtle)",
+        "bg-(--surface-elevated)/30",
+        "px-2.5 py-2.5 sm:px-3 sm:py-3",
+        "text-center",
+      ].join(" ")}
+    >
+      <div className="text-[11px] sm:text-xs font-semibold text-(--text-muted)">
+        {label}
+      </div>
+      <div
+        className={clsx("mt-1 text-xl sm:text-2xl font-bold", valueTone[tone])}
+      >
         {value}
-      </span>
-      <span className="text-[11px] text-gray-400">{subtitle}</span>
+      </div>
+      <div className="mt-0.5 text-[11px] text-(--text-muted)">{subtitle}</div>
     </div>
   );
 }
@@ -178,25 +266,37 @@ function Metric({
 function StockBar({
   label,
   value,
-  color,
+  tone,
 }: {
   label: string;
   value: number;
-  color: string;
+  tone: "success" | "warning" | "danger";
 }) {
+  const pct = Math.max(0, Math.min(100, value));
+
+  const barTone = {
+    success: "bg-(--success)",
+    warning: "bg-(--warning)",
+    danger: "bg-(--danger)",
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-1">
-        <span className="text-sm font-medium text-gray-700">{label}</span>
-        <span className="text-sm font-bold text-gray-900">{value}%</span>
+        <span className="text-sm font-semibold text-(--text-secondary)">
+          {label}
+        </span>
+        <span className="text-sm font-semibold text-(--text-primary)">
+          {pct}%
+        </span>
       </div>
-      <div className="h-2 rounded-full bg-gray-200 overflow-hidden">
+      <div className="h-2 rounded-full bg-(--surface-elevated)/60 overflow-hidden">
         <div
           className={clsx(
             "h-full rounded-full transition-all duration-500",
-            color
+            barTone[tone]
           )}
-          style={{ width: `${value}%` }}
+          style={{ width: `${pct}%` }}
         />
       </div>
     </div>
