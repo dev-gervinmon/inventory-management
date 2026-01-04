@@ -10,6 +10,7 @@ interface ProductInfoSidebarProps {
   productId: string;
   sku: string | null;
   price: number;
+  unitCost?: number | null;
   quantity: number;
   lowStockAt: number | null;
   createdAt: Date;
@@ -22,6 +23,7 @@ export default function ProductInfoSidebar({
   productId,
   sku,
   price,
+  unitCost = null,
   quantity,
   lowStockAt,
   createdAt,
@@ -75,6 +77,9 @@ export default function ProductInfoSidebar({
         </p>
         <p className="text-xl sm:text-2xl md:text-2xl font-bold text-gray-900">
           {formatPrice(price)}
+        </p>
+        <p className="mt-2 text-xs text-gray-500">
+          Unit cost: {unitCost !== null ? formatPrice(unitCost) : "Not set"}
         </p>
       </div>
 
