@@ -131,7 +131,7 @@ export default function NotificationButton({
                   </span>
                   {stockItems.length > 0 && (
                     <Link
-                      href="/inventory?filter=critical"
+                      href="/inventory?status=critical-stock"
                       className="ml-auto px-3 py-1 text-xs font-semibold rounded-md bg-linear-to-r from-red-500 to-pink-500 text-white shadow hover:from-red-600 hover:to-pink-600 transition-colors"
                     >
                       See All
