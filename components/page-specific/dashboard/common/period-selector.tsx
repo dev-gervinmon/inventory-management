@@ -56,8 +56,8 @@ export default function PeriodSelector({
       onKeyDown={handleKeyDown}
       className={clsx(
         "inline-flex items-center gap-1 rounded-lg border p-1",
-        "bg-gray-50 dark:bg-gray-800",
-        "border-gray-200 dark:border-gray-700",
+        "bg-(--surface-elevated)/30",
+        "border-(--border-subtle)",
         isLoading && "opacity-60 pointer-events-none"
       )}
     >
@@ -76,10 +76,10 @@ export default function PeriodSelector({
             disabled={isLoading}
             className={clsx(
               "relative px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md cursor-pointer",
-              "transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500",
+              "transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40",
               isActive
-                ? "bg-white dark:bg-gray-900 text-purple-700 shadow-sm"
-                : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                ? "bg-(--surface-elevated) text-(--text-primary) shadow-sm"
+                : "text-(--text-muted) hover:bg-(--surface-elevated)/60"
             )}
           >
             {period}
