@@ -99,3 +99,17 @@ model InventoryValueSnapshot {
   @@unique([userId, snapshotDate])
   @@index([userId, snapshotDate])
 }
+
+model InventoryHealthSnapshot {
+  id String @id @default(cuid())
+  userId String
+  snapshotDate DateTime @db.Date
+  totalProducts Int
+  inStockCount Int
+  lowStockCount Int
+  outOfStockCount Int
+  createdAt DateTime @default(now())
+
+  @@unique([userId, snapshotDate])
+  @@index([userId, snapshotDate])
+}
