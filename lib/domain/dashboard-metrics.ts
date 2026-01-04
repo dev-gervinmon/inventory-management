@@ -23,11 +23,6 @@ export interface ValueMetrics {
   productsMissingCost: number;
 }
 
-export interface WeeklyProductStat {
-  week: string;
-  products: number;
-}
-
 export interface RiskMetrics {
   totalAtRisk: number;
   outOfStock: number;
@@ -38,6 +33,5 @@ export interface RiskMetrics {
 export interface DashboardMetrics {
   inventory: InventoryMetrics;
   value: ValueMetrics;
-  weeklyProductStats: WeeklyProductStat[];
   risk: RiskMetrics;
 }
