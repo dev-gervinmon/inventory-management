@@ -191,7 +191,7 @@ export default function AlertsActivityTabs({
                 </h2>
                 {criticalStockItems.length > 0 && (
                   <Link
-                    href="/inventory?filter=critical"
+                    href="/inventory?status=critical-stock"
                     className="ml-auto px-3 py-1 text-xs font-semibold text-red-700 bg-red-50 hover:bg-red-100 rounded transition-colors"
                   >
                     See All
