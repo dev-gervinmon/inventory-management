@@ -1,4 +1,5 @@
 import AddProductButton from "@/components/buttons/add-product-button";
+import { Card } from "@/components/common/card";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
 import InventoryPageWrapper from "./inventory-page-wrapper";
@@ -35,12 +36,12 @@ export default async function InventoryPage({
       <>
         {/* Header Section */}
         <div className="mb-4 sm:mb-6 md:mb-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-            <div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 min-w-0">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-(--text-primary)">
                 Inventory
               </h1>
-              <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-0.5 sm:mt-1">
+              <p className="text-xs sm:text-sm md:text-base text-(--text-muted) mt-0.5 sm:mt-1">
                 Manage your products and track inventory levels
               </p>
             </div>
@@ -52,12 +53,12 @@ export default async function InventoryPage({
 
         <div className="space-y-4 sm:space-y-6">
           {/* Product Table Card */}
-          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-6 hover:border-gray-300 hover:shadow-sm transition-all duration-200">
+          <Card className="border-(--border-strong) bg-glass p-3 sm:p-4 md:p-6 min-w-0">
             <ProductTableContent
               products={items}
               initialStatusFilter={status}
             />
-          </div>
+          </Card>
         </div>
       </>
     </InventoryPageWrapper>
