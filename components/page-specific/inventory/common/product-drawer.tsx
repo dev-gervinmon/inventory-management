@@ -34,13 +34,20 @@ export default function ProductDrawer({
   const panelRef = useRef<HTMLDivElement | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
 
-  const { errors: formErrors, clearErrors: clearFormErrors } = useFormErrors();
+  const {
+    errors: formErrors,
+    clearErrors: clearFormErrors,
+    clearFieldError,
+    setAllErrors: setAllFormErrors,
+  } = useFormErrors();
   const { message, showSuccess, showError, clearMessage } = useMessage({
     autoClose: true,
     timeout: 3500,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isValidationBannerActive, setIsValidationBannerActive] =
+    useState(false);
 
   const title = mode === "create" ? "Add Product" : "Edit Product";
   const primaryActionLabel = isSubmitting
@@ -99,7 +106,25 @@ export default function ProductDrawer({
     if (isSubmitting) return;
     clearMessage();
     clearFormErrors();
+    setIsValidationBannerActive(false);
+    setIsSubmitting(false);
     onClose();
+  };
+
+  const maybeClearValidationBanner = () => {
+    if (!isValidationBannerActive) return;
+    const form = formRef.current;
+    if (!form) return;
+    const data = new FormData(form);
+
+    const name = String(data.get("name") ?? "").trim();
+    const priceRaw = String(data.get("price") ?? "").trim();
+    const quantityRaw = String(data.get("quantity") ?? "").trim();
+
+    if (name && priceRaw && quantityRaw) {
+      clearMessage();
+      setIsValidationBannerActive(false);
+    }
   };
 
   const handleSubmitRequest = () => {
@@ -110,6 +135,38 @@ export default function ProductDrawer({
   const handleFormSubmit = async (formData: FormData) => {
     clearMessage();
     clearFormErrors();
+    setIsValidationBannerActive(false);
+
+    const name = String(formData.get("name") ?? "").trim();
+    const priceRaw = String(formData.get("price") ?? "").trim();
+    const quantityRaw = String(formData.get("quantity") ?? "").trim();
+
+    const nextErrors: Record<string, string> = {};
+
+    if (!name) nextErrors.name = "Name is required";
+    if (!priceRaw) nextErrors.price = "Price is required";
+    if (!quantityRaw) nextErrors.quantity = "Quantity is required";
+
+    // Basic numeric sanity (keep it minimal; server still validates too)
+    const price = priceRaw ? Number(priceRaw) : NaN;
+    const quantity = quantityRaw ? Number(quantityRaw) : NaN;
+
+    if (priceRaw && (!Number.isFinite(price) || price < 0)) {
+      nextErrors.price = "Price must be non-negative";
+    }
+
+    if (quantityRaw && (!Number.isFinite(quantity) || quantity < 0)) {
+      nextErrors.quantity = "Quantity must be non-negative";
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setAllFormErrors(nextErrors);
+      showError("Please fill in the required fields");
+      setIsValidationBannerActive(true);
+      setIsSubmitting(false);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -121,9 +178,18 @@ export default function ProductDrawer({
         showSuccess("Product saved");
       }
 
+      setIsValidationBannerActive(false);
+
       // Ensure server data stays in sync
       router.refresh();
-      onSaved();
+      setIsSubmitting(false);
+
+      // Give the user a moment to see the success banner before closing.
+      window.setTimeout(() => {
+        clearMessage();
+        clearFormErrors();
+        onSaved();
+      }, 600);
     } catch (error) {
       const msg =
         error instanceof Error ? error.message : "Something went wrong";
@@ -181,29 +247,36 @@ export default function ProductDrawer({
 
         {/* Content */}
         <div className="h-full overflow-y-auto modern-scrollbar px-5 sm:px-6 py-5 pb-28">
-          <MessageBanner message={message} />
-
           <ProductFormContext.Provider
             value={{
               formErrors,
               isSubmitting,
               onSubmit: handleFormSubmit,
+              clearFieldError,
+              onFieldChange: () => {
+                // Only auto-dismiss the banner for the local validation message.
+                maybeClearValidationBanner();
+              },
             }}
           >
-            <div className="rounded-2xl border border-(--border-strong) bg-(--surface-elevated)/10 p-4 sm:p-5">
-              <ProductForm
-                id={initialValues?.id}
-                name={initialValues?.name}
-                price={initialValues?.price}
-                unitCost={initialValues?.unitCost}
-                quantity={initialValues?.quantity}
-                sku={initialValues?.sku}
-                lowStockAt={initialValues?.lowStockAt}
-                image={initialValues?.image}
-                categoryIds={initialValues?.categoryIds}
-                subcategoryIds={initialValues?.subcategoryIds}
-                categories={categories}
-              />
+            <div className="space-y-4">
+              <MessageBanner message={message} />
+
+              <div className="rounded-2xl border border-(--border-strong) bg-(--surface-elevated)/10 p-4 sm:p-5">
+                <ProductForm
+                  id={initialValues?.id}
+                  name={initialValues?.name}
+                  price={initialValues?.price}
+                  unitCost={initialValues?.unitCost}
+                  quantity={initialValues?.quantity}
+                  sku={initialValues?.sku}
+                  lowStockAt={initialValues?.lowStockAt}
+                  image={initialValues?.image}
+                  categoryIds={initialValues?.categoryIds}
+                  subcategoryIds={initialValues?.subcategoryIds}
+                  categories={categories}
+                />
+              </div>
             </div>
           </ProductFormContext.Provider>
         </div>
