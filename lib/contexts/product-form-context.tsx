@@ -5,6 +5,8 @@ interface ProductFormContextType {
   formErrors: FieldError;
   isSubmitting: boolean;
   onSubmit?: (formData: FormData) => Promise<void>;
+  clearFieldError?: (fieldName: string) => void;
+  onFieldChange?: (fieldName: string, nextValue: string) => void;
 }
 
 export const ProductFormContext = createContext<
@@ -19,6 +21,8 @@ export function useProductFormContext() {
       formErrors: {},
       isSubmitting: false,
       onSubmit: undefined,
+      clearFieldError: undefined,
+      onFieldChange: undefined,
     };
   }
   return context;
