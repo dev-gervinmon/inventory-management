@@ -201,12 +201,12 @@ export default function CategorySubcategorySelector({
     <div className="space-y-6">
       {/* Search Input */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">
+        <label className="block text-sm font-medium text-(--text-secondary) mb-3">
           Search Categories & Subcategories
         </label>
         <div className="relative">
           <svg
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-(--text-muted)"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -223,7 +223,7 @@ export default function CategorySubcategorySelector({
             placeholder="Search categories, subcategories..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+            className="w-full pl-12 pr-4 py-3 rounded-xl border border-(--border-subtle) bg-(--surface-elevated)/30 text-(--text-primary) placeholder:text-(--text-muted) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40 focus-visible:border-(--border-strong) transition"
           />
           {searchQuery && (
             <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
@@ -244,14 +244,14 @@ export default function CategorySubcategorySelector({
           {/* Selected Categories Pills */}
           {selectedCategoryNames.length > 0 && (
             <div>
-              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+              <p className="text-xs font-semibold text-(--text-muted) uppercase tracking-wide mb-2">
                 Selected Categories
               </p>
               <div className="flex flex-wrap gap-2">
                 {selectedCategoryNames.map((cat) => (
                   <div
                     key={cat.id}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-purple-100 to-purple-50 border border-purple-300 rounded-full text-sm font-medium text-purple-900"
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-(--border-subtle) bg-(--surface-elevated)/20 text-sm font-medium text-(--text-primary)"
                   >
                     {cat.name}
                     <div className="ml-1 -mr-1">
@@ -271,17 +271,17 @@ export default function CategorySubcategorySelector({
           {/* Selected Subcategories Pills */}
           {selectedSubcategoryNames.length > 0 && (
             <div>
-              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+              <p className="text-xs font-semibold text-(--text-muted) uppercase tracking-wide mb-2">
                 Selected Subcategories
               </p>
               <div className="flex flex-wrap gap-2">
                 {selectedSubcategoryNames.map((sub) => (
                   <div
                     key={sub.id}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-blue-100 to-blue-50 border border-blue-300 rounded-full text-sm font-medium text-blue-900"
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-(--border-subtle) bg-(--surface-elevated)/20 text-sm font-medium text-(--text-primary)"
                   >
                     <span>{sub.name}</span>
-                    <span className="text-xs opacity-75">
+                    <span className="text-xs text-(--text-muted)">
                       in {sub.categoryName}
                     </span>
                     <div className="ml-1 -mr-1">
@@ -302,33 +302,33 @@ export default function CategorySubcategorySelector({
 
       {/* Categories & Subcategories List */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">
+        <label className="block text-sm font-medium text-(--text-secondary) mb-3">
           {searchQuery
             ? "Search Results"
             : "Available Categories & Subcategories"}
         </label>
 
         {categories.length === 0 ? (
-          <div className="bg-gray-50 rounded-lg p-6 text-center">
-            <p className="text-sm text-gray-600">
+          <div className="rounded-xl border border-(--border-subtle) bg-(--surface-elevated)/10 p-6 text-center">
+            <p className="text-sm text-(--text-muted)">
               No categories available.{" "}
               <Link
                 href="/categories/new"
-                className="text-purple-600 hover:text-purple-700 font-medium"
+                className="text-(--brand) hover:underline font-medium"
               >
                 Create one
               </Link>
             </p>
           </div>
         ) : filteredItems.length === 0 ? (
-          <div className="bg-gray-50 rounded-lg p-6 text-center">
-            <p className="text-sm text-gray-600">
+          <div className="rounded-xl border border-(--border-subtle) bg-(--surface-elevated)/10 p-6 text-center">
+            <p className="text-sm text-(--text-muted)">
               No categories or subcategories match &quot;{searchQuery}&quot;
             </p>
           </div>
         ) : (
-          <div className="border border-gray-300 rounded-lg overflow-hidden">
-            <div className="max-h-96 overflow-y-auto">
+          <div className="border border-(--border-subtle) rounded-xl overflow-hidden bg-(--surface-elevated)/10">
+            <div className="max-h-96 overflow-y-auto modern-scrollbar">
               {Array.from(groupedItems.entries()).map(
                 ([categoryId, subcategories]) => {
                   const category = categories.find((c) => c.id === categoryId);
@@ -339,14 +339,14 @@ export default function CategorySubcategorySelector({
                   return (
                     <div
                       key={categoryId}
-                      className="border-b border-gray-200 last:border-b-0"
+                      className="border-b border-(--border-subtle) last:border-b-0"
                     >
                       {/* Category Header */}
                       <div
                         className={`px-6 py-4 ${
                           isCategorySelected
-                            ? "bg-purple-50 border-l-4 border-l-purple-600"
-                            : "bg-white hover:bg-gray-50"
+                            ? "bg-(--brand)/10 border-l-4 border-l-(--brand)"
+                            : "hover:bg-(--surface-elevated)/20"
                         } cursor-pointer transition`}
                       >
                         <label className="flex items-center gap-3 cursor-pointer">
@@ -354,13 +354,13 @@ export default function CategorySubcategorySelector({
                             type="checkbox"
                             checked={isCategorySelected}
                             onChange={() => handleCategoryChange(categoryId)}
-                            className="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500 cursor-pointer"
+                            className="w-5 h-5 cursor-pointer accent-(--brand) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40"
                           />
-                          <span className="font-semibold text-gray-900">
+                          <span className="font-semibold text-(--text-primary)">
                             {category.name}
                           </span>
                           {subcategories.length > 0 && (
-                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                            <span className="text-xs text-(--text-muted) bg-(--surface-elevated)/30 border border-(--border-subtle) px-2 py-1 rounded-full">
                               {subcategories.length} subcategory
                               {subcategories.length !== 1 ? "ies" : ""}
                             </span>
@@ -370,17 +370,17 @@ export default function CategorySubcategorySelector({
 
                       {/* Subcategories */}
                       {subcategories.length > 0 && (
-                        <div className="bg-gray-50 border-t border-gray-200">
+                        <div className="bg-(--surface-elevated)/10 border-t border-(--border-subtle)">
                           {subcategories.map((subcategory) => {
                             const isSubSelected =
                               validSelectedSubcategories.has(subcategory.id);
                             return (
                               <div
                                 key={subcategory.id}
-                                className={`px-6 py-3 border-t border-gray-200 first:border-t-0 ${
+                                className={`px-6 py-3 border-t border-(--border-subtle) first:border-t-0 ${
                                   isSubSelected
-                                    ? "bg-blue-50"
-                                    : "hover:bg-white"
+                                    ? "bg-(--brand)/5"
+                                    : "hover:bg-(--surface-elevated)/15"
                                 } transition`}
                               >
                                 <label className="flex items-center gap-3 cursor-pointer ml-8">
@@ -390,9 +390,9 @@ export default function CategorySubcategorySelector({
                                     onChange={() =>
                                       handleSubcategoryChange(subcategory.id)
                                     }
-                                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+                                    className="w-4 h-4 cursor-pointer accent-(--brand) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40"
                                   />
-                                  <span className="text-sm text-gray-700">
+                                  <span className="text-sm text-(--text-secondary)">
                                     {subcategory.name}
                                   </span>
                                 </label>
