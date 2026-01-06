@@ -46,6 +46,7 @@ export default function FormButton({
         "rounded-lg",
         // Preserve the common "form" feel without bespoke colors
         "gap-2",
+        "cursor-pointer",
         className,
       ]
         .filter(Boolean)
