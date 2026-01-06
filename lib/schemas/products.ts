@@ -2,22 +2,39 @@ import z from "zod";
 import { PRODUCT_LIMITS } from "../utils/products";
 import { parseSchemaData } from "../utils/schema";
 
+const requiredNumber = (label: string) =>
+  z.preprocess(
+    (value) => (value === null || value === undefined ? "" : value),
+    z
+      .union([
+        z
+          .string()
+          .trim()
+          .min(1, `${label} is required`)
+          .transform((raw) => Number(raw)),
+        z.number(),
+      ])
+      .refine((num) => Number.isFinite(num), `${label} is required`)
+  );
+
 export const ProductSchema = z.object({
   name: z
     .string()
     .min(PRODUCT_LIMITS.NAME_MIN, "Name is required")
     .max(PRODUCT_LIMITS.NAME_MAX, "Name is too long"),
-  price: z.coerce
-    .number()
-    .min(PRODUCT_LIMITS.PRICE_MIN, "Price must be non-negative"),
+  price: requiredNumber("Price").pipe(
+    z.number().min(PRODUCT_LIMITS.PRICE_MIN, "Price must be non-negative")
+  ),
   unitCost: z.coerce
     .number()
     .min(0, "Unit cost must be non-negative")
     .optional(),
-  quantity: z.coerce
-    .number()
-    .int()
-    .min(PRODUCT_LIMITS.QUANTITY_MIN, "Quantity must be non-negative"),
+  quantity: requiredNumber("Quantity").pipe(
+    z
+      .number()
+      .int("Quantity must be a whole number")
+      .min(PRODUCT_LIMITS.QUANTITY_MIN, "Quantity must be non-negative")
+  ),
   sku: z.string().max(PRODUCT_LIMITS.SKU_MAX, "SKU is too long").optional(),
   lowStockAt: z.coerce
     .number()
