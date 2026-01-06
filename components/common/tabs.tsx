@@ -38,17 +38,17 @@ export default function Tabs({
   return (
     <div className="space-y-4">
       {/* Tab Navigation - always on its own row */}
-      <div className="w-full border-b border-gray-100 dark:border-gray-800 bg-transparent sticky top-0 z-10">
+      <div className="w-full border-b border-(--border-subtle) bg-transparent sticky top-0 z-10">
         <div className="flex gap-0 min-w-full overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => handleTabChange(tab.id)}
-              className={`flex-1 px-2 py-2 text-xs font-semibold rounded-t-lg transition-all whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 ${
+              className={`flex-1 px-2 py-2 text-xs font-semibold rounded-t-xl transition-all whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40 ${
                 activeTab === tab.id
-                  ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white border-b-2 border-purple-500"
-                  : "text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 border-b-2 border-transparent"
+                  ? "bg-(--surface-elevated)/30 text-(--text-primary) border-b-2 border-(--brand)"
+                  : "text-(--text-muted) hover:text-(--text-primary) hover:bg-(--surface-elevated)/20 border-b-2 border-transparent"
               }`}
               style={{ minWidth: 80, touchAction: "manipulation" }}
             >
