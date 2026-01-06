@@ -35,7 +35,8 @@ export default function ProductForm({
   subcategoryIds = [],
   categories = [],
 }: ProductFormProps) {
-  const { formErrors, isSubmitting, onSubmit } = useProductFormContext();
+  const { formErrors, isSubmitting, onSubmit, clearFieldError, onFieldChange } =
+    useProductFormContext();
 
   const inputBaseClassName =
     "w-full px-3 sm:px-4 md:px-4 py-2.5 sm:py-3 md:py-3 rounded-xl border bg-(--surface-elevated)/30 text-(--text-primary) placeholder:text-(--text-muted) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40 focus-visible:border-(--border-strong) transition text-sm sm:text-base md:text-base disabled:opacity-60 disabled:cursor-not-allowed";
@@ -50,6 +51,17 @@ export default function ProductForm({
       await onSubmit(formData);
     }
   };
+
+  const handleInputChange =
+    (fieldName: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const nextValue = e.currentTarget.value;
+
+      if (nextValue.trim().length > 0) {
+        clearFieldError?.(fieldName);
+      }
+
+      onFieldChange?.(fieldName, nextValue);
+    };
 
   const tabs = [
     { id: "basic", label: "Basic Info", icon: <Package className="w-4 h-4" /> },
@@ -93,6 +105,7 @@ export default function ProductForm({
                 placeholder="Enter product name"
                 defaultValue={name || ""}
                 disabled={isSubmitting}
+                onChange={handleInputChange("name")}
                 className={[
                   inputBaseClassName,
                   formErrors.name ? inputErrorClassName : inputOkClassName,
@@ -129,6 +142,7 @@ export default function ProductForm({
                       price !== null && price !== undefined ? price : undefined
                     }
                     disabled={isSubmitting}
+                    onChange={handleInputChange("price")}
                     className={[
                       inputBaseClassName,
                       formErrors.price ? inputErrorClassName : inputOkClassName,
@@ -155,6 +169,7 @@ export default function ProductForm({
                         : undefined
                     }
                     disabled={isSubmitting}
+                    onChange={handleInputChange("unitCost")}
                     className={[
                       inputBaseClassName,
                       formErrors.unitCost
@@ -183,6 +198,7 @@ export default function ProductForm({
                         : undefined
                     }
                     disabled={isSubmitting}
+                    onChange={handleInputChange("quantity")}
                     className={[
                       inputBaseClassName,
                       formErrors.quantity
@@ -213,6 +229,7 @@ export default function ProductForm({
                     placeholder="Enter SKU"
                     defaultValue={sku || ""}
                     disabled={isSubmitting}
+                    onChange={handleInputChange("sku")}
                     className={[
                       inputBaseClassName,
                       formErrors.sku ? inputErrorClassName : inputOkClassName,
@@ -238,6 +255,7 @@ export default function ProductForm({
                         : undefined
                     }
                     disabled={isSubmitting}
+                    onChange={handleInputChange("lowStockAt")}
                     className={[
                       inputBaseClassName,
                       formErrors.lowStockAt
