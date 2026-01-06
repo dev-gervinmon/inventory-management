@@ -33,6 +33,7 @@ interface ProductTableProps {
   isCustomized: boolean;
   onOpenColumnManager: () => void;
   initialStatusFilter?: string;
+  onEditProduct?: (productId: string) => void;
 }
 
 export default function ProductTable({
@@ -41,6 +42,7 @@ export default function ProductTable({
   isCustomized,
   onOpenColumnManager,
   initialStatusFilter,
+  onEditProduct,
 }: ProductTableProps) {
   const router = useRouter();
   const { push: navigateTo } = useNavigationTransition();
@@ -469,9 +471,13 @@ export default function ProductTable({
                 return (
                   <tr
                     key={product.id}
-                    onClick={() =>
-                      navigateTo(`/inventory/${product.id}/edit-product`)
-                    }
+                    onClick={() => {
+                      if (onEditProduct) {
+                        onEditProduct(product.id);
+                        return;
+                      }
+                      navigateTo(`/inventory/${product.id}/edit-product`);
+                    }}
                     className={`border-b border-(--border-subtle) hover:bg-(--surface-elevated)/20 cursor-pointer transition ${
                       isSelected ? "bg-(--surface-elevated)/30" : ""
                     }`}
