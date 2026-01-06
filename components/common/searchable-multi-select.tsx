@@ -102,7 +102,7 @@ const SearchableMultiSelect = forwardRef<
             setIsOpen(!isOpen);
             inputRef.current?.focus();
           }}
-          className="w-full border border-gray-300 rounded-lg p-2 bg-white cursor-pointer hover:border-gray-400 transition flex flex-wrap gap-2 items-center"
+          className="w-full rounded-xl border border-(--border-subtle) bg-(--surface-elevated)/30 px-3 py-2 cursor-text transition flex flex-wrap gap-2 items-center hover:border-(--border-strong) focus-within:border-(--border-strong) focus-within:ring-2 focus-within:ring-(--brand)/40"
         >
           {/* Selected Tags */}
           {selectedItems.length > 0 ? (
@@ -110,7 +110,7 @@ const SearchableMultiSelect = forwardRef<
               {selectedItems.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center gap-1 bg-purple-100 text-purple-700 px-2 py-1 rounded-md text-sm font-medium"
+                  className="flex items-center gap-1 rounded-lg border border-(--border-subtle) bg-(--surface-elevated)/25 px-2 py-1 text-sm font-medium text-(--text-primary)"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {item.name}
@@ -119,7 +119,8 @@ const SearchableMultiSelect = forwardRef<
                       e.stopPropagation();
                       handleRemoveSelected(item.id);
                     }}
-                    className="hover:text-purple-900 transition"
+                    className="text-(--text-muted) hover:text-(--text-primary) transition"
+                    title={`Remove ${item.name}`}
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -139,7 +140,7 @@ const SearchableMultiSelect = forwardRef<
               onSearchChange?.(e.target.value);
             }}
             onFocus={() => setIsOpen(true)}
-            className="flex-1 min-w-[120px] outline-none bg-transparent text-sm"
+            className="flex-1 min-w-[120px] outline-none bg-transparent text-sm text-(--text-primary) placeholder:text-(--text-muted)"
           />
 
           {/* Clear and Dropdown Icon */}
@@ -150,14 +151,14 @@ const SearchableMultiSelect = forwardRef<
                   e.stopPropagation();
                   handleClearAll();
                 }}
-                className="text-gray-400 hover:text-gray-600 transition p-1"
+                className="text-(--text-muted) hover:text-(--text-secondary) transition p-1"
                 title="Clear all"
               >
                 <X className="w-4 h-4" />
               </button>
             )}
             <ChevronDown
-              className={`w-4 h-4 text-gray-400 transition ${
+              className={`w-4 h-4 text-(--text-muted) transition ${
                 isOpen ? "rotate-180" : ""
               }`}
             />
@@ -167,10 +168,10 @@ const SearchableMultiSelect = forwardRef<
         {/* Dropdown Menu */}
         {isOpen && (
           <div
-            className={`absolute top-full left-0 right-0 mt-1 border border-gray-300 rounded-lg bg-white shadow-lg z-50 ${maxHeight} overflow-y-auto`}
+            className={`absolute top-full left-0 right-0 mt-2 rounded-xl border border-(--border-strong) bg-glass shadow-lg z-50 ${maxHeight} overflow-y-auto modern-scrollbar`}
           >
             {filteredOptions.length === 0 ? (
-              <div className="p-4 text-center text-sm text-gray-500">
+              <div className="p-4 text-center text-sm text-(--text-muted)">
                 {search
                   ? "No options match your search"
                   : "No options available"}
@@ -180,15 +181,17 @@ const SearchableMultiSelect = forwardRef<
                 {filteredOptions.map((option) => (
                   <label
                     key={option.id}
-                    className="flex items-center gap-3 px-4 py-2 hover:bg-purple-50 cursor-pointer transition border-b border-gray-100 last:border-b-0"
+                    className="flex items-center gap-3 px-4 py-2 cursor-pointer transition border-b border-(--border-subtle) last:border-b-0 hover:bg-(--surface-elevated)/20"
                   >
                     <input
                       type="checkbox"
                       checked={selectedIds.includes(option.id)}
                       onChange={() => handleToggleOption(option.id)}
-                      className="w-4 h-4 cursor-pointer accent-purple-600"
+                      className="w-4 h-4 cursor-pointer accent-(--brand)"
                     />
-                    <span className="text-sm text-gray-700">{option.name}</span>
+                    <span className="text-sm text-(--text-primary)">
+                      {option.name}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -198,7 +201,7 @@ const SearchableMultiSelect = forwardRef<
 
         {/* Selected Count */}
         {selectedItems.length > 0 && (
-          <div className="mt-1 text-xs text-gray-600">
+          <div className="mt-1 text-xs text-(--text-muted)">
             {selectedItems.length} selected
           </div>
         )}
