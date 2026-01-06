@@ -125,30 +125,30 @@ export default function ColumnManagerModal({
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0 pointer-events-none">
         {/* Modal Box - pointer-events-auto to be interactive */}
         <div
-          className="w-full max-w-sm bg-white rounded-xl shadow-lg border border-gray-200 animate-in fade-in zoom-in-95 duration-300 pointer-events-auto"
+          className="w-full max-w-sm bg-glass rounded-2xl shadow-lg border border-(--border-strong) text-(--text-primary) animate-in fade-in zoom-in-95 duration-300 pointer-events-auto"
           onClick={(e) => e.stopPropagation()}
           role="dialog"
           aria-labelledby="column-modal-title"
           aria-modal="true"
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-5 sm:px-6 py-4 sm:py-5 border-b border-gray-100">
+          <div className="flex items-center justify-between px-5 sm:px-6 py-4 sm:py-5 border-b border-(--border-subtle)">
             <div>
               <h2
                 id="column-modal-title"
-                className="text-base sm:text-lg font-semibold text-gray-900"
+                className="text-base sm:text-lg font-semibold text-(--text-primary)"
               >
                 Columns
               </h2>
               {hiddenCount > 0 && (
-                <p className="text-xs text-gray-500 mt-0.5">
+                <p className="text-xs text-(--text-muted) mt-0.5">
                   {hiddenCount} hidden
                 </p>
               )}
             </div>
             <button
               onClick={onClose}
-              className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+              className="p-1 rounded-lg text-(--text-muted) hover:text-(--text-primary) hover:bg-(--surface-elevated)/25 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40"
               aria-label="Close modal"
               type="button"
             >
@@ -161,20 +161,20 @@ export default function ColumnManagerModal({
             {/* Search Input */}
             <div className="relative">
               <div className="relative flex items-center">
-                <Search className="absolute left-3 w-4 h-4 text-gray-400 pointer-events-none" />
+                <Search className="absolute left-3 w-4 h-4 text-(--text-muted) pointer-events-none" />
                 <input
                   type="text"
                   placeholder="Search columns..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-9 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                  className="w-full pl-9 pr-9 py-2 text-sm rounded-xl border border-(--border-subtle) bg-(--surface-elevated)/30 text-(--text-primary) placeholder:text-(--text-muted) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40 focus-visible:border-(--border-strong) transition"
                   aria-label="Search columns"
                   autoComplete="off"
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery("")}
-                    className="absolute right-3 p-0.5 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                    className="absolute right-3 p-0.5 text-(--text-muted) hover:text-(--text-secondary) transition-colors duration-200"
                     aria-label="Clear search"
                     type="button"
                   >
@@ -185,15 +185,15 @@ export default function ColumnManagerModal({
             </div>
 
             {/* Quick Action - Show All / Hide All Toggle */}
-            <div className="pb-4 border-b border-gray-100">
+            <div className="pb-4 border-b border-(--border-subtle)">
               <button
                 onClick={onToggleAllColumns}
                 className={`w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors duration-200 cursor-pointer ${
                   searchQuery ? "opacity-50 pointer-events-none" : ""
                 } ${
                   showShowAllButton
-                    ? "text-gray-700 bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300"
-                    : "text-purple-600 bg-purple-50 border border-purple-200 hover:bg-purple-100 hover:border-purple-300"
+                    ? "text-(--text-secondary) bg-(--surface-elevated)/20 border border-(--border-subtle) hover:bg-(--surface-elevated)/30 hover:border-(--border-strong)"
+                    : "text-(--brand) bg-(--brand)/10 border border-(--brand)/25 hover:bg-(--brand)/15 hover:border-(--brand)/35"
                 }`}
                 title={
                   searchQuery
@@ -204,6 +204,7 @@ export default function ColumnManagerModal({
                 }
                 disabled={!!searchQuery}
                 type="button"
+                aria-disabled={!!searchQuery}
               >
                 {showShowAllButton ? (
                   <>
@@ -236,40 +237,40 @@ export default function ColumnManagerModal({
                         {favorites.map((column) => (
                           <div
                             key={column.id}
-                            className="flex items-start gap-3 px-3 py-2.5 rounded-lg hover:bg-yellow-50 group"
+                            className="flex items-start gap-3 px-3 py-2.5 rounded-lg hover:bg-(--surface-elevated)/20 group"
                           >
                             {!column.essential && (
                               <input
                                 type="checkbox"
                                 checked={column.visible}
                                 onChange={() => onToggleColumn(column.id)}
-                                className="w-4 h-4 rounded-md border-gray-300 text-purple-600 checked:bg-purple-600 cursor-pointer accent-purple-600 mt-0.5"
+                                className="w-4 h-4 rounded-md border-(--border-subtle) cursor-pointer accent-(--brand) mt-0.5"
                                 aria-label={`Toggle ${column.label} column visibility`}
                               />
                             )}
                             {column.essential && (
-                              <div className="w-4 h-4 rounded-md border border-gray-300 bg-purple-100 flex items-center justify-center mt-0.5">
-                                <div className="w-2 h-2 bg-purple-600 rounded" />
+                              <div className="w-4 h-4 rounded-md border border-(--border-subtle) bg-(--brand)/12 flex items-center justify-center mt-0.5">
+                                <div className="w-2 h-2 bg-(--brand) rounded" />
                               </div>
                             )}
                             <div className="flex-1 min-w-0">
-                              <div className="text-sm font-medium text-gray-900">
+                              <div className="text-sm font-medium text-(--text-primary)">
                                 {column.label}
                               </div>
                               {column.description && (
-                                <p className="text-xs text-gray-500 mt-0.5">
+                                <p className="text-xs text-(--text-muted) mt-0.5">
                                   {column.description}
                                 </p>
                               )}
                               {column.essential && (
-                                <p className="text-xs text-gray-400 mt-0.5">
+                                <p className="text-xs text-(--text-muted) mt-0.5">
                                   Always visible
                                 </p>
                               )}
                             </div>
                             <button
                               onClick={() => onToggleFavorite(column.id)}
-                              className="p-1.5 rounded-md transition-colors duration-150 hover:bg-yellow-100 cursor-pointer shrink-0"
+                              className="p-1.5 rounded-md transition-colors duration-150 hover:bg-(--surface-elevated)/25 cursor-pointer shrink-0"
                               title="Remove from favorites"
                               aria-label={`Remove ${column.label} from favorites`}
                               type="button"
@@ -286,7 +287,7 @@ export default function ColumnManagerModal({
                   {essentials.length > 0 && (
                     <div className="space-y-2">
                       <div className="px-3 py-1.5">
-                        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                        <h3 className="text-xs font-semibold text-(--text-muted) uppercase tracking-wide">
                           Essential
                         </h3>
                       </div>
@@ -300,27 +301,27 @@ export default function ColumnManagerModal({
                               type="checkbox"
                               checked={column.visible}
                               disabled={true}
-                              className="w-4 h-4 rounded-md border-gray-300 text-purple-600 checked:bg-purple-600 cursor-not-allowed disabled:opacity-40 accent-purple-600 mt-0.5"
+                              className="w-4 h-4 rounded-md border-(--border-subtle) cursor-not-allowed disabled:opacity-40 accent-(--brand) mt-0.5"
                               aria-label={`Toggle ${column.label} column visibility`}
                             />
                             <div className="flex-1 min-w-0">
-                              <div className="text-sm font-medium text-gray-900">
+                              <div className="text-sm font-medium text-(--text-primary)">
                                 {column.label}
                               </div>
                               {column.description && (
-                                <p className="text-xs text-gray-500 mt-0.5">
+                                <p className="text-xs text-(--text-muted) mt-0.5">
                                   {column.description}
                                 </p>
                               )}
                             </div>
                             <button
                               onClick={() => onToggleFavorite(column.id)}
-                              className="p-1.5 rounded-md transition-colors duration-150 hover:bg-purple-100 cursor-pointer shrink-0"
+                              className="p-1.5 rounded-md transition-colors duration-150 hover:bg-(--surface-elevated)/25 cursor-pointer shrink-0"
                               title="Add to favorites"
                               aria-label={`Add ${column.label} to favorites`}
                               type="button"
                             >
-                              <Star className="w-4 h-4 text-gray-400" />
+                              <Star className="w-4 h-4 text-(--text-muted)" />
                             </button>
                           </label>
                         ))}
@@ -332,7 +333,7 @@ export default function ColumnManagerModal({
                   {optional.length > 0 && (
                     <div className="space-y-2">
                       <div className="px-3 py-1.5">
-                        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                        <h3 className="text-xs font-semibold text-(--text-muted) uppercase tracking-wide">
                           Optional
                         </h3>
                       </div>
@@ -340,33 +341,33 @@ export default function ColumnManagerModal({
                         {optional.map((column) => (
                           <div
                             key={column.id}
-                            className="flex items-start gap-3 px-3 py-2.5 rounded-lg hover:bg-purple-50 group"
+                            className="flex items-start gap-3 px-3 py-2.5 rounded-lg hover:bg-(--surface-elevated)/20 group"
                           >
                             <input
                               type="checkbox"
                               checked={column.visible}
                               onChange={() => onToggleColumn(column.id)}
-                              className="w-4 h-4 rounded-md border-gray-300 text-purple-600 checked:bg-purple-600 cursor-pointer accent-purple-600 mt-0.5"
+                              className="w-4 h-4 rounded-md border-(--border-subtle) cursor-pointer accent-(--brand) mt-0.5"
                               aria-label={`Toggle ${column.label} column visibility`}
                             />
                             <div className="flex-1 min-w-0">
-                              <div className="text-sm font-medium text-gray-900">
+                              <div className="text-sm font-medium text-(--text-primary)">
                                 {column.label}
                               </div>
                               {column.description && (
-                                <p className="text-xs text-gray-500 mt-0.5">
+                                <p className="text-xs text-(--text-muted) mt-0.5">
                                   {column.description}
                                 </p>
                               )}
                             </div>
                             <button
                               onClick={() => onToggleFavorite(column.id)}
-                              className="p-1.5 rounded-md transition-colors duration-150 hover:bg-purple-100 cursor-pointer shrink-0"
+                              className="p-1.5 rounded-md transition-colors duration-150 hover:bg-(--surface-elevated)/25 cursor-pointer shrink-0"
                               title="Add to favorites"
                               aria-label={`Add ${column.label} to favorites`}
                               type="button"
                             >
-                              <Star className="w-4 h-4 text-gray-400" />
+                              <Star className="w-4 h-4 text-(--text-muted)" />
                             </button>
                           </div>
                         ))}
@@ -376,7 +377,7 @@ export default function ColumnManagerModal({
                 </>
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-(--text-muted)">
                     No columns match &quot;{searchQuery}&quot;
                   </p>
                 </div>
@@ -385,7 +386,9 @@ export default function ColumnManagerModal({
 
             {!searchQuery && columns.length === 0 && (
               <div className="text-center py-8">
-                <p className="text-sm text-gray-500">No columns available</p>
+                <p className="text-sm text-(--text-muted)">
+                  No columns available
+                </p>
               </div>
             )}
           </div>
