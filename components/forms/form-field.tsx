@@ -24,10 +24,10 @@ export default function FormField({
     <div>
       <label
         htmlFor={id}
-        className="block text-sm font-medium text-gray-700 mb-2"
+        className="block text-sm font-medium text-(--text-secondary) mb-2"
       >
         <span>{label}</span>
-        {required && <span className="text-red-600 ml-1">*</span>}
+        {required && <span className="text-(--danger) ml-1">*</span>}
       </label>
 
       <div className={error ? "relative" : ""}>
@@ -35,19 +35,21 @@ export default function FormField({
 
         {error && (
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-            <AlertCircle className="h-5 w-5 text-red-600" />
+            <AlertCircle className="h-5 w-5 text-(--danger)" />
           </div>
         )}
       </div>
 
       {error && (
-        <p className="mt-1.5 text-sm text-red-600 flex items-center gap-1">
+        <p className="mt-1.5 text-sm text-(--danger) flex items-center gap-1">
           <AlertCircle className="w-4 h-4 shrink-0" />
           {error}
         </p>
       )}
 
-      {!error && hint && <p className="mt-1.5 text-sm text-gray-500">{hint}</p>}
+      {!error && hint && (
+        <p className="mt-1.5 text-sm text-(--text-muted)">{hint}</p>
+      )}
     </div>
   );
 }
