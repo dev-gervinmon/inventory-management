@@ -126,7 +126,7 @@ export default function ProductTableContent({
         </div>
       ) : products.length === 0 ? (
         <div className="text-center">
-          <p className="text-gray-500">
+          <p className="text-sm text-(--text-muted)">
             No products yet. Create one to get started!
           </p>
         </div>
