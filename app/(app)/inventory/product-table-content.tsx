@@ -6,7 +6,7 @@ import {
   useColumnVisibility,
   type ColumnVisibility,
 } from "@/lib/hooks/useColumnVisibility";
-import ProductTable from "@/components/tables/product-table";
+import ProductTable from "@/components/page-specific/inventory/common/product-table";
 import { usePullToRefreshLoading } from "@/lib/contexts/pull-to-refresh-context";
 import { TableRowSkeleton } from "@/components/skeletons/generic-skeletons";
 import { SerializedProduct } from "@/app/src/utils/product";
@@ -14,11 +14,13 @@ import { SerializedProduct } from "@/app/src/utils/product";
 interface ProductTableContentProps {
   products: SerializedProduct[];
   initialStatusFilter?: string;
+  onEditProduct?: (productId: string) => void;
 }
 
 export default function ProductTableContent({
   products,
   initialStatusFilter,
+  onEditProduct,
 }: ProductTableContentProps) {
   const [showColumnManager, setShowColumnManager] = useState(false);
   const isLoading = usePullToRefreshLoading();
@@ -137,6 +139,7 @@ export default function ProductTableContent({
           isCustomized={isCustomizedWithHydration}
           onOpenColumnManager={() => setShowColumnManager(true)}
           initialStatusFilter={initialStatusFilter}
+          onEditProduct={onEditProduct}
         />
       )}
 
