@@ -55,7 +55,9 @@ export default function TrendIndicator({
   }, [percentage, direction, isLoading, prefersReducedMotion]);
 
   const formattedPercentage =
-    direction === "flat" ? "0%" : `${percentage > 0 ? "+" : ""}${percentage}%`;
+    direction === "flat"
+      ? "0%"
+      : `${percentage > 0 ? "+" : ""}${percentage.toFixed(2)}%`;
 
   const ariaLabel =
     direction === "flat"
