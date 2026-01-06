@@ -12,15 +12,26 @@ export default function MessageBanner({ message }: MessageBannerProps) {
   const isError = message.type === "error";
   const isSuccess = message.type === "success";
 
+  const variantClassName = isError
+    ? "bg-(--danger)/10 text-(--danger) border-(--danger)/20"
+    : isSuccess
+    ? "bg-(--success)/10 text-(--success) border-(--success)/20"
+    : "bg-(--surface-elevated)/10 text-(--text-secondary) border-(--border-subtle)";
+
   return (
     <div
-      className={`text-sm p-3 rounded-lg border transition-all duration-300 mt-3 ${
-        isError
-          ? "bg-red-50 text-red-700 border-red-200"
-          : isSuccess
-          ? "bg-green-50 text-green-700 border-green-200"
-          : ""
-      }`}
+      className={[
+        "mt-3",
+        "text-sm",
+        "p-3",
+        "rounded-xl",
+        "border",
+        "bg-glass",
+        "backdrop-blur",
+        "transition-all",
+        "duration-300",
+        variantClassName,
+      ].join(" ")}
     >
       {message.text}
     </div>
