@@ -221,10 +221,10 @@ export default function ProductTable({
     categoryFilter.length > 0 || statusFilter || categoriesSearchInput;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 min-w-0">
       {/* Top Row: Header with Products Count and Column Manager */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-base md:text-lg font-semibold text-gray-900">
+      <div className="flex items-center justify-between gap-3 min-w-0">
+        <h2 className="text-base md:text-lg font-semibold text-(--text-primary) truncate">
           Products ({products.length})
         </h2>
         <ColumnManagerButton
@@ -234,16 +234,16 @@ export default function ProductTable({
       </div>
 
       {/* Bottom Row: Search and Filters */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
+      <div className="border border-(--border-strong) bg-glass rounded-2xl p-3 sm:p-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Search Input */}
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">
+            <label className="text-sm font-semibold text-(--text-secondary)">
               Search
             </label>
             <div className="relative flex items-center">
               <svg
-                className="absolute left-4 w-5 h-5 text-gray-400 pointer-events-none"
+                className="absolute left-4 w-5 h-5 text-(--text-muted) pointer-events-none"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -260,7 +260,7 @@ export default function ProductTable({
                 placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                className="w-full pl-12 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                className="w-full pl-12 pr-10 py-2 rounded-xl border border-(--border-subtle) bg-(--surface-elevated)/30 text-(--text-primary) placeholder:text-(--text-muted) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40 focus-visible:border-(--border-strong) transition"
               />
               {searchQuery && (
                 <button
@@ -268,7 +268,7 @@ export default function ProductTable({
                     clearSearch();
                     setCurrentPage(1);
                   }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-(--text-muted) hover:text-(--text-secondary) transition"
                   title="Clear search"
                 >
                   ✕
@@ -279,7 +279,7 @@ export default function ProductTable({
 
           {/* Categories Filter */}
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">
+            <label className="text-sm font-semibold text-(--text-secondary)">
               Categories
             </label>
             <SearchableMultiSelect
@@ -297,7 +297,7 @@ export default function ProductTable({
 
           {/* Stock Status Filter */}
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">
+            <label className="text-sm font-semibold text-(--text-secondary)">
               Stock Status
             </label>
             <select
@@ -306,7 +306,7 @@ export default function ProductTable({
                 setStatusFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+              className="w-full px-3 py-2 rounded-xl border border-(--border-subtle) bg-(--surface-elevated)/30 text-(--text-primary) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40 focus-visible:border-(--border-strong) transition"
             >
               <option value="">All Items</option>
               <option value="in-stock">In Stock</option>
@@ -336,10 +336,10 @@ export default function ProductTable({
       <MessageBanner message={message} />
       {/* Search Results Info */}
       {searchQuery && (
-        <div className="bg-linear-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200 px-4 py-3 flex items-center justify-between">
+        <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-elevated)/20 px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <svg
-              className="w-4 h-4 text-purple-600"
+              className="w-4 h-4 text-(--text-secondary)"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -351,18 +351,19 @@ export default function ProductTable({
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
               />
             </svg>
-            <span className="text-xs text-gray-700 font-medium">
+            <span className="text-xs text-(--text-secondary) font-medium">
               Found <strong>{sortedProducts.length}</strong> of{" "}
               <strong>{products.length}</strong> product
               {products.length !== 1 ? "s" : ""} matching &quot;
-              <strong className="text-purple-700">{searchQuery}</strong>&quot;
+              <strong className="text-(--text-primary)">{searchQuery}</strong>
+              &quot;
             </span>
           </div>
         </div>
       )}
       {count > 0 && (
-        <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
-          <span className="text-sm font-medium text-blue-900">
+        <div className="flex items-center justify-between gap-3 p-3 rounded-2xl border border-(--border-subtle) bg-(--surface-elevated)/20">
+          <span className="text-sm font-medium text-(--text-primary)">
             {count} product(s) selected
           </span>
           <FormButton
@@ -376,9 +377,9 @@ export default function ProductTable({
         </div>
       )}
 
-      <div className="overflow-x-auto border border-gray-200 rounded-lg">
+      <div className="overflow-x-auto border border-(--border-strong) rounded-2xl bg-(--surface-elevated)/10 min-w-0">
         {sortedProducts.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
+          <div className="p-8 text-center text-(--text-muted)">
             {searchQuery ? (
               <div>
                 <p className="text-sm">No products match your search</p>
@@ -398,7 +399,7 @@ export default function ProductTable({
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
+              <tr className="bg-(--surface-elevated)/20 border-b border-(--border-subtle)">
                 <th className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left">
                   <input
                     type="checkbox"
@@ -408,7 +409,7 @@ export default function ProductTable({
                       sortedProducts.length > 0
                     }
                     onChange={(e) => handleSelectAll(e.target.checked)}
-                    className="w-4 h-4 cursor-pointer"
+                    className="w-4 h-4 cursor-pointer accent-(--brand) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40"
                   />
                 </th>
                 <SortableHeader
@@ -428,7 +429,7 @@ export default function ProductTable({
                   />
                 )}
                 {showCategoriesColumn && (
-                  <th className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-900">
+                  <th className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-(--text-primary)">
                     Categories
                   </th>
                 )}
@@ -451,7 +452,7 @@ export default function ProductTable({
                   />
                 )}
                 {showStatusColumn && (
-                  <th className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-900">
+                  <th className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-(--text-primary)">
                     Status
                   </th>
                 )}
@@ -471,8 +472,8 @@ export default function ProductTable({
                     onClick={() =>
                       navigateTo(`/inventory/${product.id}/edit-product`)
                     }
-                    className={`border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition ${
-                      isSelected ? "bg-purple-50" : ""
+                    className={`border-b border-(--border-subtle) hover:bg-(--surface-elevated)/20 cursor-pointer transition ${
+                      isSelected ? "bg-(--surface-elevated)/30" : ""
                     }`}
                   >
                     <td
@@ -484,14 +485,14 @@ export default function ProductTable({
                         id={`select-${product.id}`}
                         checked={isSelected}
                         onChange={() => toggle(product.id)}
-                        className="w-4 h-4 cursor-pointer"
+                        className="w-4 h-4 cursor-pointer accent-(--brand) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40"
                       />
                     </td>
 
                     {/* Product Name + Image */}
                     <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4">
                       <div className="flex items-center gap-2 sm:gap-3">
-                        <div className="w-8 sm:w-10 h-8 sm:h-10 shrink-0 bg-gray-200 rounded-lg overflow-hidden border border-gray-300">
+                        <div className="w-8 sm:w-10 h-8 sm:h-10 shrink-0 bg-(--surface-elevated)/30 rounded-xl overflow-hidden border border-(--border-subtle)">
                           {product.imageUrl ? (
                             <Image
                               src={product.imageUrl}
@@ -501,16 +502,16 @@ export default function ProductTable({
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs font-semibold">
+                            <div className="w-full h-full flex items-center justify-center text-(--text-muted) text-xs font-semibold">
                               —
                             </div>
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs sm:text-sm font-semibold text-gray-900 truncate">
+                          <p className="text-xs sm:text-sm font-semibold text-(--text-primary) truncate">
                             {product.name}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-(--text-muted)">
                             {formatProductDate(product.createdAt)}
                           </p>
                         </div>
@@ -519,8 +520,8 @@ export default function ProductTable({
 
                     {/* SKU */}
                     {showSkuColumn && (
-                      <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm font-medium text-gray-700">
-                        <code className="px-2 py-1 bg-gray-100 rounded text-xs">
+                      <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm font-medium text-(--text-secondary)">
+                        <code className="px-2 py-1 bg-(--surface-elevated)/30 border border-(--border-subtle) rounded-lg text-xs">
                           {product.sku || "—"}
                         </code>
                       </td>
@@ -536,19 +537,21 @@ export default function ProductTable({
                               {product.categories.slice(0, 2).map((cat) => (
                                 <span
                                   key={cat.id}
-                                  className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold"
+                                  className="px-2 py-1 bg-(--surface-elevated)/30 text-(--text-secondary) border border-(--border-subtle) rounded-full text-xs font-semibold"
                                 >
                                   {cat.name}
                                 </span>
                               ))}
                               {product.categories.length > 2 && (
-                                <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold">
+                                <span className="px-2 py-1 bg-(--surface-elevated)/20 text-(--text-muted) border border-(--border-subtle) rounded-full text-xs font-semibold">
                                   +{product.categories.length - 2}
                                 </span>
                               )}
                             </>
                           ) : (
-                            <span className="text-gray-400 text-xs">—</span>
+                            <span className="text-(--text-muted) text-xs">
+                              —
+                            </span>
                           )}
                         </div>
                       </td>
@@ -556,7 +559,7 @@ export default function ProductTable({
 
                     {/* Price */}
                     {showPriceColumn && (
-                      <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm font-bold text-gray-900">
+                      <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm font-bold text-(--text-primary)">
                         {formatPrice(product.price)}
                       </td>
                     )}
@@ -565,11 +568,11 @@ export default function ProductTable({
                     {showStockColumn && (
                       <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 text-xs sm:text-sm">
                         <div className="flex flex-col gap-1">
-                          <span className="text-xs sm:text-sm font-bold text-gray-900">
+                          <span className="text-xs sm:text-sm font-bold text-(--text-primary)">
                             {product.quantity}
                           </span>
                           {product.lowStockAt && (
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-(--text-muted)">
                               Low: {product.lowStockAt}
                             </span>
                           )}
