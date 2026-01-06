@@ -5,12 +5,16 @@ interface AddProductButtonProps {
   variant?: "simple" | "with-icon";
   size?: "sm" | "md";
   className?: string;
+  href?: string;
+  onClick?: () => void;
 }
 
 export default function AddProductButton({
   variant = "with-icon",
   size = "md",
   className = "",
+  href = "/add-product",
+  onClick,
 }: AddProductButtonProps) {
   const sizeClass = {
     sm: "px-4 py-2.5 text-xs sm:text-sm",
@@ -22,8 +26,10 @@ export default function AddProductButton({
   if (variant === "simple") {
     return (
       <Button
-        asChild
-        href="/add-product"
+        asChild={!onClick}
+        href={onClick ? undefined : href}
+        onClick={onClick}
+        type={onClick ? "button" : undefined}
         size="default"
         className={[
           "min-h-11 gap-2 rounded-lg",
@@ -41,8 +47,10 @@ export default function AddProductButton({
 
   return (
     <Button
-      asChild
-      href="/add-product"
+      asChild={!onClick}
+      href={onClick ? undefined : href}
+      onClick={onClick}
+      type={onClick ? "button" : undefined}
       size="default"
       className={[
         "min-h-11 gap-2 rounded-lg",
