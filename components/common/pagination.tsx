@@ -109,16 +109,18 @@ export default function Pagination({
   const visiblePages = getVisiblePages();
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 rounded-lg border border-gray-200">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 bg-glass rounded-2xl border border-(--border-strong)">
       {/* Items Info - Responsive Text */}
-      <div className="text-xs sm:text-sm text-gray-600 font-medium order-2 sm:order-1">
+      <div className="text-xs sm:text-sm text-(--text-muted) font-medium order-2 sm:order-1">
         <span className="sm:hidden">
           {currentPage} of {totalPages}
         </span>
         <span className="hidden sm:inline">
-          Showing <span className="text-gray-900 font-bold">{itemsStart}</span>{" "}
-          to <span className="text-gray-900 font-bold">{itemsEnd}</span> of{" "}
-          <span className="text-gray-900 font-bold">{totalItems}</span>{" "}
+          Showing{" "}
+          <span className="text-(--text-primary) font-bold">{itemsStart}</span>{" "}
+          to <span className="text-(--text-primary) font-bold">{itemsEnd}</span>{" "}
+          of{" "}
+          <span className="text-(--text-primary) font-bold">{totalItems}</span>{" "}
           {entityName}
         </span>
       </div>
@@ -131,8 +133,8 @@ export default function Pagination({
           disabled={currentPage <= 1}
           className={`flex items-center justify-center gap-0 sm:gap-1.5 px-2.5 sm:px-3 py-2 sm:py-2 h-9 sm:h-10 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 ${
             currentPage <= 1
-              ? "text-gray-400 bg-gray-100 cursor-not-allowed"
-              : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400 active:bg-gray-100 shadow-sm hover:shadow-md cursor-pointer"
+              ? "text-(--text-muted) bg-(--surface-elevated)/20 border border-(--border-subtle) cursor-not-allowed opacity-60"
+              : "text-(--text-secondary) bg-glass border border-(--border-subtle) hover:bg-(--surface-elevated)/40 hover:border-(--border-strong) active:bg-(--surface-elevated)/60 shadow-sm cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40"
           }`}
           aria-label="Previous page"
           title="Previous page"
@@ -156,7 +158,7 @@ export default function Pagination({
               return (
                 <span
                   key={key}
-                  className="px-1.5 sm:px-2 py-2 h-9 sm:h-10 flex items-center text-xs sm:text-sm text-gray-400"
+                  className="px-1.5 sm:px-2 py-2 h-9 sm:h-10 flex items-center text-xs sm:text-sm text-(--text-muted)"
                 >
                   ⋯
                 </span>
@@ -169,10 +171,10 @@ export default function Pagination({
               <button
                 key={key}
                 onClick={() => handlePageClick(pageNum)}
-                className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 ${
+                className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-xs sm:text-sm font-semibold rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40 ${
                   isCurrentPage
-                    ? "bg-linear-to-r from-purple-600 to-purple-700 text-white shadow-md hover:shadow-lg"
-                    : "text-gray-700 bg-white border border-gray-300 hover:bg-purple-50 hover:border-purple-300 hover:shadow-sm active:bg-purple-100 shadow-sm cursor-pointer"
+                    ? "bg-(--brand) text-(--text-inverted) shadow-lg shadow-(--brand)/25"
+                    : "text-(--text-secondary) bg-glass border border-(--border-subtle) hover:bg-(--surface-elevated)/40 hover:border-(--border-strong) active:bg-(--surface-elevated)/60 shadow-sm cursor-pointer"
                 }`}
                 aria-label={`Go to page ${pageNum}`}
                 aria-current={isCurrentPage ? "page" : undefined}
@@ -190,8 +192,8 @@ export default function Pagination({
           disabled={currentPage >= totalPages}
           className={`flex items-center justify-center gap-0 sm:gap-1.5 px-2.5 sm:px-3 py-2 sm:py-2 h-9 sm:h-10 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 ${
             currentPage >= totalPages
-              ? "text-gray-400 bg-gray-100 cursor-not-allowed"
-              : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400 active:bg-gray-100 shadow-sm hover:shadow-md cursor-pointer"
+              ? "text-(--text-muted) bg-(--surface-elevated)/20 border border-(--border-subtle) cursor-not-allowed opacity-60"
+              : "text-(--text-secondary) bg-glass border border-(--border-subtle) hover:bg-(--surface-elevated)/40 hover:border-(--border-strong) active:bg-(--surface-elevated)/60 shadow-sm cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40"
           }`}
           aria-label="Next page"
           title="Next page"
