@@ -37,6 +37,12 @@ export default function ProductForm({
 }: ProductFormProps) {
   const { formErrors, isSubmitting, onSubmit } = useProductFormContext();
 
+  const inputBaseClassName =
+    "w-full px-3 sm:px-4 md:px-4 py-2.5 sm:py-3 md:py-3 rounded-xl border bg-(--surface-elevated)/30 text-(--text-primary) placeholder:text-(--text-muted) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40 focus-visible:border-(--border-strong) transition text-sm sm:text-base md:text-base disabled:opacity-60 disabled:cursor-not-allowed";
+  const inputErrorClassName =
+    "border-(--danger)/40 bg-(--danger)/5 focus-visible:ring-(--danger)/25 focus-visible:border-(--danger)/50";
+  const inputOkClassName = "border-(--border-subtle)";
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (onSubmit) {
@@ -63,6 +69,7 @@ export default function ProductForm({
   return (
     <form
       id="product-form"
+      noValidate
       onSubmit={onSubmit ? handleSubmit : undefined}
       className="space-y-6 sm:space-y-7 md:space-y-8"
     >
@@ -86,11 +93,10 @@ export default function ProductForm({
                 placeholder="Enter product name"
                 defaultValue={name || ""}
                 disabled={isSubmitting}
-                className={`w-full px-3 sm:px-4 md:px-4 py-2.5 sm:py-3 md:py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm sm:text-base md:text-base ${
-                  formErrors.name
-                    ? "border-red-500 bg-red-50"
-                    : "border-gray-300"
-                }`}
+                className={[
+                  inputBaseClassName,
+                  formErrors.name ? inputErrorClassName : inputOkClassName,
+                ].join(" ")}
               />
             </FormField>
           </div>
@@ -101,7 +107,7 @@ export default function ProductForm({
           <div className="space-y-4 sm:space-y-5 md:space-y-6">
             {/* Pricing & Inventory */}
             <div>
-              <h3 className="text-xs sm:text-sm md:text-sm font-semibold text-gray-900 mb-3 sm:mb-4 md:mb-4">
+              <h3 className="text-xs sm:text-sm md:text-sm font-semibold text-(--text-primary) mb-3 sm:mb-4 md:mb-4">
                 Pricing & Inventory
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
@@ -123,11 +129,10 @@ export default function ProductForm({
                       price !== null && price !== undefined ? price : undefined
                     }
                     disabled={isSubmitting}
-                    className={`w-full px-3 sm:px-4 md:px-4 py-2.5 sm:py-3 md:py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm sm:text-base md:text-base ${
-                      formErrors.price
-                        ? "border-red-500 bg-red-50"
-                        : "border-gray-300"
-                    }`}
+                    className={[
+                      inputBaseClassName,
+                      formErrors.price ? inputErrorClassName : inputOkClassName,
+                    ].join(" ")}
                   />
                 </FormField>
 
@@ -150,11 +155,12 @@ export default function ProductForm({
                         : undefined
                     }
                     disabled={isSubmitting}
-                    className={`w-full px-3 sm:px-4 md:px-4 py-2.5 sm:py-3 md:py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm sm:text-base md:text-base ${
+                    className={[
+                      inputBaseClassName,
                       formErrors.unitCost
-                        ? "border-red-500 bg-red-50"
-                        : "border-gray-300"
-                    }`}
+                        ? inputErrorClassName
+                        : inputOkClassName,
+                    ].join(" ")}
                   />
                 </FormField>
 
@@ -177,19 +183,20 @@ export default function ProductForm({
                         : undefined
                     }
                     disabled={isSubmitting}
-                    className={`w-full px-3 sm:px-4 md:px-4 py-2.5 sm:py-3 md:py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm sm:text-base md:text-base ${
+                    className={[
+                      inputBaseClassName,
                       formErrors.quantity
-                        ? "border-red-500 bg-red-50"
-                        : "border-gray-300"
-                    }`}
+                        ? inputErrorClassName
+                        : inputOkClassName,
+                    ].join(" ")}
                   />
                 </FormField>
               </div>
             </div>
 
             {/* Additional Details */}
-            <div className="border-t border-gray-200 pt-4 sm:pt-5 md:pt-6">
-              <h3 className="text-xs sm:text-sm md:text-sm font-semibold text-gray-900 mb-3 sm:mb-4 md:mb-4">
+            <div className="border-t border-(--border-subtle) pt-4 sm:pt-5 md:pt-6">
+              <h3 className="text-xs sm:text-sm md:text-sm font-semibold text-(--text-primary) mb-3 sm:mb-4 md:mb-4">
                 Additional Details
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
@@ -206,11 +213,10 @@ export default function ProductForm({
                     placeholder="Enter SKU"
                     defaultValue={sku || ""}
                     disabled={isSubmitting}
-                    className={`w-full px-3 sm:px-4 md:px-4 py-2.5 sm:py-3 md:py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm sm:text-base md:text-base ${
-                      formErrors.sku
-                        ? "border-red-500 bg-red-50"
-                        : "border-gray-300"
-                    }`}
+                    className={[
+                      inputBaseClassName,
+                      formErrors.sku ? inputErrorClassName : inputOkClassName,
+                    ].join(" ")}
                   />
                 </FormField>
 
@@ -232,11 +238,12 @@ export default function ProductForm({
                         : undefined
                     }
                     disabled={isSubmitting}
-                    className={`w-full px-3 sm:px-4 md:px-4 py-2.5 sm:py-3 md:py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm sm:text-base md:text-base ${
+                    className={[
+                      inputBaseClassName,
                       formErrors.lowStockAt
-                        ? "border-red-500 bg-red-50"
-                        : "border-gray-300"
-                    }`}
+                        ? inputErrorClassName
+                        : inputOkClassName,
+                    ].join(" ")}
                   />
                 </FormField>
               </div>
