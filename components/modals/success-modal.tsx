@@ -27,16 +27,16 @@ export default function SuccessModal({
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 cursor-pointer"
       onClick={handleBackdropClick}
     >
-      <div className="bg-white rounded-2xl p-8 md:p-12 max-w-md w-full text-center shadow-2xl animate-in fade-in zoom-in duration-300">
+      <div className="bg-glass rounded-2xl p-8 md:p-12 max-w-md w-full text-center border border-(--border-subtle) animate-in fade-in zoom-in duration-300">
         {/* Animated Checkmark */}
         <div className="mb-6 flex justify-center">
           <div className="relative w-20 h-20">
             {/* Circle background */}
-            <div className="absolute inset-0 bg-green-100 rounded-full animate-pulse" />
+            <div className="absolute inset-0 bg-(--success)/10 rounded-full animate-pulse" />
 
             {/* Checkmark */}
             <svg
-              className="w-20 h-20 text-green-600 relative z-10"
+              className="w-20 h-20 text-(--success) relative z-10"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -85,10 +85,12 @@ export default function SuccessModal({
         </div>
 
         {/* Title */}
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">{title}</h2>
+        <h2 className="text-2xl font-bold text-(--text-primary) mb-2">
+          {title}
+        </h2>
 
         {/* Subtitle */}
-        {subtitle && <p className="text-gray-600">{subtitle}</p>}
+        {subtitle && <p className="text-(--text-secondary)">{subtitle}</p>}
       </div>
     </div>
   );
