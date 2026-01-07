@@ -67,7 +67,7 @@ export default function CategoryForm() {
       <div>
         <label
           htmlFor="name"
-          className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
+          className="block text-xs sm:text-sm font-medium text-(--text-secondary) mb-1.5 sm:mb-2"
         >
           Category Name *
         </label>
@@ -80,17 +80,17 @@ export default function CategoryForm() {
             clearMessage();
           }}
           placeholder="Enter category name"
-          className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg text-sm focus:ring-2 focus:border-transparent transition ${
+          className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm transition bg-(--surface-elevated)/30 text-(--text-primary) placeholder:text-(--text-muted) focus:outline-none focus-visible:ring-2 focus-visible:border-(--border-strong) ${
             message.type === "error"
-              ? "border-red-300 focus:ring-red-500"
-              : "border-gray-300 focus:ring-purple-500"
+              ? "border border-(--danger)/30 focus-visible:ring-(--danger)/35"
+              : "border border-(--border-subtle) focus-visible:ring-(--brand)/40"
           }`}
           maxLength={CATEGORY_LIMITS.NAME_MAX}
           disabled={isSubmitting}
         />
         <div className="flex justify-between mt-1.5 sm:mt-2">
           {message.text === "" && (
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-(--text-muted)">
               {name.length}/{CATEGORY_LIMITS.NAME_MAX}
             </span>
           )}
