@@ -1,7 +1,7 @@
 "use client";
 
 import { Bell, Activity as ActivityIcon, AlertCircle } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Tabs, { TabPanel } from "@/components/common/tabs";
 
@@ -30,26 +30,28 @@ export default function NotificationButton({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
 
+  const handlePointerDown = useCallback((event: PointerEvent) => {
+    const target = event.target as Node;
+    if (containerRef.current && !containerRef.current.contains(target)) {
+      setOpen(false);
+    }
+  }, []);
+
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+      setOpen(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!open) return;
-    function handlePointerDown(event: PointerEvent) {
-      const target = event.target as Node;
-      if (containerRef.current && !containerRef.current.contains(target)) {
-        setOpen(false);
-      }
-    }
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setOpen(false);
-      }
-    }
     document.addEventListener("pointerdown", handlePointerDown);
     document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("pointerdown", handlePointerDown);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [open]);
+  }, [open, handleKeyDown, handlePointerDown]);
 
   function formatActivityTime(date: Date | string): string {
     const d = typeof date === "string" ? new Date(date) : date;
