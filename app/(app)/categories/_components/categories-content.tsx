@@ -112,7 +112,7 @@ export default function CategoriesPageContent({
   return (
     <>
       <div className="flex items-center justify-between mb-4 md:mb-6">
-        <h2 className="text-base md:text-lg font-semibold text-gray-900">
+        <h2 className="text-base md:text-lg font-semibold text-(--text-primary)">
           Categories ({initialCategories.length})
         </h2>
         <ColumnManagerButton
@@ -130,7 +130,7 @@ export default function CategoriesPageContent({
         </div>
       ) : initialCategories.length === 0 ? (
         <div className="text-center">
-          <p className="text-gray-500">
+          <p className="text-(--text-muted)">
             No categories yet. Create one to get started!
           </p>
         </div>
