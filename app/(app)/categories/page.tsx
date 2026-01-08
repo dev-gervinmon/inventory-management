@@ -2,7 +2,6 @@ import CategoriesPageWrapper from "./_components/categories-page-wrapper";
 import { getCurrentUser } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
 import CategoriesPageContent from "./_components/categories-content";
-import CategoryFormWrapper from "./_components/category-form-wrapper";
 
 export default async function CategoriesPage() {
   await getCurrentUser();
@@ -37,16 +36,6 @@ export default async function CategoriesPage() {
 
         {/* Main Form and Categories in 2 Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-8">
-          {/* Left Column: Add Category Form */}
-          <div className="lg:col-span-1">
-            <div className="bg-glass rounded-2xl border border-(--border-subtle) p-3 sm:p-4 md:p-6 hover:border-(--border-strong) transition-colors sticky top-20 sm:top-24 md:top-8 z-10">
-              <h2 className="text-base md:text-lg font-semibold text-(--text-primary) mb-4 md:mb-6">
-                Add New Category
-              </h2>
-              <CategoryFormWrapper />
-            </div>
-          </div>
-
           {/* Right Column: Categories List */}
           <div className="lg:col-span-2">
             <div className="bg-glass rounded-2xl border border-(--border-subtle) p-3 sm:p-4 md:p-6 hover:border-(--border-strong) transition-colors">
