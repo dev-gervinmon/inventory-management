@@ -1,8 +1,8 @@
 // components/layout/top-navbar-server.tsx
 import NotificationButtonWrapper from "@/components/layout/top-nav/notification-button-wrapper";
-import { UserButton } from "@stackframe/stack";
 import MobileMenuButton from "./mobile-menu-button";
 import ThemeToggleButton from "@/components/layout/top-nav/theme-toggle-button";
+import UserButtonClientOnly from "@/components/layout/top-nav/user-button-client-only";
 
 export default function TopNavBar() {
   return (
@@ -17,7 +17,7 @@ export default function TopNavBar() {
             <ThemeToggleButton />
             <NotificationButtonWrapper />
             <div className="h-6 w-px bg-(--border-subtle)" aria-hidden />
-            <UserButton />
+            <UserButtonClientOnly />
           </div>
         </div>
       </div>
