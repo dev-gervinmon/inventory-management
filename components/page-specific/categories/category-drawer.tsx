@@ -13,13 +13,15 @@ import { createPortal } from "react-dom";
 import MessageBanner from "@/components/common/message-banner";
 import FormButton from "@/components/buttons/form-button";
 import ConfirmationModal from "@/components/modals/confirmation-modal";
+import SuccessModal from "@/components/modals/success-modal";
 import CategoryForm from "@/components/forms/category-form";
 import { useMessage } from "@/lib/hooks/useMessage";
+import { useSelection } from "@/lib/hooks/useSelection";
 import { UI_TIMING } from "@/lib/constants/forms";
 import { editCategory, deleteCategory } from "@/lib/actions/categories";
 import {
   createSubcategory,
-  deleteSubcategory,
+  deleteBulkSubcategories,
   editSubcategory,
 } from "@/lib/actions/subcategories";
 
@@ -66,6 +68,7 @@ export default function CategoryDrawer({
 
   const router = useRouter();
   const panelRef = useRef<HTMLDivElement | null>(null);
+  const categoryRef = useRef<DrawerCategory | null>(null);
 
   const { message, showError, showSuccess, clearMessage } = useMessage({
     autoClose: true,
@@ -84,25 +87,40 @@ export default function CategoryDrawer({
 
   const [confirmDeleteCategoryOpen, setConfirmDeleteCategoryOpen] =
     useState(false);
-  const [confirmDeleteSubcategoryId, setConfirmDeleteSubcategoryId] = useState<
-    string | null
-  >(null);
+
+  const { selectedIds, selectAll, deselectAll, toggle, isSelected, count } =
+    useSelection();
+
+  const [showConfirmBulkDelete, setShowConfirmBulkDelete] = useState(false);
+  const [showBulkDeleteSuccess, setShowBulkDeleteSuccess] = useState(false);
+  const [bulkDeletedCount, setBulkDeletedCount] = useState(0);
+  const bulkDeleteSuccessTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const activeCategoryId = mode === "edit" ? category?.id ?? null : null;
+
+  // Keep a ref to the latest category so effects can read it without depending
+  // on the full object (avoids clearing messages on every parent state update).
+  useEffect(() => {
+    categoryRef.current = category;
+  }, [category]);
 
   const activeSubcategories = useMemo(() => {
     if (mode !== "edit" || !category) return [];
     return category.subcategories ?? [];
   }, [mode, category]);
 
-  // Keep local input state in sync when switching between categories.
+  // Reset local state only when opening the drawer or switching which category is being edited.
+  // Avoid depending on the full `category` object so success messages don't get cleared on every
+  // parent state update (which would make them appear only for a flash).
   useEffect(() => {
     if (!isOpen) return;
+
     clearMessage();
     setIsSubmitting(false);
 
-    if (mode === "edit" && category) {
-      setCategoryName(category.name);
+    const currentCategory = categoryRef.current;
+    if (mode === "edit" && currentCategory) {
+      setCategoryName(currentCategory.name);
     } else {
       setCategoryName("");
     }
@@ -111,8 +129,20 @@ export default function CategoryDrawer({
     setEditingSubcategoryId(null);
     setEditingSubcategoryName("");
     setConfirmDeleteCategoryOpen(false);
-    setConfirmDeleteSubcategoryId(null);
-  }, [isOpen, mode, category, clearMessage]);
+    deselectAll();
+    setShowConfirmBulkDelete(false);
+    setShowBulkDeleteSuccess(false);
+    setBulkDeletedCount(0);
+  }, [isOpen, mode, category?.id, clearMessage, deselectAll]);
+
+  // Cleanup success auto-close timeout on unmount.
+  useEffect(() => {
+    return () => {
+      if (bulkDeleteSuccessTimeoutRef.current) {
+        clearTimeout(bulkDeleteSuccessTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Prevent body scroll when drawer is open
   useEffect(() => {
@@ -233,25 +263,20 @@ export default function CategoryDrawer({
       formData.append("categoryId", activeCategoryId);
 
       const res = await createSubcategory(formData);
-      if (!res?.success) {
-        showError(res?.error || "Failed to add subcategory");
+      if (!res.success) {
+        showError(res.error || "Failed to add subcategory");
         setIsSubmitting(false);
         return;
       }
 
-      // If the server action returned data, update optimistically. Otherwise, fall back to refresh.
-      const created = (res as unknown as { data?: DrawerSubcategory }).data;
-      if (created) {
-        onCategoriesChange((prev) =>
-          prev.map((c) =>
-            c.id === activeCategoryId
-              ? { ...c, subcategories: [created, ...(c.subcategories ?? [])] }
-              : c
-          )
-        );
-      } else {
-        router.refresh();
-      }
+      const created = res.data as unknown as DrawerSubcategory;
+      onCategoriesChange((prev) =>
+        prev.map((c) =>
+          c.id === activeCategoryId
+            ? { ...c, subcategories: [created, ...(c.subcategories ?? [])] }
+            : c
+        )
+      );
 
       setNewSubcategoryName("");
       showSuccess("Subcategory added");
@@ -293,8 +318,9 @@ export default function CategoryDrawer({
       formData.append("categoryId", activeCategoryId);
 
       const res = await editSubcategory(formData);
-      if (!res?.success) {
-        showError(res?.error || "Failed to update subcategory");
+      console.log(res);
+      if (!res.success) {
+        showError(res.error || "Failed to update subcategory");
         setIsSubmitting(false);
         return;
       }
@@ -314,7 +340,6 @@ export default function CategoryDrawer({
 
       cancelEditSubcategory();
       showSuccess("Subcategory updated");
-      router.refresh();
     } catch (e) {
       showError(
         e instanceof Error ? e.message : "Failed to update subcategory"
@@ -324,44 +349,58 @@ export default function CategoryDrawer({
     }
   };
 
-  const handleConfirmDeleteSubcategory = async () => {
-    if (!activeCategoryId || !confirmDeleteSubcategoryId) return;
+  const handleSelectAllSubcategories = (checked: boolean) => {
+    if (checked) {
+      selectAll(activeSubcategories.map((s) => s.id));
+    } else {
+      deselectAll();
+    }
+  };
+
+  const handleDeleteSelectedSubcategories = async () => {
+    if (!activeCategoryId) return;
+    if (count === 0) return;
 
     setIsSubmitting(true);
     clearMessage();
 
+    const idsToDelete = Array.from(selectedIds);
+
     try {
       const formData = new FormData();
-      formData.append("id", confirmDeleteSubcategoryId);
       formData.append("categoryId", activeCategoryId);
+      idsToDelete.forEach((id) => formData.append("ids", id));
 
-      const res = await deleteSubcategory(formData);
-      if (!res.success) {
-        showError(res.error || "Failed to delete subcategory");
-        setIsSubmitting(false);
+      const result = await deleteBulkSubcategories(formData);
+      if (!result.success) {
+        showError(result.error || "Failed to delete subcategories");
         return;
       }
 
+      const deletedSet = new Set(idsToDelete);
       onCategoriesChange((prev) =>
         prev.map((c) =>
           c.id === activeCategoryId
             ? {
                 ...c,
                 subcategories: (c.subcategories ?? []).filter(
-                  (s) => s.id !== confirmDeleteSubcategoryId
+                  (s) => !deletedSet.has(s.id)
                 ),
               }
             : c
         )
       );
 
-      setConfirmDeleteSubcategoryId(null);
-      showSuccess("Subcategory deleted");
-      router.refresh();
-    } catch (e) {
-      showError(
-        e instanceof Error ? e.message : "Failed to delete subcategory"
-      );
+      setBulkDeletedCount(result.data.deletedCount || idsToDelete.length);
+      setShowConfirmBulkDelete(false);
+      setShowBulkDeleteSuccess(true);
+      deselectAll();
+
+      bulkDeleteSuccessTimeoutRef.current = setTimeout(() => {
+        setShowBulkDeleteSuccess(false);
+      }, UI_TIMING.DELETE_SUCCESS_MODAL_DELAY_MS);
+    } catch {
+      showError("An error occurred while deleting subcategories");
     } finally {
       setIsSubmitting(false);
     }
@@ -496,7 +535,46 @@ export default function CategoryDrawer({
                     <h3 className="text-sm font-semibold text-(--text-primary)">
                       Subcategories ({activeSubcategories.length})
                     </h3>
+
+                    <div className="flex items-center gap-2">
+                      <label className="inline-flex items-center gap-2 text-xs text-(--text-secondary)">
+                        <input
+                          type="checkbox"
+                          className="w-4 h-4 cursor-pointer accent-(--brand) rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                          checked={
+                            activeSubcategories.length > 0 &&
+                            count === activeSubcategories.length
+                          }
+                          onChange={(e) =>
+                            handleSelectAllSubcategories(e.target.checked)
+                          }
+                          disabled={
+                            isSubmitting ||
+                            activeSubcategories.length === 0 ||
+                            !!editingSubcategoryId
+                          }
+                        />
+                        Select all
+                      </label>
+                    </div>
                   </div>
+
+                  {count > 0 && (
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between p-2 sm:p-3 bg-(--info)/10 rounded-xl border border-(--info)/20 gap-2">
+                      <span className="text-xs sm:text-sm font-medium text-(--info) py-1 sm:py-0">
+                        {count} subcategor{count === 1 ? "y" : "ies"} selected
+                      </span>
+                      <FormButton
+                        type="button"
+                        label={`Delete (${count})`}
+                        variant="delete"
+                        size="sm"
+                        disabled={isSubmitting || !!editingSubcategoryId}
+                        onClick={() => setShowConfirmBulkDelete(true)}
+                        className="w-full sm:w-auto"
+                      />
+                    </div>
+                  )}
 
                   {/* Add subcategory */}
                   <div className="space-y-2">
@@ -543,6 +621,19 @@ export default function CategoryDrawer({
                             key={sub.id}
                             className="p-3 flex items-center gap-2 bg-(--surface-elevated)/20"
                           >
+                            <input
+                              type="checkbox"
+                              className="w-4 h-4 cursor-pointer accent-(--brand) rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                              checked={isSelected(sub.id)}
+                              onChange={() => toggle(sub.id)}
+                              disabled={
+                                isSubmitting ||
+                                isEditing ||
+                                !!editingSubcategoryId
+                              }
+                              aria-label={`Select subcategory ${sub.name}`}
+                            />
+
                             <div className="min-w-0 flex-1">
                               {isEditing ? (
                                 <input
@@ -591,16 +682,6 @@ export default function CategoryDrawer({
                                   onClick={() => startEditSubcategory(sub)}
                                   disabled={isSubmitting}
                                 />
-                                <FormButton
-                                  type="button"
-                                  size="sm"
-                                  variant="delete"
-                                  label="Delete"
-                                  onClick={() =>
-                                    setConfirmDeleteSubcategoryId(sub.id)
-                                  }
-                                  disabled={isSubmitting}
-                                />
                               </>
                             )}
                           </div>
@@ -628,13 +709,23 @@ export default function CategoryDrawer({
       />
 
       <ConfirmationModal
-        isOpen={!!confirmDeleteSubcategoryId}
-        onClose={() => setConfirmDeleteSubcategoryId(null)}
-        onConfirm={handleConfirmDeleteSubcategory}
-        title="Delete Subcategory"
-        message="Are you sure you want to delete this subcategory?"
-        confirmLabel="Delete"
+        isOpen={showConfirmBulkDelete}
+        onClose={() => setShowConfirmBulkDelete(false)}
+        onConfirm={handleDeleteSelectedSubcategories}
+        title="Delete Subcategories"
+        message={`Are you sure you want to delete ${count} subcategor${
+          count === 1 ? "y" : "ies"
+        }? This action cannot be undone.`}
         isLoading={isSubmitting}
+      />
+
+      <SuccessModal
+        isOpen={showBulkDeleteSuccess}
+        onClose={() => setShowBulkDeleteSuccess(false)}
+        title="Subcategories Deleted"
+        subtitle={`${bulkDeletedCount} subcategor${
+          bulkDeletedCount === 1 ? "y" : "ies"
+        } deleted successfully`}
       />
     </>
   );
