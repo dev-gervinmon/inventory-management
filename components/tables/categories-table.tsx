@@ -21,20 +21,13 @@ import SuccessModal from "@/components/modals/success-modal";
 import FormButton from "@/components/buttons/form-button";
 import SortableHeader from "@/components/common/sortable-header";
 import Pagination from "@/components/common/pagination";
-
-interface Category {
-  id: string;
-  name: string;
-  createdAt: Date;
-  subcategories: Array<{ id: string }>;
-  _count: {
-    products: number;
-  };
-}
+import type { DrawerCategory } from "@/components/page-specific/categories/category-drawer";
 
 interface CategoriesTableProps {
-  categories: Category[];
+  categories: DrawerCategory[];
   visibleColumns: ColumnVisibility[];
+  onOpenCategory?: (categoryId: string) => void;
+  onCategoriesChange?: React.Dispatch<React.SetStateAction<DrawerCategory[]>>;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -69,6 +62,8 @@ function getProductStatus(count: number): {
 export default function CategoriesTable({
   categories,
   visibleColumns,
+  onOpenCategory,
+  onCategoriesChange,
 }: CategoriesTableProps) {
   const { showError } = useMessage();
   const [isPending, startTransition] = useTransition();
@@ -79,7 +74,6 @@ export default function CategoriesTable({
   const [showConfirm, setShowConfirm] = useState(false);
   const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
   const [deletedCount, setDeletedCount] = useState(0);
-  const [displayCategories, setDisplayCategories] = useState(categories);
   const successTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Use useSyncExternalStore to safely check visible columns without hydration mismatch
@@ -102,7 +96,7 @@ export default function CategoriesTable({
     setSearch,
     clearSearch,
     filteredItems: filteredCategories,
-  } = useSearch(displayCategories, { searchableFields: ["name"] });
+  } = useSearch(categories, { searchableFields: ["name"] });
 
   // Sort hook
   const {
@@ -141,19 +135,7 @@ export default function CategoriesTable({
 
   // Cleanup timeout on unmount and listen for new categories
   React.useEffect(() => {
-    // Handle new category creation
-    const handleCategoryCreated = (event: Event) => {
-      const customEvent = event as CustomEvent;
-      const newCategory = customEvent.detail;
-
-      // Add new category to the top of the list
-      setDisplayCategories((prev) => [newCategory, ...prev]);
-    };
-
-    window.addEventListener("categoryCreated", handleCategoryCreated);
-
     return () => {
-      window.removeEventListener("categoryCreated", handleCategoryCreated);
       if (successTimeoutRef.current) {
         clearTimeout(successTimeoutRef.current);
       }
@@ -176,10 +158,10 @@ export default function CategoriesTable({
         }
 
         // Remove deleted categories from display
-        const updatedCategories = displayCategories.filter(
+        const updatedCategories = categories.filter(
           (cat) => !selectedIds.has(cat.id)
         );
-        setDisplayCategories(updatedCategories);
+        onCategoriesChange?.(updatedCategories);
         setDeletedCount(result.deletedCount || count);
 
         // Show success modal
@@ -345,7 +327,13 @@ export default function CategoriesTable({
                 </td>
                 <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4">
                   <button
-                    onClick={() => navigateTo(`/categories/${category.id}`)}
+                    onClick={() => {
+                      if (onOpenCategory) {
+                        onOpenCategory(category.id);
+                        return;
+                      }
+                      navigateTo(`/categories/${category.id}`);
+                    }}
                     className="text-xs sm:text-sm font-medium text-(--brand) hover:underline transition cursor-pointer text-left"
                   >
                     {category.name}
