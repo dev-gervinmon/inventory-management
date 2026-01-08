@@ -16,6 +16,22 @@ import CategoryDrawer, {
   type DrawerCategory,
 } from "@/components/page-specific/categories/category-drawer";
 
+type DrawerState =
+  | { isOpen: false }
+  | { isOpen: true; mode: "create" }
+  | { isOpen: true; mode: "edit"; categoryId: string };
+
+const parseDrawerState = (params: URLSearchParams): DrawerState => {
+  if (params.get("drawer") !== "category") return { isOpen: false };
+  const mode = params.get("mode") === "edit" ? "edit" : "create";
+  if (mode === "edit") {
+    const id = params.get("id");
+    if (!id) return { isOpen: true, mode: "create" };
+    return { isOpen: true, mode: "edit", categoryId: id };
+  }
+  return { isOpen: true, mode: "create" };
+};
+
 interface Category {
   id: string;
   name: string;
@@ -45,22 +61,6 @@ export default function CategoriesPageContent({
   );
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
-  type DrawerState =
-    | { isOpen: false }
-    | { isOpen: true; mode: "create" }
-    | { isOpen: true; mode: "edit"; categoryId: string };
-
-  const parseDrawerState = (params: URLSearchParams): DrawerState => {
-    if (params.get("drawer") !== "category") return { isOpen: false };
-    const mode = params.get("mode") === "edit" ? "edit" : "create";
-    if (mode === "edit") {
-      const id = params.get("id");
-      if (!id) return { isOpen: true, mode: "create" };
-      return { isOpen: true, mode: "edit", categoryId: id };
-    }
-    return { isOpen: true, mode: "create" };
-  };
 
   const initialDrawerState = useMemo(
     () => parseDrawerState(new URLSearchParams(searchParams.toString())),
