@@ -10,46 +10,67 @@ import { logActivity } from "./activities";
 
 const CATEGORIES_PATH = "/categories";
 
+type ActionResult<T> =
+  | { success: true; data: T }
+  | { success: false; error: string };
+
+type SubcategoryPayload = {
+  id: string;
+  name: string;
+  createdAt: Date;
+  categoryId: string;
+};
+
+type BulkDeletePayload = {
+  deletedCount: number;
+};
+
 /**
  * Create a new subcategory
  */
-export async function createSubcategory(formData: FormData) {
+export async function createSubcategory(
+  formData: FormData
+): Promise<ActionResult<SubcategoryPayload>> {
   try {
     const user = await getCurrentUser();
     const data = parseSubcategoryData(formData);
 
-    await prisma.$transaction(async (tx) => {
-      const createdSubcategory = await prisma.subcategory.create({ data });
+    const result: ActionResult<SubcategoryPayload> = await prisma.$transaction(
+      async (tx) => {
+        const createdSubcategory = await tx.subcategory.create({ data });
 
-      // Log the activity
-      const category = await prisma.category.findUnique({
-        where: { id: data.categoryId },
-        select: { name: true },
-      });
+        // Log the activity
+        const category = await tx.category.findUnique({
+          where: { id: data.categoryId },
+          select: { name: true },
+        });
 
-      await logActivity(tx, user.id, {
-        entityType: "SUBCATEGORY",
-        actionType: "ADDED",
-        entityId: createdSubcategory.id,
-        entityName: createdSubcategory.name,
-        message: `Subcategory "${createdSubcategory.name}" was created in category "${category?.name}"`,
-        details: {
-          categoryId: data.categoryId,
-          categoryName: category?.name || "",
-        },
-      });
+        await logActivity(tx, user.id, {
+          entityType: "SUBCATEGORY",
+          actionType: "ADDED",
+          entityId: createdSubcategory.id,
+          entityName: createdSubcategory.name,
+          message: `Subcategory "${createdSubcategory.name}" was created in category "${category?.name}"`,
+          details: {
+            categoryId: data.categoryId,
+            categoryName: category?.name || "",
+          },
+        });
 
-      revalidatePath(CATEGORIES_PATH);
-      return {
-        success: true,
-        data: {
-          id: createdSubcategory.id,
-          name: createdSubcategory.name,
-          createdAt: createdSubcategory.createdAt,
-          categoryId: createdSubcategory.categoryId,
-        },
-      };
-    });
+        return {
+          success: true,
+          data: {
+            id: createdSubcategory.id,
+            name: createdSubcategory.name,
+            createdAt: createdSubcategory.createdAt,
+            categoryId: createdSubcategory.categoryId,
+          },
+        };
+      }
+    );
+
+    revalidatePath(CATEGORIES_PATH);
+    return result;
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -69,7 +90,9 @@ export async function createSubcategory(formData: FormData) {
 /**
  * Update an existing subcategory
  */
-export async function editSubcategory(formData: FormData) {
+export async function editSubcategory(
+  formData: FormData
+): Promise<ActionResult<SubcategoryPayload>> {
   try {
     const user = await getCurrentUser();
     const id = actionRequireId(formData);
@@ -80,45 +103,49 @@ export async function editSubcategory(formData: FormData) {
       select: { name: true, categoryId: true },
     });
 
-    await prisma.$transaction(async (tx) => {
-      const updatedSubcategory = await prisma.subcategory.update({
-        where: { id },
-        data,
-      });
-
-      // Log if name changed
-      if (oldSubcategory?.name !== data.name) {
-        const category = await prisma.category.findUnique({
-          where: { id: oldSubcategory?.categoryId || "" },
-          select: { name: true },
+    const result: ActionResult<SubcategoryPayload> = await prisma.$transaction(
+      async (tx) => {
+        const updatedSubcategory = await tx.subcategory.update({
+          where: { id },
+          data,
         });
 
-        await logActivity(tx, user.id, {
-          entityType: "SUBCATEGORY",
-          actionType: "EDITED",
-          entityId: id,
-          entityName: updatedSubcategory.name,
-          message: `Subcategory name changed from "${oldSubcategory?.name}" to "${updatedSubcategory.name}" in category "${category?.name}"`,
-          details: {
-            oldName: oldSubcategory?.name || "",
-            newName: updatedSubcategory.name,
-            categoryId: oldSubcategory?.categoryId || "",
-            categoryName: category?.name || "",
+        // Log if name changed
+        if (oldSubcategory?.name !== data.name) {
+          const category = await tx.category.findUnique({
+            where: { id: oldSubcategory?.categoryId || "" },
+            select: { name: true },
+          });
+
+          await logActivity(tx, user.id, {
+            entityType: "SUBCATEGORY",
+            actionType: "EDITED",
+            entityId: id,
+            entityName: updatedSubcategory.name,
+            message: `Subcategory name changed from "${oldSubcategory?.name}" to "${updatedSubcategory.name}" in category "${category?.name}"`,
+            details: {
+              oldName: oldSubcategory?.name || "",
+              newName: updatedSubcategory.name,
+              categoryId: oldSubcategory?.categoryId || "",
+              categoryName: category?.name || "",
+            },
+          });
+        }
+
+        return {
+          success: true,
+          data: {
+            id: updatedSubcategory.id,
+            name: updatedSubcategory.name,
+            createdAt: updatedSubcategory.createdAt,
+            categoryId: updatedSubcategory.categoryId,
           },
-        });
+        };
       }
+    );
 
-      revalidatePath(CATEGORIES_PATH);
-      return {
-        success: true,
-        data: {
-          id: updatedSubcategory.id,
-          name: updatedSubcategory.name,
-          createdAt: updatedSubcategory.createdAt,
-          categoryId: updatedSubcategory.categoryId,
-        },
-      };
-    });
+    revalidatePath(CATEGORIES_PATH);
+    return result;
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -160,7 +187,7 @@ export async function deleteSubcategory(
     });
 
     await prisma.$transaction(async (tx) => {
-      await prisma.subcategory.delete({ where: { id } });
+      await tx.subcategory.delete({ where: { id } });
 
       // Log the deletion
       await logActivity(tx, user.id, {
@@ -176,6 +203,8 @@ export async function deleteSubcategory(
       });
     });
 
+    revalidatePath(CATEGORIES_PATH);
+
     return { success: true, deletedId: id };
   } catch (error) {
     const errorMessage =
@@ -187,7 +216,9 @@ export async function deleteSubcategory(
 /**
  * Delete multiple subcategories at once
  */
-export async function deleteBulkSubcategories(formData: FormData) {
+export async function deleteBulkSubcategories(
+  formData: FormData
+): Promise<ActionResult<BulkDeletePayload>> {
   try {
     const user = await getCurrentUser();
     const ids = formData.getAll("ids") as string[];
@@ -212,28 +243,32 @@ export async function deleteBulkSubcategories(formData: FormData) {
       select: { name: true },
     });
 
-    await prisma.$transaction(async (tx) => {
-      const result = await prisma.subcategory.deleteMany({
-        where: { id: { in: ids } },
-      });
+    const result: ActionResult<BulkDeletePayload> = await prisma.$transaction(
+      async (tx) => {
+        const result = await tx.subcategory.deleteMany({
+          where: { id: { in: ids } },
+        });
 
-      // Log the bulk deletion
-      await logActivity(tx, user.id, {
-        entityType: "SUBCATEGORY",
-        actionType: "DELETED",
-        entityName: `${result.count} subcategory(ies)`,
-        message: `${result.count} subcategory(ies) were deleted from category "${category?.name}"`,
-        details: {
-          categoryId,
-          categoryName: category?.name || "",
-          deletedCount: result.count,
-          deletedNames: subcategories.map((s) => s.name).join(", "),
-        },
-      });
+        // Log the bulk deletion
+        await logActivity(tx, user.id, {
+          entityType: "SUBCATEGORY",
+          actionType: "DELETED",
+          entityName: `${result.count} subcategory(ies)`,
+          message: `${result.count} subcategory(ies) were deleted from category "${category?.name}"`,
+          details: {
+            categoryId,
+            categoryName: category?.name || "",
+            deletedCount: result.count,
+            deletedNames: subcategories.map((s) => s.name).join(", "),
+          },
+        });
 
-      revalidatePath(CATEGORIES_PATH);
-      return { success: true, deletedCount: result.count };
-    });
+        return { success: true, data: { deletedCount: result.count } };
+      }
+    );
+
+    revalidatePath(CATEGORIES_PATH);
+    return result;
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Failed to delete subcategories";
