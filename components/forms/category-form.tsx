@@ -9,7 +9,26 @@ import { UI_TIMING } from "@/lib/constants/forms";
 import { formatErrorMessage } from "@/lib/utils/subcategories";
 import { CATEGORY_LIMITS } from "@/lib/utils/categories";
 
-export default function CategoryForm() {
+type CreatedCategory = {
+  id: string;
+  name: string;
+  createdAt: Date;
+  subcategories: Array<{
+    id: string;
+    name: string;
+    createdAt: Date;
+    categoryId: string;
+  }>;
+  _count: { products: number };
+};
+
+export default function CategoryForm({
+  onCreated,
+  onSuccess,
+}: {
+  onCreated?: (category: CreatedCategory) => void;
+  onSuccess?: () => void;
+} = {}) {
   const [name, setName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { message, showSuccess, showError, clearMessage } = useMessage({
@@ -51,7 +70,11 @@ export default function CategoryForm() {
             detail: response.data,
           });
           window.dispatchEvent(event);
+
+          onCreated?.(response.data as CreatedCategory);
         }
+
+        onSuccess?.();
       } else {
         showError(response.error || "Failed to create category");
       }
