@@ -48,41 +48,39 @@ export default async function ActivitiesPage({
 
   return (
     <ActivityPageWrapper>
-      <>
-        <div className="mb-4 sm:mb-6 md:mb-8">
-          <div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-              Activity History
-            </h1>
-            <p className="text-xs sm:text-sm text-gray-700 mt-0.5 sm:mt-1">
-              Track all changes and actions performed on products, categories,
-              and subcategories
-            </p>
-          </div>
-        </div>
+      <div className="space-y-4 sm:space-y-6 md:space-y-8">
+        <header className="space-y-1">
+          <h1 className="text-lg sm:text-xl md:text-2xl font-semibold text-(--text-primary)">
+            Activity History
+          </h1>
+          <p className="text-xs sm:text-sm text-(--text-muted)">
+            Track all changes and actions performed on products, categories, and
+            subcategories
+          </p>
+        </header>
 
         {/* Main Content: Filters + Activity Table */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
           {/* Left Column: Filters */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-20 sm:top-24 md:top-8">
+          <aside className="lg:col-span-4 xl:col-span-3">
+            <div className="lg:sticky lg:top-24">
               <ActivityFilters
                 currentEntityType={entityTypeFilter}
                 currentActionType={actionTypeFilter}
               />
             </div>
-          </div>
+          </aside>
 
           {/* Right Column: Activity Table */}
-          <div className="lg:col-span-3">
+          <main className="lg:col-span-8 xl:col-span-9 min-w-0">
             <ActivityTable
               activities={activities}
               currentActionType={actionTypeFilter}
               currentEntityType={entityTypeFilter}
             />
-          </div>
+          </main>
         </div>
-      </>
+      </div>
     </ActivityPageWrapper>
   );
 }
