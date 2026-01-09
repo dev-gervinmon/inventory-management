@@ -8,6 +8,7 @@ import type { Activity } from "@/lib/types/activities";
 interface ProductActivityTimelineProps {
   activities: Activity[];
   productId: string;
+  defaultExpanded?: boolean;
 }
 
 /**
@@ -18,8 +19,9 @@ interface ProductActivityTimelineProps {
 export default function ProductActivityTimeline({
   activities,
   productId,
+  defaultExpanded = false,
 }: ProductActivityTimelineProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   // Filter activities for this product
   const productActivities = activities.filter(
@@ -31,26 +33,29 @@ export default function ProductActivityTimeline({
   }
 
   return (
-    <div className="mt-8 sm:mt-10 md:mt-12">
+    <div>
       {/* Timeline Section Header */}
       <button
+        type="button"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-4 sm:p-5 bg-linear-to-r from-blue-50 to-blue-100 rounded-lg border border-blue-200 hover:from-blue-100 hover:to-blue-150 transition-colors"
+        className="w-full flex items-center justify-between p-4 sm:p-5 rounded-2xl border border-(--border-strong) bg-(--surface-elevated)/10 hover:bg-(--surface-elevated)/15 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40"
       >
-        <div className="flex items-center gap-3">
-          <span className="text-lg sm:text-xl md:text-2xl">📋</span>
-          <div className="text-left">
-            <h3 className="font-semibold text-gray-900 text-sm sm:text-base">
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="text-lg sm:text-xl" aria-hidden>
+            📋
+          </span>
+          <div className="text-left min-w-0">
+            <h3 className="font-semibold text-(--text-primary) text-sm sm:text-base truncate">
               Product History
             </h3>
-            <p className="text-xs sm:text-sm text-gray-600">
+            <p className="text-xs sm:text-sm text-(--text-muted)">
               {productActivities.length}{" "}
               {productActivities.length === 1 ? "change" : "changes"}
             </p>
           </div>
         </div>
         <ChevronDown
-          className={`w-5 h-5 text-gray-600 transition-transform ${
+          className={`w-5 h-5 text-(--text-muted) transition-transform ${
             isExpanded ? "rotate-180" : ""
           }`}
         />
@@ -58,11 +63,10 @@ export default function ProductActivityTimeline({
 
       {/* Expanded Timeline Content */}
       {isExpanded && (
-        <div className="mt-4 bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+        <div className="mt-4 rounded-2xl bg-(--surface-elevated)/10 overflow-hidden">
           <ActivityTable
             activities={productActivities}
             showPagination={productActivities.length > 15}
-            showFilters={false}
             showSearch={false}
             maxHeight="max-h-96 sm:max-h-[500px]"
           />
