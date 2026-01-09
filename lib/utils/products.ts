@@ -20,10 +20,7 @@ export const PRODUCT_DEFAULTS = {
  */
 export interface StockStatus {
   label: "In Stock" | "Low Stock" | "Out of Stock";
-  color:
-    | "bg-green-100 text-green-800"
-    | "bg-yellow-100 text-yellow-800"
-    | "bg-red-100 text-red-800";
+  color: string;
   icon: string;
 }
 
@@ -37,20 +34,23 @@ export function getStockStatus(
   if (quantity <= 0) {
     return {
       label: "Out of Stock",
-      color: "bg-red-100 text-red-800",
+      color:
+        "bg-(--danger)/15 text-(--danger) ring-1 ring-(--danger)/25 border border-(--border-subtle)",
       icon: "🔴",
     };
   }
   if (lowStockAt && quantity <= lowStockAt) {
     return {
       label: "Low Stock",
-      color: "bg-yellow-100 text-yellow-800",
+      color:
+        "bg-(--warning)/15 text-(--warning) ring-1 ring-(--warning)/25 border border-(--border-subtle)",
       icon: "🟡",
     };
   }
   return {
     label: "In Stock",
-    color: "bg-green-100 text-green-800",
+    color:
+      "bg-(--success)/15 text-(--success) ring-1 ring-(--success)/25 border border-(--border-subtle)",
     icon: "🟢",
   };
 }
