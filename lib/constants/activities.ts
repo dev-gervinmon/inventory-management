@@ -27,27 +27,32 @@ export const ACTION_TYPE_MAP: Record<
   ADDED: {
     label: "Added",
     emoji: "➕",
-    color: "bg-green-100 text-green-700",
+    color:
+      "bg-(--success)/15 text-(--success) ring-1 ring-(--success)/25 border border-(--border-subtle)",
   },
   EDITED: {
     label: "Edited",
     emoji: "✏️",
-    color: "bg-blue-100 text-blue-700",
+    color:
+      "bg-(--brand)/12 text-(--brand) ring-1 ring-(--brand)/25 border border-(--border-subtle)",
   },
   DELETED: {
     label: "Deleted",
     emoji: "🗑️",
-    color: "bg-red-100 text-red-700",
+    color:
+      "bg-(--danger)/15 text-(--danger) ring-1 ring-(--danger)/25 border border-(--border-subtle)",
   },
   STOCK_UPDATED: {
     label: "Stock Updated",
     emoji: "📦",
-    color: "bg-purple-100 text-purple-700",
+    color:
+      "bg-(--surface-elevated)/30 text-(--text-secondary) ring-1 ring-(--border-strong)/50 border border-(--border-subtle)",
   },
   PRICE_UPDATED: {
     label: "Price Updated",
     emoji: "💰",
-    color: "bg-yellow-100 text-yellow-700",
+    color:
+      "bg-(--warning)/15 text-(--warning) ring-1 ring-(--warning)/25 border border-(--border-subtle)",
   },
 };
 
