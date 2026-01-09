@@ -32,8 +32,24 @@ export default function StockRiskCard({
     low: "bg-(--warning)",
   } as const;
 
-  const topItems = items.slice(0, 3);
-  const remainingCount = Math.max(0, items.length - topItems.length);
+  const severityPriority: Record<StockRiskItem["severity"], number> = {
+    out: 0,
+    low: 1,
+  };
+
+  const sortedItems = [...items].sort((a, b) => {
+    const severityDiff =
+      severityPriority[a.severity] - severityPriority[b.severity];
+    if (severityDiff !== 0) return severityDiff;
+
+    const quantityDiff = a.quantity - b.quantity;
+    if (quantityDiff !== 0) return quantityDiff;
+
+    return a.name.localeCompare(b.name);
+  });
+
+  const topItems = sortedItems.slice(0, 3);
+  const remainingCount = Math.max(0, sortedItems.length - topItems.length);
 
   const statusParam =
     outOfStock > 0 && lowStock > 0
