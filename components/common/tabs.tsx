@@ -12,6 +12,7 @@ interface TabsProps {
   activeTab?: string; // controlled
   defaultTabId?: string; // uncontrolled
   onTabChange?: (tabId: string) => void;
+  sticky?: boolean;
   children: ReactNode;
 }
 
@@ -22,6 +23,7 @@ export default function Tabs({
   activeTab: controlledActiveTab,
   defaultTabId,
   onTabChange,
+  sticky = true,
   children,
 }: TabsProps) {
   const [uncontrolledActiveTab, setUncontrolledActiveTab] = useState(
@@ -38,7 +40,12 @@ export default function Tabs({
   return (
     <div className="space-y-4">
       {/* Tab Navigation - always on its own row */}
-      <div className="w-full border-b border-(--border-subtle) bg-transparent sticky top-0 z-10">
+      <div
+        className={[
+          "w-full border-b border-(--border-subtle) bg-transparent",
+          sticky ? "sticky top-0 z-10" : "relative",
+        ].join(" ")}
+      >
         <div className="flex gap-0 min-w-full overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => (
             <button
