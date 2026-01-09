@@ -315,9 +315,21 @@ export default function CategoriesTable({
             {paginatedCategories.map((category) => (
               <tr
                 key={category.id}
-                className="border-b border-(--border-subtle) hover:bg-(--surface-hover)/40 transition-colors"
+                onClick={() => {
+                  if (onOpenCategory) {
+                    onOpenCategory(category.id);
+                    return;
+                  }
+                  navigateTo(`/categories/${category.id}`);
+                }}
+                className={`border-b border-(--border-subtle) hover:bg-(--surface-elevated)/20 transition-colors cursor-pointer ${
+                  isSelected(category.id) ? "bg-(--surface-elevated)/30" : ""
+                }`}
               >
-                <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4">
+                <td
+                  className="px-3 sm:px-4 md:px-6 py-2 sm:py-4"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <input
                     type="checkbox"
                     className="w-4 h-4 cursor-pointer accent-(--brand) rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
@@ -326,18 +338,9 @@ export default function CategoriesTable({
                   />
                 </td>
                 <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4">
-                  <button
-                    onClick={() => {
-                      if (onOpenCategory) {
-                        onOpenCategory(category.id);
-                        return;
-                      }
-                      navigateTo(`/categories/${category.id}`);
-                    }}
-                    className="text-xs sm:text-sm font-medium text-(--brand) hover:underline transition cursor-pointer text-left"
-                  >
+                  <span className="text-xs sm:text-sm font-semibold text-(--text-primary) hover:underline transition">
                     {category.name}
-                  </button>
+                  </span>
                 </td>
                 <td className="px-3 sm:px-4 md:px-6 py-2 sm:py-4">
                   {(() => {
