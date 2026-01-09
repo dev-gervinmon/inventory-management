@@ -7,6 +7,7 @@ import { parseCategoryData } from "../schemas/categories";
 import { handlePrismaActionError } from "../errors/actions";
 import { actionRequireId } from "../validators/categories";
 import { logActivity } from "./activities";
+import { checkActionRateLimit } from "./rate-limit";
 
 type ActionResponse = {
   success: boolean;
@@ -19,41 +20,57 @@ type ActionResponse = {
  */
 export async function createCategory(
   formData: FormData
-): Promise<ActionResponse> {
+): Promise<ActionResponse | undefined> {
   const user = await getCurrentUser();
+
+  const rl = await checkActionRateLimit({
+    prefix: "action:categories:create:",
+    limit: 20,
+    windowMs: 60_000,
+    userId: user.id,
+  });
+  if (!rl.allowed) {
+    return {
+      success: false,
+      error: `Too many requests. Try again in ${rl.retryAfterSeconds}s.`,
+    };
+  }
+
   const data = parseCategoryData(formData);
 
   try {
-    const createdCategory = await prisma.category.create({
-      data,
-      include: {
-        subcategories: {
-          orderBy: { createdAt: "desc" },
-        },
-        _count: {
-          select: {
-            products: true,
+    await prisma.$transaction(async (tx) => {
+      const createdCategory = await prisma.category.create({
+        data,
+        include: {
+          subcategories: {
+            orderBy: { createdAt: "desc" },
+          },
+          _count: {
+            select: {
+              products: true,
+            },
           },
         },
-      },
+      });
+
+      // Log the activity
+      await logActivity(tx, user.id, {
+        entityType: "CATEGORY",
+        actionType: "ADDED",
+        entityId: createdCategory.id,
+        entityName: createdCategory.name,
+        message: `Category "${createdCategory.name}" was created`,
+      });
+
+      // Revalidate affected pages
+      revalidatePath("/categories");
+
+      return {
+        success: true,
+        data: createdCategory,
+      };
     });
-
-    // Log the activity
-    await logActivity(user.id, {
-      entityType: "CATEGORY",
-      actionType: "ADDED",
-      entityId: createdCategory.id,
-      entityName: createdCategory.name,
-      message: `Category "${createdCategory.name}" was created`,
-    });
-
-    // Revalidate affected pages
-    revalidatePath("/categories");
-
-    return {
-      success: true,
-      data: createdCategory,
-    };
   } catch (error) {
     const message = handlePrismaActionError(error, "Category");
     return {
@@ -70,6 +87,20 @@ export async function editCategory(
   formData: FormData
 ): Promise<ActionResponse> {
   const user = await getCurrentUser();
+
+  const rl = await checkActionRateLimit({
+    prefix: "action:categories:edit:",
+    limit: 60,
+    windowMs: 60_000,
+    userId: user.id,
+  });
+  if (!rl.allowed) {
+    return {
+      success: false,
+      error: `Too many requests. Try again in ${rl.retryAfterSeconds}s.`,
+    };
+  }
+
   const id = actionRequireId(formData);
   const data = parseCategoryData(formData);
 
@@ -79,27 +110,29 @@ export async function editCategory(
       select: { name: true },
     });
 
-    const updatedCategory = await prisma.category.update({
-      where: { id },
-      data,
-    });
-
-    // Log if name changed
-    if (oldCategory?.name !== data.name) {
-      await logActivity(user.id, {
-        entityType: "CATEGORY",
-        actionType: "EDITED",
-        entityId: id,
-        entityName: updatedCategory.name,
-        message: `Category name changed from "${
-          oldCategory?.name ?? "(unknown)"
-        }" to "${updatedCategory.name}"`,
-        details: {
-          oldName: oldCategory?.name ?? "",
-          newName: updatedCategory.name,
-        },
+    await prisma.$transaction(async (tx) => {
+      const updatedCategory = await tx.category.update({
+        where: { id },
+        data,
       });
-    }
+
+      // Log if name changed
+      if (oldCategory?.name !== data.name) {
+        await logActivity(tx, user.id, {
+          entityType: "CATEGORY",
+          actionType: "EDITED",
+          entityId: id,
+          entityName: updatedCategory.name,
+          message: `Category name changed from "${
+            oldCategory?.name ?? "(unknown)"
+          }" to "${updatedCategory.name}"`,
+          details: {
+            oldName: oldCategory?.name ?? "",
+            newName: updatedCategory.name,
+          },
+        });
+      }
+    });
 
     // Revalidate affected pages
     revalidatePath("/categories");
@@ -124,6 +157,20 @@ export async function deleteCategory(
   formData: FormData
 ): Promise<ActionResponse> {
   const user = await getCurrentUser();
+
+  const rl = await checkActionRateLimit({
+    prefix: "action:categories:delete:",
+    limit: 30,
+    windowMs: 60_000,
+    userId: user.id,
+  });
+  if (!rl.allowed) {
+    return {
+      success: false,
+      error: `Too many requests. Try again in ${rl.retryAfterSeconds}s.`,
+    };
+  }
+
   const id = actionRequireId(formData);
 
   try {
@@ -132,23 +179,25 @@ export async function deleteCategory(
       select: { name: true, subcategories: { select: { id: true } } },
     });
 
-    await prisma.category.delete({
-      where: { id },
-    });
+    await prisma.$transaction(async (tx) => {
+      await tx.category.delete({
+        where: { id },
+      });
 
-    // Log the deletion
-    const categoryName = categoryData?.name ?? "(unknown)";
-    const subcategoryCount = categoryData?.subcategories.length ?? 0;
+      // Log the deletion
+      const categoryName = categoryData?.name ?? "(unknown)";
+      const subcategoryCount = categoryData?.subcategories.length ?? 0;
 
-    await logActivity(user.id, {
-      entityType: "CATEGORY",
-      actionType: "DELETED",
-      entityId: id,
-      entityName: categoryName,
-      message: `Category "${categoryName}" was deleted along with ${subcategoryCount} subcategory(ies)`,
-      details: {
-        subcategoriesDeleted: subcategoryCount,
-      },
+      await logActivity(tx, user.id, {
+        entityType: "CATEGORY",
+        actionType: "DELETED",
+        entityId: id,
+        entityName: categoryName,
+        message: `Category "${categoryName}" was deleted along with ${subcategoryCount} subcategory(ies)`,
+        details: {
+          subcategoriesDeleted: subcategoryCount,
+        },
+      });
     });
 
     return {
@@ -168,9 +217,25 @@ export async function deleteCategory(
  */
 export async function deleteBulkCategories(
   formData: FormData
-): Promise<{ success: boolean; error?: string; deletedCount?: number }> {
+): Promise<
+  { success: boolean; error?: string; deletedCount?: number } | undefined
+> {
   try {
     const user = await getCurrentUser();
+
+    const rl = await checkActionRateLimit({
+      prefix: "action:categories:bulk-delete:",
+      limit: 10,
+      windowMs: 60_000,
+      userId: user.id,
+    });
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Try again in ${rl.retryAfterSeconds}s.`,
+      };
+    }
+
     const ids = formData.getAll("ids") as string[];
 
     if (!ids || ids.length === 0) {
@@ -183,33 +248,35 @@ export async function deleteBulkCategories(
       select: { id: true, name: true, subcategories: { select: { id: true } } },
     });
 
-    const result = await prisma.category.deleteMany({
-      where: { id: { in: ids } },
+    await prisma.$transaction(async (tx) => {
+      const result = await tx.category.deleteMany({
+        where: { id: { in: ids } },
+      });
+
+      // Log the bulk deletion
+      const categoryNames = categories.map((c) => c.name).join(", ");
+      const totalSubcategories = categories.reduce(
+        (sum, c) => sum + c.subcategories.length,
+        0
+      );
+
+      await logActivity(tx, user.id, {
+        entityType: "CATEGORY",
+        actionType: "DELETED",
+        entityName: `${result.count} category(ies)`,
+        message: `${result.count} category(ies) were deleted (${categoryNames}) along with ${totalSubcategories} subcategory(ies)`,
+        details: {
+          deletedCount: result.count,
+          deletedNames: categoryNames,
+          totalSubcategoriesDeleted: totalSubcategories,
+        },
+      });
+
+      // Revalidate affected pages
+      revalidatePath("/categories");
+
+      return { success: true, deletedCount: result.count };
     });
-
-    // Log the bulk deletion
-    const categoryNames = categories.map((c) => c.name).join(", ");
-    const totalSubcategories = categories.reduce(
-      (sum, c) => sum + c.subcategories.length,
-      0
-    );
-
-    await logActivity(user.id, {
-      entityType: "CATEGORY",
-      actionType: "DELETED",
-      entityName: `${result.count} category(ies)`,
-      message: `${result.count} category(ies) were deleted (${categoryNames}) along with ${totalSubcategories} subcategory(ies)`,
-      details: {
-        deletedCount: result.count,
-        deletedNames: categoryNames,
-        totalSubcategoriesDeleted: totalSubcategories,
-      },
-    });
-
-    // Revalidate affected pages
-    revalidatePath("/categories");
-
-    return { success: true, deletedCount: result.count };
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Failed to delete categories";
@@ -221,6 +288,17 @@ export async function deleteBulkCategories(
  * Get all categories with their subcategories
  */
 export async function getAllCategories() {
+  const rl = await checkActionRateLimit({
+    prefix: "action:categories:list:",
+    limit: 300,
+    windowMs: 60_000,
+  });
+  if (!rl.allowed) {
+    throw new Error(
+      `Too many requests. Try again in ${rl.retryAfterSeconds}s.`
+    );
+  }
+
   try {
     const categories = await prisma.category.findMany({
       include: {
