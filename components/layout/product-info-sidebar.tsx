@@ -7,19 +7,21 @@ import { Copy } from "lucide-react";
 import { useState } from "react";
 
 interface ProductInfoSidebarProps {
+  className?: string;
   productId: string;
   sku: string | null;
   price: number;
   unitCost?: number | null;
   quantity: number;
   lowStockAt: number | null;
-  createdAt: Date;
-  updatedAt: Date;
-  onDelete: () => void;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  onDelete?: () => void;
   isDeleting?: boolean;
 }
 
 export default function ProductInfoSidebar({
+  className = "",
   productId,
   sku,
   price,
@@ -41,29 +43,30 @@ export default function ProductInfoSidebar({
   };
 
   return (
-    <div className="lg:col-span-1 space-y-4 sm:space-y-5 md:space-y-6">
+    <div className={["space-y-4 sm:space-y-5", className].join(" ")}>
       {/* Stock Status */}
-      <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-4">
-        <div className="space-y-3 sm:space-y-4 md:space-y-4">
+      <div className="rounded-2xl border border-(--border-strong) bg-(--surface-elevated)/10 p-4 sm:p-5">
+        <div className="space-y-3 sm:space-y-4">
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2">
+            <p className="text-xs text-(--text-muted) uppercase tracking-wider font-semibold mb-2">
               Stock Status
             </p>
             <div className="flex items-center justify-between">
               <span
-                className={`px-3 py-1.5 rounded-full text-xs font-bold ${stockStatus.color}`}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold inline-flex items-center gap-1 ${stockStatus.color}`}
               >
+                <span aria-hidden>{stockStatus.icon}</span>
                 {stockStatus.label}
               </span>
-              <span className="text-xl sm:text-2xl md:text-2xl font-bold text-gray-900">
+              <span className="text-xl sm:text-2xl font-bold text-(--text-primary)">
                 {quantity} unit/s
               </span>
             </div>
           </div>
 
-          <div className="pt-2 border-t border-gray-200">
-            <p className="text-xs text-gray-500">Low Stock Threshold</p>
-            <p className="text-sm font-semibold text-gray-900 mt-1">
+          <div className="pt-3 border-t border-(--border-subtle)">
+            <p className="text-xs text-(--text-muted)">Low Stock Threshold</p>
+            <p className="text-sm font-semibold text-(--text-primary) mt-1">
               {lowStockAt && lowStockAt > 0 ? `${lowStockAt} units` : "Not set"}
             </p>
           </div>
@@ -71,35 +74,37 @@ export default function ProductInfoSidebar({
       </div>
 
       {/* Pricing */}
-      <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-4">
-        <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-3">
+      <div className="rounded-2xl border border-(--border-strong) bg-(--surface-elevated)/10 p-4 sm:p-5">
+        <p className="text-xs text-(--text-muted) uppercase tracking-wider font-semibold mb-3">
           Price
         </p>
-        <p className="text-xl sm:text-2xl md:text-2xl font-bold text-gray-900">
+        <p className="text-xl sm:text-2xl font-bold text-(--text-primary)">
           {formatPrice(price)}
         </p>
-        <p className="mt-2 text-xs text-gray-500">
+        <p className="mt-2 text-xs text-(--text-muted)">
           Unit cost: {unitCost !== null ? formatPrice(unitCost) : "Not set"}
         </p>
       </div>
 
       {/* Product ID */}
-      <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-4">
-        <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2">
+      <div className="rounded-2xl border border-(--border-strong) bg-(--surface-elevated)/10 p-4 sm:p-5">
+        <p className="text-xs text-(--text-muted) uppercase tracking-wider font-semibold mb-2">
           Product ID
         </p>
         <div className="flex items-center gap-2">
-          <code className="text-xs bg-gray-100 px-2 py-1 rounded font-mono text-gray-700 flex-1 truncate">
+          <code className="text-xs bg-(--surface-elevated)/30 px-2 py-1 rounded-lg font-mono text-(--text-secondary) flex-1 truncate border border-(--border-subtle)">
             {productId}
           </code>
           <button
             onClick={() => copyToClipboard(productId, "id")}
-            className="p-1.5 hover:bg-gray-100 rounded transition cursor-pointer shrink-0"
+            className="p-1.5 hover:bg-(--surface-elevated)/25 rounded-lg transition cursor-pointer shrink-0 text-(--text-muted) hover:text-(--text-primary) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40"
             title="Copy product ID"
           >
             <Copy
               className={`w-4 h-4 ${
-                copiedField === "id" ? "text-green-600" : "text-gray-400"
+                copiedField === "id"
+                  ? "text-(--success)"
+                  : "text-(--text-muted)"
               }`}
             />
           </button>
@@ -108,22 +113,24 @@ export default function ProductInfoSidebar({
 
       {/* SKU */}
       {sku && (
-        <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-4">
-          <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2">
+        <div className="rounded-2xl border border-(--border-strong) bg-(--surface-elevated)/10 p-4 sm:p-5">
+          <p className="text-xs text-(--text-muted) uppercase tracking-wider font-semibold mb-2">
             SKU
           </p>
           <div className="flex items-center gap-2">
-            <code className="text-sm bg-gray-100 px-2 py-1 rounded font-mono text-gray-700 flex-1 truncate">
+            <code className="text-sm bg-(--surface-elevated)/30 px-2 py-1 rounded-lg font-mono text-(--text-secondary) flex-1 truncate border border-(--border-subtle)">
               {sku}
             </code>
             <button
               onClick={() => copyToClipboard(sku, "sku")}
-              className="p-1.5 hover:bg-gray-100 rounded transition cursor-pointer shrink-0"
+              className="p-1.5 hover:bg-(--surface-elevated)/25 rounded-lg transition cursor-pointer shrink-0 text-(--text-muted) hover:text-(--text-primary) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40"
               title="Copy SKU"
             >
               <Copy
                 className={`w-4 h-4 ${
-                  copiedField === "sku" ? "text-green-600" : "text-gray-400"
+                  copiedField === "sku"
+                    ? "text-(--success)"
+                    : "text-(--text-muted)"
                 }`}
               />
             </button>
@@ -132,35 +139,37 @@ export default function ProductInfoSidebar({
       )}
 
       {/* Metadata */}
-      <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 md:p-4 space-y-2 sm:space-y-3 md:space-y-3">
+      <div className="rounded-2xl border border-(--border-strong) bg-(--surface-elevated)/10 p-4 sm:p-5 space-y-2 sm:space-y-3">
         <div>
-          <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+          <p className="text-xs text-(--text-muted) uppercase tracking-wider font-semibold">
             Created
           </p>
-          <p className="text-xs sm:text-sm md:text-sm text-gray-600 mt-1">
+          <p className="text-xs sm:text-sm text-(--text-secondary) mt-1">
             {formatProductDate(createdAt)}
           </p>
         </div>
-        <div className="pt-2 border-t border-gray-200">
-          <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+        <div className="pt-3 border-t border-(--border-subtle)">
+          <p className="text-xs text-(--text-muted) uppercase tracking-wider font-semibold">
             Last Updated
           </p>
-          <p className="text-xs sm:text-sm md:text-sm text-gray-600 mt-1">
+          <p className="text-xs sm:text-sm text-(--text-secondary) mt-1">
             {formatProductDate(updatedAt)}
           </p>
         </div>
       </div>
 
       {/* Delete Button */}
-      <FormButton
-        type="button"
-        label={isDeleting ? "Deleting..." : "Delete Product"}
-        variant="delete"
-        size="lg"
-        disabled={isDeleting}
-        onClick={onDelete}
-        className="w-full"
-      />
+      {onDelete && (
+        <FormButton
+          type="button"
+          label={isDeleting ? "Deleting..." : "Delete Product"}
+          variant="delete"
+          size="lg"
+          disabled={isDeleting}
+          onClick={onDelete}
+          className="w-full"
+        />
+      )}
     </div>
   );
 }
