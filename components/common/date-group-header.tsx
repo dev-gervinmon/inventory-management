@@ -32,13 +32,15 @@ export default function DateGroupHeader({
   };
 
   return (
-    <div className="sticky top-0 z-10 bg-linear-to-r from-gray-50 to-white px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 border-b border-gray-200">
+    <div className="sticky top-0 z-10 bg-linear-to-r from-(--surface-elevated)/25 to-(--surface-elevated)/5 px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 border-b border-(--border-subtle) backdrop-blur">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-lg">{getGroupIcon(label)}</span>
-          <h3 className="text-sm font-semibold text-gray-900">{label}</h3>
+          <h3 className="text-sm font-semibold text-(--text-primary)">
+            {label}
+          </h3>
           {itemCount !== undefined && (
-            <span className="text-xs text-gray-500 font-medium">
+            <span className="text-xs text-(--text-muted) font-medium">
               ({itemCount})
             </span>
           )}
