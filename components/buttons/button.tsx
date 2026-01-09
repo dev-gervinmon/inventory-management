@@ -25,7 +25,7 @@ export function Button({
   const disabledLike = Boolean(props.disabled || isLoading);
 
   const base =
-    "inline-flex items-center justify-center font-semibold transition-all rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40 focus-visible:ring-offset-2 focus-visible:ring-offset-(--canvas)";
+    "cursor-pointer inline-flex items-center justify-center font-semibold transition-all rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40 focus-visible:ring-offset-2 focus-visible:ring-offset-(--canvas)";
 
   const variants = {
     default:
