@@ -108,7 +108,8 @@ export default function ActivityDetailModal({
   const typeInfo = ACTION_TYPE_MAP[activity.actionType] || {
     label: activity.actionType,
     emoji: "📋",
-    color: "bg-gray-100 text-gray-700",
+    color:
+      "bg-(--surface-elevated)/30 text-(--text-secondary) ring-1 ring-(--border-strong)/50 border border-(--border-subtle)",
   };
 
   // Build navigation link based on entity type
@@ -135,15 +136,15 @@ export default function ActivityDetailModal({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 top-0 left-0 right-0 bottom-0 bg-black/30 z-40 transition-opacity duration-200"
+        className="fixed inset-0 bg-black/30 z-60 transition-opacity duration-200"
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+      <div className="fixed inset-0 z-70 flex items-center justify-center p-4 pointer-events-none">
         <div
-          className="bg-white rounded-xl w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl pointer-events-auto"
+          className="bg-glass rounded-2xl w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl pointer-events-auto border border-(--border-subtle)"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Show Reverting State */}
@@ -152,14 +153,14 @@ export default function ActivityDetailModal({
               <div className="text-center space-y-4">
                 <div className="flex justify-center">
                   <div className="relative w-12 h-12">
-                    <div className="absolute inset-0 border-4 border-blue-200 rounded-full"></div>
-                    <div className="absolute inset-0 border-4 border-transparent border-t-blue-600 rounded-full animate-spin"></div>
+                    <div className="absolute inset-0 border-4 border-(--border-strong) rounded-full"></div>
+                    <div className="absolute inset-0 border-4 border-transparent border-t-(--brand) rounded-full animate-spin"></div>
                   </div>
                 </div>
-                <p className="text-lg font-semibold text-gray-900">
+                <p className="text-lg font-semibold text-(--text-primary)">
                   Reverting...
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-(--text-muted)">
                   Restoring &quot;{activity?.entityName}&quot; to previous
                   version
                 </p>
@@ -170,9 +171,9 @@ export default function ActivityDetailModal({
           {/* Show Normal Detail View */}
           {revertState === "idle" && (
             <>
-              <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 sm:flex sm:items-center sm:justify-between rounded-t-xl">
+              <div className="sticky top-0 bg-glass border-b border-(--border-subtle) px-6 py-4 sm:flex sm:items-center sm:justify-between rounded-t-2xl">
                 <div className="flex-1">
-                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+                  <h2 className="text-xl sm:text-2xl font-bold text-(--text-primary)">
                     Activity Details
                   </h2>
                 </div>
@@ -185,11 +186,11 @@ export default function ActivityDetailModal({
               <div className="px-6 py-6 space-y-6">
                 {/* Action Badge */}
                 <div>
-                  <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">
+                  <h3 className="text-xs font-semibold text-(--text-muted) uppercase tracking-wider mb-2">
                     Action
                   </h3>
                   <span
-                    className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold ${typeInfo.color}`}
+                    className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold ${typeInfo.color}`}
                   >
                     <span className="text-lg">{typeInfo.emoji}</span>
                     <span>{typeInfo.label}</span>
@@ -198,19 +199,19 @@ export default function ActivityDetailModal({
 
                 {/* Entity Information */}
                 <div>
-                  <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">
+                  <h3 className="text-xs font-semibold text-(--text-muted) uppercase tracking-wider mb-2">
                     {activity.entityType === "PRODUCT" && "Product"}
                     {activity.entityType === "CATEGORY" && "Category"}
                     {activity.entityType === "SUBCATEGORY" && "Subcategory"}
                   </h3>
                   <div className="flex items-center justify-between">
-                    <p className="text-sm sm:text-base font-medium text-gray-900 flex-wrap">
+                    <p className="text-sm sm:text-base font-semibold text-(--text-primary) flex-wrap">
                       {activity.entityName}
                     </p>
                     {entityLink && activity.entityId && (
                       <a
                         href={entityLink}
-                        className="ml-3 inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs md:text-sm font-semibold rounded-lg transition-colors"
+                        className="ml-3 inline-flex items-center gap-1 px-3 py-1.5 bg-(--surface-elevated)/25 text-(--brand) hover:bg-(--surface-elevated)/35 text-xs md:text-sm font-semibold rounded-xl transition-colors border border-(--border-subtle) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40"
                       >
                         View
                         <svg
@@ -233,28 +234,28 @@ export default function ActivityDetailModal({
 
                 {/* Timestamp */}
                 <div>
-                  <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">
+                  <h3 className="text-xs font-semibold text-(--text-muted) uppercase tracking-wider mb-2">
                     Timestamp
                   </h3>
-                  <p className="text-sm text-gray-700">{exactTime}</p>
+                  <p className="text-sm text-(--text-secondary)">{exactTime}</p>
                 </div>
 
                 {/* User */}
                 <div>
-                  <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">
+                  <h3 className="text-xs font-semibold text-(--text-muted) uppercase tracking-wider mb-2">
                     User
                   </h3>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-(--text-secondary)">
                     {activity.userName || "Unknown"}
                   </p>
                 </div>
 
                 {/* Message */}
                 <div>
-                  <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">
+                  <h3 className="text-xs font-semibold text-(--text-muted) uppercase tracking-wider mb-2">
                     Description
                   </h3>
-                  <p className="text-sm text-gray-700 leading-relaxed">
+                  <p className="text-sm text-(--text-secondary) leading-relaxed">
                     {activity.message}
                   </p>
                 </div>
@@ -265,13 +266,13 @@ export default function ActivityDetailModal({
                     <div>
                       <button
                         onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
-                        className="w-full flex items-center justify-between mb-3 hover:opacity-75 transition"
+                        className="w-full flex items-center justify-between mb-3 hover:bg-(--surface-elevated)/20 rounded-xl px-2 py-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40"
                       >
-                        <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        <h3 className="text-xs font-semibold text-(--text-muted) uppercase tracking-wider">
                           Change Details
                         </h3>
                         <svg
-                          className={`w-4 h-4 text-gray-600 transition-transform ${
+                          className={`w-4 h-4 text-(--text-muted) transition-transform ${
                             isDetailsExpanded ? "rotate-180" : ""
                           }`}
                           fill="none"
@@ -287,19 +288,19 @@ export default function ActivityDetailModal({
                         </svg>
                       </button>
                       {isDetailsExpanded && (
-                        <div className="bg-gray-50 rounded-lg p-4 space-y-3 border border-gray-200 animate-in fade-in duration-200">
+                        <div className="bg-(--surface-elevated)/15 rounded-2xl p-4 space-y-3 border border-(--border-subtle) animate-in fade-in duration-200">
                           {Object.entries(activity.details).map(
                             ([key, value]) => (
                               <div
                                 key={key}
-                                className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 pb-3 last:pb-0 border-b border-gray-200 last:border-b-0"
+                                className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 pb-3 last:pb-0 border-b border-(--border-subtle) last:border-b-0"
                               >
-                                <span className="text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                <span className="text-xs font-semibold text-(--text-muted) uppercase tracking-wider">
                                   {key
                                     .replace(/([A-Z])/g, " $1")
                                     .replace(/^./, (str) => str.toUpperCase())}
                                 </span>
-                                <span className="text-sm text-gray-900 font-medium text-right flex-wrap">
+                                <span className="text-sm text-(--text-primary) font-medium text-right flex-wrap">
                                   {typeof value === "object"
                                     ? JSON.stringify(value, null, 2)
                                     : String(value)}
@@ -313,18 +314,18 @@ export default function ActivityDetailModal({
                   )}
 
                 {/* ID Information */}
-                <div className="pt-4 border-t border-gray-200">
-                  <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">
+                <div className="pt-4 border-t border-(--border-subtle)">
+                  <h3 className="text-xs font-semibold text-(--text-muted) uppercase tracking-wider mb-2">
                     Activity ID
                   </h3>
-                  <p className="text-xs text-gray-500 font-mono break-all bg-gray-50 px-3 py-2 rounded">
+                  <p className="text-xs text-(--text-muted) font-mono break-all bg-(--surface-elevated)/15 px-3 py-2 rounded-xl border border-(--border-subtle)">
                     {activity.id}
                   </p>
                 </div>
 
                 {/* Restore Button */}
                 {canRevert && activity.entityType === "PRODUCT" && (
-                  <div className="pt-4 border-t border-gray-200 space-y-3">
+                  <div className="pt-4 border-t border-(--border-subtle) space-y-3">
                     <FormButton
                       type="button"
                       label="Restore This Version"
@@ -335,7 +336,7 @@ export default function ActivityDetailModal({
                       onClick={handleRevert}
                       className="w-full"
                     />
-                    <p className="text-xs text-gray-600 text-center">
+                    <p className="text-xs text-(--text-muted) text-center">
                       This will revert &quot;{activity.entityName}&quot; to this
                       previous state
                     </p>
