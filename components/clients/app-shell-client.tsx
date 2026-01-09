@@ -16,7 +16,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           : "var(--sidebar-width-expanded)",
       }}
     >
-      <div className="grid lg:grid-cols-[auto_1fr]">
+      <div>
         <Sidebar />
         <main className="pt-(--top-nav-height) lg:ml-(--sidebar-current-width)">
           <div className="px-4 sm:px-6 md:px-4 pb-4">
