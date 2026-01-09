@@ -10,17 +10,26 @@ export const GET = withApiHandler(async () => {
   return NextResponse.json(categories);
 });
 
-export const POST = withApiHandler(async (req: Request) => {
-  const body = await req.json();
-  const validated = apiValidateCategoryInput(body);
+export const POST = withApiHandler(
+  async (req: Request) => {
+    const body = await req.json();
+    const validated = apiValidateCategoryInput(body);
 
-  if (validated instanceof NextResponse) {
-    return validated;
+    if (validated instanceof NextResponse) {
+      return validated;
+    }
+
+    const category = await prisma.category.create({
+      data: { name: validated.name },
+    });
+
+    return NextResponse.json(category, { status: 201 });
+  },
+  {
+    rateLimit: {
+      prefix: "api:categories:create:",
+      limit: 20,
+      windowMs: 60_000,
+    },
   }
-
-  const category = await prisma.category.create({
-    data: { name: validated.name },
-  });
-
-  return NextResponse.json(category, { status: 201 });
-});
+);
