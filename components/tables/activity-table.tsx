@@ -23,7 +23,6 @@ interface ActivityTableProps {
   currentActionType?: string;
   currentEntityType?: string;
   showPagination?: boolean;
-  showFilters?: boolean;
   showSearch?: boolean;
   maxHeight?: string;
 }
@@ -33,7 +32,6 @@ export default function ActivityTable({
   currentActionType,
   currentEntityType,
   showPagination = true,
-  showFilters = true,
   showSearch = true,
   maxHeight = "auto",
 }: ActivityTableProps) {
@@ -115,9 +113,10 @@ export default function ActivityTable({
 
   return (
     <div
-      className={`space-y-4 ${
-        maxHeight !== "auto" ? maxHeight + " overflow-y-auto" : ""
-      }`}
+      className={[
+        "space-y-4",
+        maxHeight !== "auto" ? `${maxHeight} overflow-y-auto` : "",
+      ].join(" ")}
     >
       {/* Message Banner */}
       {message && (
@@ -131,14 +130,14 @@ export default function ActivityTable({
 
       {/* Search Bar */}
       {showSearch && (
-        <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
+        <div className="rounded-2xl border border-(--border-strong) bg-(--surface-elevated)/10 p-3 sm:p-4">
           <ActivitySearch onSearchChange={setSearch} />
         </div>
       )}
 
       {/* Results Count */}
       {!isEmpty && (showPagination || showSearch) && (
-        <div className="flex items-center justify-between text-xs sm:text-sm text-gray-600 px-1">
+        <div className="flex items-center justify-between text-xs sm:text-sm text-(--text-muted) px-1">
           <span>
             Showing {startIndex + 1}-{Math.min(endIndex, totalItems)} of{" "}
             {totalItems} {totalItems === 1 ? "activity" : "activities"}
@@ -147,24 +146,24 @@ export default function ActivityTable({
       )}
 
       {/* Desktop Table View */}
-      <div className="hidden md:block bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="hidden md:block rounded-2xl border border-(--border-strong) bg-(--surface-elevated)/10 overflow-hidden">
         {isEmpty ? (
           <div className="text-center py-12">
             <div className="text-4xl mb-4">📋</div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-(--text-primary) mb-2">
               No Activities Yet
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-(--text-muted)">
               Activity history will appear here as you work with products.
             </p>
           </div>
         ) : noResults ? (
           <div className="text-center py-12">
             <div className="text-4xl mb-4">🔍</div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-(--text-primary) mb-2">
               No Results Found
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-(--text-muted)">
               Try adjusting your search or filters.
             </p>
           </div>
@@ -173,14 +172,14 @@ export default function ActivityTable({
             {groupedItems.map((group) => (
               <div
                 key={group.date}
-                className="mb-0 overflow-hidden border-b border-gray-200 last:border-b-0"
+                className="mb-0 overflow-hidden border-b border-(--border-subtle) last:border-b-0"
               >
                 <DateGroupHeader
                   label={group.date}
                   itemCount={group.items.length}
                 />
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
+                  <thead className="bg-(--surface-elevated)/20 border-b border-(--border-subtle)">
                     <tr>
                       <SortableHeader
                         label="Action"
@@ -198,10 +197,10 @@ export default function ActivityTable({
                         onSort={toggleSort}
                         className="px-4 py-3 text-left"
                       />
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-(--text-primary) uppercase tracking-wider">
                         Message
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-(--text-primary) uppercase tracking-wider">
                         User
                       </th>
                       <SortableHeader
@@ -214,18 +213,19 @@ export default function ActivityTable({
                       />
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-(--border-subtle)">
                     {group.items.map((item) => {
                       const activity = item as Activity;
                       const typeInfo = ACTION_TYPE_MAP[activity.actionType] || {
                         label: activity.actionType,
                         emoji: "📋",
-                        color: "bg-gray-100 text-gray-700",
+                        color:
+                          "bg-(--surface-elevated)/30 text-(--text-secondary) ring-1 ring-(--border-strong)/50 border border-(--border-subtle)",
                       };
                       return (
                         <tr
                           key={activity.id}
-                          className="hover:bg-blue-50 transition cursor-pointer"
+                          className="hover:bg-(--surface-elevated)/15 transition-colors cursor-pointer"
                           onClick={() => handleActivityClick(activity)}
                           role="button"
                           tabIndex={0}
@@ -237,30 +237,30 @@ export default function ActivityTable({
                         >
                           <td className="px-4 py-3">
                             <span
-                              className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${typeInfo.color}`}
+                              className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${typeInfo.color}`}
                             >
                               <span>{typeInfo.emoji}</span>
                               <span>{typeInfo.label}</span>
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            <span className="text-sm font-medium text-gray-900">
+                            <span className="text-sm font-semibold text-(--text-primary)">
                               {activity.entityName}
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            <span className="text-sm text-gray-600">
+                            <span className="text-sm text-(--text-secondary)">
                               {activity.message}
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            <span className="text-sm text-gray-600">
+                            <span className="text-sm text-(--text-secondary)">
                               {activity.userName || "Unknown"}
                             </span>
                           </td>
                           <td className="px-4 py-3">
                             <span
-                              className="text-xs text-gray-500"
+                              className="text-xs text-(--text-muted)"
                               title={new Date(
                                 activity.createdAt
                               ).toLocaleString()}
@@ -282,22 +282,22 @@ export default function ActivityTable({
       {/* Mobile Card View with Date Groups */}
       <div className="md:hidden space-y-2">
         {isEmpty ? (
-          <div className="bg-white rounded-lg border border-gray-200 text-center py-12 px-4">
+          <div className="rounded-2xl border border-(--border-strong) bg-(--surface-elevated)/10 text-center py-12 px-4">
             <div className="text-4xl mb-4">📋</div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-(--text-primary) mb-2">
               No Activities Yet
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-(--text-muted)">
               Activity history will appear here as you work with products.
             </p>
           </div>
         ) : noResults ? (
-          <div className="bg-white rounded-lg border border-gray-200 text-center py-12 px-4">
+          <div className="rounded-2xl border border-(--border-strong) bg-(--surface-elevated)/10 text-center py-12 px-4">
             <div className="text-4xl mb-4">🔍</div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-(--text-primary) mb-2">
               No Results Found
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-(--text-muted)">
               Try adjusting your search or filters.
             </p>
           </div>
@@ -305,24 +305,25 @@ export default function ActivityTable({
           groupedItems.map((group) => (
             <div
               key={group.date}
-              className="bg-white rounded-lg border border-gray-200 overflow-hidden"
+              className="rounded-2xl border border-(--border-strong) bg-(--surface-elevated)/10 overflow-hidden"
             >
               <DateGroupHeader
                 label={group.date}
                 itemCount={group.items.length}
               />
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-(--border-subtle)">
                 {group.items.map((item) => {
                   const activity = item as Activity;
                   const typeInfo = ACTION_TYPE_MAP[activity.actionType] || {
                     label: activity.actionType,
                     emoji: "📋",
-                    color: "bg-gray-100 text-gray-700",
+                    color:
+                      "bg-(--surface-elevated)/30 text-(--text-secondary) ring-1 ring-(--border-strong)/50 border border-(--border-subtle)",
                   };
                   return (
                     <div
                       key={activity.id}
-                      className="p-4 hover:bg-blue-50 transition cursor-pointer"
+                      className="p-4 hover:bg-(--surface-elevated)/15 transition-colors cursor-pointer"
                       onClick={() => handleActivityClick(activity)}
                       role="button"
                       tabIndex={0}
@@ -334,26 +335,26 @@ export default function ActivityTable({
                     >
                       <div className="flex items-start justify-between mb-2">
                         <span
-                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${typeInfo.color}`}
+                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${typeInfo.color}`}
                         >
                           <span>{typeInfo.emoji}</span>
                           <span>{typeInfo.label}</span>
                         </span>
                         <span
-                          className="text-xs text-gray-500"
+                          className="text-xs text-(--text-muted)"
                           title={new Date(activity.createdAt).toLocaleString()}
                         >
                           {formatActivityDate(activity.createdAt)}
                         </span>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-semibold text-(--text-primary)">
                           {activity.entityName}
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-(--text-secondary)">
                           {activity.message}
                         </p>
-                        <p className="text-xs text-gray-500 pt-2">
+                        <p className="text-xs text-(--text-muted) pt-2">
                           by {activity.userName || "Unknown"}
                         </p>
                       </div>
