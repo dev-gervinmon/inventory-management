@@ -1,9 +1,20 @@
 "use server";
 
 import prisma from "../db/prisma";
+import { checkActionRateLimit } from "./rate-limit";
 
 export async function getRecentActivities(userId: string, limit = 10) {
   try {
+    const rl = await checkActionRateLimit({
+      prefix: "action:notifications:recent-activities:",
+      limit: 300,
+      windowMs: 60_000,
+      userId,
+    });
+    if (!rl.allowed) {
+      return [];
+    }
+
     return await prisma.activity.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
@@ -17,6 +28,16 @@ export async function getRecentActivities(userId: string, limit = 10) {
 
 export async function getCriticalStockItems(userId: string, limit = 10) {
   try {
+    const rl = await checkActionRateLimit({
+      prefix: "action:notifications:critical-stock:",
+      limit: 180,
+      windowMs: 60_000,
+      userId,
+    });
+    if (!rl.allowed) {
+      return [];
+    }
+
     return await prisma.product.findMany({
       where: {
         userId,
