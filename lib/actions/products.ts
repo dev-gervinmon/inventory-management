@@ -6,6 +6,7 @@ import { parseProductData } from "../schemas/products";
 import { logActivity } from "./activities";
 import { formatPrice } from "../utils/products";
 import { createStockMovement } from "../analytics/stock-movement";
+import { checkActionRateLimit } from "./rate-limit";
 
 /**
  * Extract IDs from FormData for a given key
@@ -67,6 +68,18 @@ function flattenChanges(
 export async function bulkDeleteProducts(ids: string[]) {
   const user = await getCurrentUser();
 
+  const rl = await checkActionRateLimit({
+    prefix: "action:products:bulk-delete:",
+    limit: 10,
+    windowMs: 60_000,
+    userId: user.id,
+  });
+  if (!rl.allowed) {
+    throw new Error(
+      `Too many requests. Try again in ${rl.retryAfterSeconds}s.`
+    );
+  }
+
   if (!ids || ids.length === 0) {
     throw new Error("No products selected");
   }
@@ -112,6 +125,19 @@ export async function bulkDeleteProducts(ids: string[]) {
  */
 export async function createProduct(formData: FormData) {
   const user = await getCurrentUser();
+
+  const rl = await checkActionRateLimit({
+    prefix: "action:products:create:",
+    limit: 20,
+    windowMs: 60_000,
+    userId: user.id,
+  });
+  if (!rl.allowed) {
+    throw new Error(
+      `Too many requests. Try again in ${rl.retryAfterSeconds}s.`
+    );
+  }
+
   const data = parseProductData(formData);
   const categoryIds = extractIdsFromFormData(formData, "categoryIds");
   const subcategoryIds = extractIdsFromFormData(formData, "subcategoryIds");
@@ -161,6 +187,19 @@ export async function createProduct(formData: FormData) {
  */
 export async function editProduct(formData: FormData) {
   const user = await getCurrentUser();
+
+  const rl = await checkActionRateLimit({
+    prefix: "action:products:edit:",
+    limit: 60,
+    windowMs: 60_000,
+    userId: user.id,
+  });
+  if (!rl.allowed) {
+    throw new Error(
+      `Too many requests. Try again in ${rl.retryAfterSeconds}s.`
+    );
+  }
+
   const id = String(formData.get("id") || "");
 
   if (!id) {
@@ -294,6 +333,18 @@ export async function editProduct(formData: FormData) {
 export async function deleteProduct(id: string) {
   const user = await getCurrentUser();
 
+  const rl = await checkActionRateLimit({
+    prefix: "action:products:delete:",
+    limit: 30,
+    windowMs: 60_000,
+    userId: user.id,
+  });
+  if (!rl.allowed) {
+    throw new Error(
+      `Too many requests. Try again in ${rl.retryAfterSeconds}s.`
+    );
+  }
+
   const product = await prisma.product.findUnique({
     where: { id },
     select: {
@@ -338,6 +389,18 @@ export async function revertActivity(
   activityId: string
 ): Promise<{ success: boolean; message: string }> {
   const user = await getCurrentUser();
+
+  const rl = await checkActionRateLimit({
+    prefix: "action:products:revert-activity:",
+    limit: 15,
+    windowMs: 60_000,
+    userId: user.id,
+  });
+  if (!rl.allowed) {
+    throw new Error(
+      `Too many requests. Try again in ${rl.retryAfterSeconds}s.`
+    );
+  }
 
   if (!productId || !activityId) {
     throw new Error("Product ID and Activity ID are required");
