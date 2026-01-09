@@ -30,10 +30,10 @@ export default function ActivitySearch({
         value={searchInput}
         onChange={(e) => setSearchInput(e.target.value)}
         placeholder="Search activities by product name or message..."
-        className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm"
+        className="w-full px-4 py-2 pl-10 rounded-xl border border-(--border-strong) bg-(--surface-elevated)/10 text-(--text-primary) placeholder:text-(--text-muted) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40 focus-visible:border-(--brand)/40 transition text-sm"
       />
       <svg
-        className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+        className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-(--text-muted)"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -48,7 +48,7 @@ export default function ActivitySearch({
       {searchInput && (
         <button
           onClick={() => setSearchInput("")}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-(--text-muted) hover:text-(--text-primary) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40 rounded-md"
           aria-label="Clear search"
         >
           <svg
