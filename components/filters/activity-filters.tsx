@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useTransition, useState, useMemo } from "react";
-import { INPUT_CLASS, INPUT_FOCUS_BLUE } from "@/lib/constants/filters";
 import { buildFilterUrl } from "@/lib/utils/filters";
 import FormButton from "@/components/buttons/form-button";
 import {
@@ -76,21 +75,24 @@ export default function ActivityFilters({
     (currentActionType && currentActionType !== "all") ||
     (currentEntityType && currentEntityType !== "all");
 
+  const inputClassName =
+    "w-full px-3 py-2.5 rounded-xl border border-(--border-strong) bg-(--surface-elevated)/30 text-(--text-primary) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40 focus-visible:border-(--brand)/40 transition disabled:opacity-60 disabled:cursor-not-allowed";
+
   return (
-    <div className="bg-white rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all duration-200">
+    <div className="bg-glass rounded-2xl border border-(--border-subtle) transition-colors">
       {/* Header - Clickable on mobile/tablet, non-interactive on desktop */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-3 sm:px-4 md:px-6 py-4 sm:py-5 md:py-7 flex items-center justify-between lg:cursor-default lg:py-0! lg:pt-7! lg:pb-6!"
+        className="w-full px-3 sm:px-4 md:px-6 py-4 sm:py-5 md:py-7 flex items-center justify-between lg:cursor-default lg:py-0! lg:pt-7! lg:pb-6! focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40 rounded-2xl"
         aria-expanded={isOpen}
         aria-label="Toggle filters"
       >
         <div className="flex items-center gap-2">
-          <h2 className="text-base md:text-lg font-semibold text-gray-900">
+          <h2 className="text-base md:text-lg font-semibold text-(--text-primary)">
             Filters
           </h2>
           {hasActiveFilters && (
-            <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-semibold text-white bg-blue-600 rounded-full">
+            <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-semibold text-(--text-inverted) bg-(--brand) rounded-full">
               {(currentActionType ? 1 : 0) + (currentEntityType ? 1 : 0)}
             </span>
           )}
@@ -98,7 +100,7 @@ export default function ActivityFilters({
 
         {/* Toggle Icon - Visible only on mobile and tablet */}
         <svg
-          className={`w-5 h-5 text-gray-600 transition-transform duration-200 lg:hidden ${
+          className={`w-5 h-5 text-(--text-muted) transition-transform duration-200 lg:hidden ${
             isOpen ? "rotate-180" : ""
           }`}
           fill="none"
@@ -120,17 +122,17 @@ export default function ActivityFilters({
           isOpen ? "max-h-96 sm:max-h-[500px]" : "max-h-0 lg:max-h-none"
         }`}
       >
-        <div className="px-3 sm:px-4 md:px-6 pt-4 sm:pt-5 pb-4 sm:pb-5 md:pb-6 space-y-6 border-t border-gray-200 lg:border-t-0 lg:pt-0">
+        <div className="px-3 sm:px-4 md:px-6 pt-4 sm:pt-5 pb-4 sm:pb-5 md:pb-6 space-y-6 border-t border-(--border-subtle) lg:border-t-0 lg:pt-0">
           {/* Entity Type Filter */}
           <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-xs sm:text-sm font-semibold text-(--text-secondary) mb-2">
               Entity Type
             </label>
             <select
               value={currentEntityType || "all"}
               onChange={(e) => handleEntityTypeChange(e.target.value)}
               disabled={isPending}
-              className={`${INPUT_CLASS} ${INPUT_FOCUS_BLUE}`}
+              className={inputClassName}
             >
               {ENTITY_TYPE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -142,14 +144,14 @@ export default function ActivityFilters({
 
           {/* Action Type Filter */}
           <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-xs sm:text-sm font-semibold text-(--text-secondary) mb-2">
               Action Type
             </label>
             <select
               value={currentActionType || "all"}
               onChange={(e) => handleActionTypeChange(e.target.value)}
               disabled={isPending}
-              className={`${INPUT_CLASS} ${INPUT_FOCUS_BLUE}`}
+              className={inputClassName}
             >
               <option value="all">All Actions</option>
               {actionOptions.map((option) => (
@@ -175,13 +177,13 @@ export default function ActivityFilters({
 
           {/* Active Filter Pills */}
           {hasActiveFilters && (
-            <div className="pt-4 border-t border-gray-200">
-              <p className="text-xs font-medium text-gray-500 mb-2">
+            <div className="pt-4 border-t border-(--border-subtle)">
+              <p className="text-xs font-semibold text-(--text-muted) mb-2">
                 Active Filters:
               </p>
               <div className="flex flex-wrap gap-2">
                 {currentEntityType && currentEntityType !== "all" && (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
+                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-(--brand)/10 text-(--brand) border border-(--brand)/20">
                     {
                       ENTITY_TYPE_OPTIONS.find(
                         (opt) => opt.value === currentEntityType
@@ -194,7 +196,7 @@ export default function ActivityFilters({
                     }
                     <button
                       onClick={() => handleEntityTypeChange("all")}
-                      className="ml-1 hover:text-blue-900"
+                      className="ml-1 hover:text-(--text-primary) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40 rounded"
                       aria-label="Remove entity type filter"
                     >
                       ×
@@ -202,7 +204,7 @@ export default function ActivityFilters({
                   </span>
                 )}
                 {currentActionType && currentActionType !== "all" && (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">
+                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-(--success)/12 text-(--success) border border-(--success)/20">
                     {
                       actionOptions.find(
                         (opt) => opt.value === currentActionType
@@ -215,7 +217,7 @@ export default function ActivityFilters({
                     }
                     <button
                       onClick={() => handleActionTypeChange("all")}
-                      className="ml-1 hover:text-green-900"
+                      className="ml-1 hover:text-(--text-primary) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand)/40 rounded"
                       aria-label="Remove action type filter"
                     >
                       ×
