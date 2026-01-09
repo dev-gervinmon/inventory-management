@@ -7,6 +7,7 @@ import { getCurrentUser } from "../auth/auth";
 import { parseSubcategoryData } from "../schemas/subcategories";
 import { actionRequireId } from "../validators/subcategories";
 import { logActivity } from "./activities";
+import { checkActionRateLimit } from "./rate-limit";
 
 const CATEGORIES_PATH = "/categories";
 
@@ -33,6 +34,20 @@ export async function createSubcategory(
 ): Promise<ActionResult<SubcategoryPayload>> {
   try {
     const user = await getCurrentUser();
+
+    const rl = await checkActionRateLimit({
+      prefix: "action:subcategories:create:",
+      limit: 30,
+      windowMs: 60_000,
+      userId: user.id,
+    });
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Try again in ${rl.retryAfterSeconds}s.`,
+      };
+    }
+
     const data = parseSubcategoryData(formData);
 
     const result: ActionResult<SubcategoryPayload> = await prisma.$transaction(
@@ -95,6 +110,20 @@ export async function editSubcategory(
 ): Promise<ActionResult<SubcategoryPayload>> {
   try {
     const user = await getCurrentUser();
+
+    const rl = await checkActionRateLimit({
+      prefix: "action:subcategories:edit:",
+      limit: 60,
+      windowMs: 60_000,
+      userId: user.id,
+    });
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Try again in ${rl.retryAfterSeconds}s.`,
+      };
+    }
+
     const id = actionRequireId(formData);
     const data = parseSubcategoryData(formData);
 
@@ -170,6 +199,20 @@ export async function deleteSubcategory(
 ): Promise<{ success: boolean; error?: string; deletedId?: string }> {
   try {
     const user = await getCurrentUser();
+
+    const rl = await checkActionRateLimit({
+      prefix: "action:subcategories:delete:",
+      limit: 30,
+      windowMs: 60_000,
+      userId: user.id,
+    });
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Try again in ${rl.retryAfterSeconds}s.`,
+      };
+    }
+
     const id = actionRequireId(formData);
     const categoryId = String(formData.get("categoryId") || "").trim();
     if (!categoryId) {
@@ -221,6 +264,20 @@ export async function deleteBulkSubcategories(
 ): Promise<ActionResult<BulkDeletePayload>> {
   try {
     const user = await getCurrentUser();
+
+    const rl = await checkActionRateLimit({
+      prefix: "action:subcategories:bulk-delete:",
+      limit: 10,
+      windowMs: 60_000,
+      userId: user.id,
+    });
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Try again in ${rl.retryAfterSeconds}s.`,
+      };
+    }
+
     const ids = formData.getAll("ids") as string[];
     const categoryId = String(formData.get("categoryId") || "").trim();
 
