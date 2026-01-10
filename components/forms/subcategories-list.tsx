@@ -104,9 +104,8 @@ export default function SubcategoriesList({
       const response = await deleteBulkSubcategories(formData);
 
       if (response.success) {
-        showSuccess(
-          `Successfully deleted ${response.deletedCount} subcategory(ies)!`
-        );
+        const deletedCount = response.data?.deletedCount ?? 0;
+        showSuccess(`Successfully deleted ${deletedCount} subcategory(ies)!`);
         deselectAll();
         setIsBulkDeleteModalOpen(false);
       } else {
