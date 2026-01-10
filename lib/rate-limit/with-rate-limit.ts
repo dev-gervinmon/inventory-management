@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import type { NextResponse as NextResponseType } from "next/server";
 import { checkFixedWindow } from "@/lib/rate-limit/memory";
 import { getClientIp } from "@/lib/rate-limit/request";
 import { rateLimitHeaders, retryAfterSeconds } from "@/lib/rate-limit/http";
@@ -10,12 +9,12 @@ import {
 
 type HandlerNoContext = (
   req: Request
-) => Promise<NextResponseType<unknown>> | NextResponseType<unknown>;
+) => Promise<Response> | Response;
 
 type HandlerWithContext<C = unknown> = (
   req: Request,
   context: C
-) => Promise<NextResponseType<unknown>> | NextResponseType<unknown>;
+) => Promise<Response> | Response;
 
 type EmptyRouteContext = { params: Promise<Record<string, never>> };
 
@@ -41,12 +40,12 @@ export function withRateLimit(
 ): (
   req: Request,
   context: EmptyRouteContext
-) => Promise<NextResponseType<unknown>>;
+) => Promise<Response>;
 
 export function withRateLimit<C = unknown>(
   handler: HandlerWithContext<C>,
   config: RateLimitConfig<C>
-): (req: Request, context: C) => Promise<NextResponseType<unknown>>;
+): (req: Request, context: C) => Promise<Response>;
 
 export function withRateLimit<C = unknown>(
   handler: HandlerNoContext | HandlerWithContext<C>,
