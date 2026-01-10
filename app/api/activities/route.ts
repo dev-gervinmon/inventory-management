@@ -27,4 +27,10 @@ export const GET = withApiHandler(async () => {
   }));
 
   return NextResponse.json(activities);
+}, {
+  rateLimit: {
+    prefix: "api:activities:list:",
+    limit: 120,
+    windowMs: 60_000,
+  },
 });
