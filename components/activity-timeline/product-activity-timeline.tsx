@@ -63,7 +63,7 @@ export default function ProductActivityTimeline({
 
       {/* Expanded Timeline Content */}
       {isExpanded && (
-        <div className="mt-4 rounded-2xl bg-(--surface-elevated)/10 overflow-hidden">
+        <div className="mt-4 rounded-2xl bg-glass border border-(--border-strong) overflow-hidden">
           <ActivityTable
             activities={productActivities}
             showPagination={productActivities.length > 15}
