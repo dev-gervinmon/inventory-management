@@ -3,18 +3,21 @@ import { NextResponse } from "next/server";
 import { withApiHandler } from "@/lib/api/handler";
 import { apiValidateCategoryInput } from "@/lib/validators/categories";
 
-export const GET = withApiHandler(async () => {
-  const categories = await prisma.category.findMany({
-    orderBy: { name: "desc" },
-  });
-  return NextResponse.json(categories);
-}, {
-  rateLimit: {
-    prefix: "api:categories:list:",
-    limit: 120,
-    windowMs: 60_000,
+export const GET = withApiHandler(
+  async () => {
+    const categories = await prisma.category.findMany({
+      orderBy: { name: "desc" },
+    });
+    return NextResponse.json(categories);
   },
-});
+  {
+    rateLimit: {
+      prefix: "api:categories:list:",
+      limit: 120,
+      windowMs: 60_000,
+    },
+  }
+);
 
 export const POST = withApiHandler(
   async (req: Request) => {
