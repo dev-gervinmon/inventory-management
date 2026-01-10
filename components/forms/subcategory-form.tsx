@@ -4,7 +4,6 @@ import { useState } from "react";
 import FormButton from "@/components/buttons/form-button";
 import DeleteSubcategoryButton from "@/components/buttons/delete/delete-subcategory-button";
 import { formatCategoryDate } from "@/lib/utils/categories";
-import { useMessage } from "@/lib/hooks/useMessage";
 import { UI_TIMING } from "@/lib/constants/forms";
 import {
   SUBCATEGORY_LIMITS,
@@ -73,7 +72,7 @@ export default function SubcategoryForm({
         setIsEditing(false);
         setTimeout(
           () => setMessage({ type: "", text: "" }),
-          UI_CONSTANTS.MESSAGE_TIMEOUT
+          UI_TIMING.MESSAGE_TIMEOUT_MS
         );
       } else {
         setMessage({
