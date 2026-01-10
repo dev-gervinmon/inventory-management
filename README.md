@@ -39,7 +39,7 @@ Designed as a growing **SaaS-style application**, focusing on clean UX, scalabil
 
 ## 🧱 Tech Stack
 
-- **Frontend**: Next.js 14 (App Router), React, Tailwind CSS
+- **Frontend**: Next.js 16 (App Router), React, Tailwind CSS
 - **Backend**: Next.js API Routes & Server Actions
 - **Database**: PostgreSQL
 - **ORM**: Prisma
@@ -96,6 +96,18 @@ Create a `.env` file:
 DATABASE_URL=postgresql://...
 UPLOADTHING_SECRET=...
 UPLOADTHING_APP_ID=...
+
+# Stack Auth (copy the full set from your Stack project dashboard / init wizard)
+NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY=...
+STACK_SECRET_SERVER_KEY=...
+
+# Optional: production rate limiting (Upstash Redis REST)
+UPSTASH_REDIS_REST_URL=...
+UPSTASH_REDIS_REST_TOKEN=...
+
+# Optional alternative: Vercel KV (also Upstash-compatible REST env vars)
+KV_REST_API_URL=...
+KV_REST_API_TOKEN=...
 ```
 
 ### 4. Prisma setup
@@ -110,6 +122,48 @@ npx prisma generate
 ```bash
 npm run dev
 ```
+
+---
+
+## ▲ Deploying to Vercel
+
+### 1. Create a Vercel project
+
+- Import the repo into Vercel.
+- Keep the framework preset as **Next.js**.
+
+### 2. Provision a Postgres database
+
+- Use **Vercel Postgres** (or Neon/Supabase/etc.).
+- Set `DATABASE_URL` in Vercel to your production connection string.
+
+### 3. Add environment variables in Vercel
+
+Minimum required (same names as local):
+
+- `DATABASE_URL`
+- `UPLOADTHING_SECRET`
+- `UPLOADTHING_APP_ID`
+- `NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY`
+- `STACK_SECRET_SERVER_KEY`
+
+Optional but recommended for production rate limiting:
+
+- Upstash Redis REST: `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
+- Or Vercel KV: `KV_REST_API_URL`, `KV_REST_API_TOKEN`
+
+### 4. Run Prisma migrations on deploy
+
+In **Project Settings → Build & Development Settings → Build Command**, use:
+
+```bash
+npx prisma migrate deploy && npx prisma generate && next build
+```
+
+### 5. Deploy
+
+- Trigger a deployment and confirm the build completes.
+- After deploy, hit `/api/debug/whoami` to quickly validate auth + API routing.
 
 ---
 
@@ -146,7 +200,7 @@ MIT License.
 
 ## 👤 Author
 
-**Gervin Mon**  
+**Gerald Vincent Montibon**  
 GitHub: https://github.com/dev-gervinmon
 
 ---
