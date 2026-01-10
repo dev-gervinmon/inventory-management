@@ -4,26 +4,42 @@ import { serverError, jsonError } from "@/lib/errors/http";
 import { withRateLimit } from "@/lib/rate-limit/with-rate-limit";
 import type { RateLimitConfig } from "@/lib/rate-limit/with-rate-limit";
 
-type Handler<T = unknown, C = unknown> = (
+type HandlerNoContext = (
+  req: Request
+) => Promise<NextResponse<unknown>> | NextResponse<unknown>;
+
+type HandlerWithContext<C = unknown> = (
   req: Request,
-  context?: C
-) => Promise<NextResponse<T>> | NextResponse<T>;
+  context: C
+) => Promise<NextResponse<unknown>> | NextResponse<unknown>;
 
 type ApiHandlerOptions<C = unknown> = {
   rateLimit?: RateLimitConfig<C>;
 };
 
+type EmptyRouteContext = { params: Promise<{}> };
+
+export function withApiHandler(
+  handler: HandlerNoContext,
+  options?: ApiHandlerOptions<EmptyRouteContext>
+): (req: Request, context: EmptyRouteContext) => Promise<NextResponse<unknown>>;
+
 export function withApiHandler<C = unknown>(
-  handler: Handler<unknown, C>,
+  handler: HandlerWithContext<C>,
+  options?: ApiHandlerOptions<C>
+): (req: Request, context: C) => Promise<NextResponse<unknown>>;
+
+export function withApiHandler<C = unknown>(
+  handler: HandlerNoContext | HandlerWithContext<C>,
   options?: ApiHandlerOptions<C>
 ) {
-  return async (req: Request, context?: C) => {
+  return async (req: Request, context: C) => {
     try {
       const effectiveHandler = options?.rateLimit
-        ? withRateLimit(handler, options.rateLimit)
+        ? withRateLimit(handler as HandlerWithContext<C>, options.rateLimit)
         : handler;
 
-      const res = await effectiveHandler(req, context as C);
+      const res = await (effectiveHandler as any)(req, context);
       return res;
     } catch (error: unknown) {
       const prisma = handlePrismaError(error);
