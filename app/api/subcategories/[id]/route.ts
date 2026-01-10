@@ -25,6 +25,13 @@ export const PUT = withApiHandler(
     });
 
     return NextResponse.json(subcategory);
+  },
+  {
+    rateLimit: {
+      prefix: "api:subcategories:update:",
+      limit: 60,
+      windowMs: 60_000,
+    },
   }
 );
 
@@ -37,5 +44,12 @@ export const DELETE = withApiHandler(
 
     await prisma.subcategory.delete({ where: { id } });
     return NextResponse.json({ success: true });
+  },
+  {
+    rateLimit: {
+      prefix: "api:subcategories:delete:",
+      limit: 30,
+      windowMs: 60_000,
+    },
   }
 );
