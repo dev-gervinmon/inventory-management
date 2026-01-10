@@ -8,6 +8,12 @@ export const GET = withApiHandler(async () => {
     orderBy: { name: "desc" },
   });
   return NextResponse.json(categories);
+}, {
+  rateLimit: {
+    prefix: "api:categories:list:",
+    limit: 120,
+    windowMs: 60_000,
+  },
 });
 
 export const POST = withApiHandler(
