@@ -4,6 +4,10 @@ import { headers } from "next/headers";
 import { checkFixedWindow } from "@/lib/rate-limit/memory";
 import { getClientIpFromHeaders } from "@/lib/rate-limit/request";
 import { retryAfterSeconds } from "@/lib/rate-limit/http";
+import {
+  getFixedWindowLimiter,
+  hasSharedRateLimitStore,
+} from "@/lib/rate-limit/upstash";
 
 export type ActionRateLimitResult = {
   allowed: boolean;
@@ -49,11 +53,46 @@ export async function checkActionRateLimit(
       ? `user:${config.userId}`
       : `ip:${getClientIpFromHeaders(await headers())}`);
 
-  const rl = checkFixedWindow(`${config.prefix}${groupingKey}`, {
-    limit: config.limit,
-    windowMs: config.windowMs,
-    nowMs,
-  });
+  const key = `${config.prefix}${groupingKey}`;
+
+  const rl = await (async () => {
+    if (!hasSharedRateLimitStore()) {
+      return checkFixedWindow(key, {
+        limit: config.limit,
+        windowMs: config.windowMs,
+        nowMs,
+      });
+    }
+
+    const limiter = getFixedWindowLimiter({
+      limit: config.limit,
+      windowMs: config.windowMs,
+    });
+
+    const result = await limiter.limit(key);
+
+    const resetMs = (() => {
+      const reset = (result as unknown as { reset?: unknown }).reset;
+
+      if (reset instanceof Date) return reset.getTime();
+      if (typeof reset === "number") {
+        return reset < 1_000_000_000_000 ? reset * 1000 : reset;
+      }
+      if (typeof reset === "string") {
+        const parsed = Date.parse(reset);
+        if (!Number.isNaN(parsed)) return parsed;
+      }
+
+      return nowMs + config.windowMs;
+    })();
+
+    return {
+      allowed: result.success,
+      limit: result.limit,
+      remaining: Math.max(0, result.remaining),
+      resetMs,
+    };
+  })();
 
   return {
     allowed: rl.allowed,
