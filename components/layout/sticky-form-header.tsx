@@ -85,14 +85,14 @@ export default function StickyFormHeader({
           {navigateTo ? (
             <button
               onClick={() => navigateTo(backHref)}
-              className="inline-flex items-center px-2 py-3 text-gray-600 hover:text-gray-900 hover:underline transition-colors cursor-pointer w-fit font-semibold rounded-lg"
+              className="inline-flex items-center px-2 py-3 text-(--text-muted) hover:text-(--text-primary) hover:underline transition-colors cursor-pointer w-fit font-semibold rounded-lg"
             >
               {backLabel || "Back"}
             </button>
           ) : (
             <Link
               href={backHref}
-              className="inline-flex items-center px-2 py-3 text-gray-600 hover:text-gray-900 hover:underline transition-colors cursor-pointer w-fit font-semibold rounded-lg"
+              className="inline-flex items-center px-2 py-3 text-(--text-muted) hover:text-(--text-primary) hover:underline transition-colors cursor-pointer w-fit font-semibold rounded-lg"
             >
               {backLabel || "Back"}
             </Link>
@@ -100,11 +100,11 @@ export default function StickyFormHeader({
         </div>
 
         <div className="mb-4 sm:mb-6 px-4 sm:px-6 md:px-0">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-(--text-primary)">
             {title}
           </h1>
           {subtitle && (
-            <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1 sm:mt-2">
+            <p className="text-xs sm:text-sm md:text-base text-(--text-muted) mt-1 sm:mt-2">
               {subtitle}
             </p>
           )}
@@ -141,7 +141,7 @@ export default function StickyFormHeader({
     <div
       className={`${
         isSticky
-          ? "fixed top-13 left-0 right-0 z-20 border-b border-gray-200 bg-white shadow-md"
+          ? "fixed top-13 left-0 right-0 z-20 border-b border-(--border-subtle) bg-glass shadow-md"
           : ""
       } transition-all duration-200`}
     >
@@ -159,19 +159,19 @@ export default function StickyFormHeader({
               {navigateTo ? (
                 <button
                   onClick={() => navigateTo(backHref)}
-                  className="px-4 py-2 text-xs text-gray-600 hover:text-gray-900 hover:underline transition-colors cursor-pointer w-fit shrink-0 font-semibold whitespace-nowrap rounded-lg"
+                  className="px-4 py-2 text-xs text-(--text-muted) hover:text-(--text-primary) hover:underline transition-colors cursor-pointer w-fit shrink-0 font-semibold whitespace-nowrap rounded-lg"
                 >
                   ← Back
                 </button>
               ) : (
                 <Link
                   href={backHref}
-                  className="px-4 py-2 text-xs text-gray-600 hover:text-gray-900 hover:underline transition-colors cursor-pointer w-fit shrink-0 font-semibold whitespace-nowrap rounded-lg"
+                  className="px-4 py-2 text-xs text-(--text-muted) hover:text-(--text-primary) hover:underline transition-colors cursor-pointer w-fit shrink-0 font-semibold whitespace-nowrap rounded-lg"
                 >
                   ← Back
                 </Link>
               )}
-              <h1 className="font-bold text-gray-900 text-base truncate">
+              <h1 className="font-bold text-(--text-primary) text-base truncate">
                 {title}
               </h1>
             </div>
@@ -211,14 +211,14 @@ export default function StickyFormHeader({
               {navigateTo ? (
                 <button
                   onClick={() => navigateTo(backHref)}
-                  className="inline-flex items-center px-6 py-3 text-sm text-gray-600 hover:text-gray-900 hover:underline transition-colors cursor-pointer w-fit font-semibold rounded-lg"
+                  className="inline-flex items-center px-6 py-3 text-sm text-(--text-muted) hover:text-(--text-primary) hover:underline transition-colors cursor-pointer w-fit font-semibold rounded-lg"
                 >
                   {backLabel || "Back"}
                 </button>
               ) : (
                 <Link
                   href={backHref}
-                  className="inline-flex items-center px-6 py-3 text-sm text-gray-600 hover:text-gray-900 hover:underline transition-colors cursor-pointer w-fit font-semibold rounded-lg"
+                  className="inline-flex items-center px-6 py-3 text-sm text-(--text-muted) hover:text-(--text-primary) hover:underline transition-colors cursor-pointer w-fit font-semibold rounded-lg"
                 >
                   {backLabel || "Back"}
                 </Link>
@@ -227,11 +227,11 @@ export default function StickyFormHeader({
 
             {/* Title and Subtitle */}
             <div>
-              <h1 className="text-lg sm:text-2xl md:text-3xl font-bold text-gray-900">
+              <h1 className="text-lg sm:text-2xl md:text-3xl font-bold text-(--text-primary)">
                 {title}
               </h1>
               {subtitle && (
-                <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1 sm:mt-2">
+                <p className="text-xs sm:text-sm md:text-base text-(--text-muted) mt-1 sm:mt-2">
                   {subtitle}
                 </p>
               )}
