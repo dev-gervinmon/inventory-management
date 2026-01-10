@@ -143,7 +143,7 @@ export async function createProduct(formData: FormData) {
   const subcategoryIds = extractIdsFromFormData(formData, "subcategoryIds");
 
   try {
-    await prisma.$transaction(async (tx) => {
+    return await prisma.$transaction(async (tx) => {
       const createdProduct = await tx.product.create({
         data: {
           ...data,
@@ -171,7 +171,8 @@ export async function createProduct(formData: FormData) {
           quantity: createdProduct.quantity,
         },
       });
-      return { success: true, productId: createdProduct.id };
+
+      return { productId: createdProduct.id };
     });
   } catch (error) {
     console.error("Create product error:", error);
