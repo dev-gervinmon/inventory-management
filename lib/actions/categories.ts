@@ -20,7 +20,7 @@ type ActionResponse = {
  */
 export async function createCategory(
   formData: FormData
-): Promise<ActionResponse | undefined> {
+): Promise<ActionResponse> {
   const user = await getCurrentUser();
 
   const rl = await checkActionRateLimit({
@@ -39,8 +39,8 @@ export async function createCategory(
   const data = parseCategoryData(formData);
 
   try {
-    await prisma.$transaction(async (tx) => {
-      const createdCategory = await prisma.category.create({
+    const createdCategory = await prisma.$transaction(async (tx) => {
+      const category = await tx.category.create({
         data,
         include: {
           subcategories: {
@@ -58,19 +58,21 @@ export async function createCategory(
       await logActivity(tx, user.id, {
         entityType: "CATEGORY",
         actionType: "ADDED",
-        entityId: createdCategory.id,
-        entityName: createdCategory.name,
-        message: `Category "${createdCategory.name}" was created`,
+        entityId: category.id,
+        entityName: category.name,
+        message: `Category "${category.name}" was created`,
       });
 
-      // Revalidate affected pages
-      revalidatePath("/categories");
-
-      return {
-        success: true,
-        data: createdCategory,
-      };
+      return category;
     });
+
+    // Revalidate affected pages
+    revalidatePath("/categories");
+
+    return {
+      success: true,
+      data: createdCategory,
+    };
   } catch (error) {
     const message = handlePrismaActionError(error, "Category");
     return {
@@ -217,9 +219,7 @@ export async function deleteCategory(
  */
 export async function deleteBulkCategories(
   formData: FormData
-): Promise<
-  { success: boolean; error?: string; deletedCount?: number } | undefined
-> {
+): Promise<{ success: boolean; error?: string; deletedCount?: number }> {
   try {
     const user = await getCurrentUser();
 
@@ -248,7 +248,7 @@ export async function deleteBulkCategories(
       select: { id: true, name: true, subcategories: { select: { id: true } } },
     });
 
-    await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       const result = await tx.category.deleteMany({
         where: { id: { in: ids } },
       });
@@ -272,11 +272,13 @@ export async function deleteBulkCategories(
         },
       });
 
-      // Revalidate affected pages
-      revalidatePath("/categories");
-
       return { success: true, deletedCount: result.count };
     });
+
+    // Revalidate affected pages
+    revalidatePath("/categories");
+
+    return result;
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Failed to delete categories";
