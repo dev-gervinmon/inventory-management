@@ -3,11 +3,21 @@ import type { NextResponse as NextResponseType } from "next/server";
 import { checkFixedWindow } from "@/lib/rate-limit/memory";
 import { getClientIp } from "@/lib/rate-limit/request";
 import { rateLimitHeaders, retryAfterSeconds } from "@/lib/rate-limit/http";
+import {
+  hasSharedRateLimitStore,
+  getFixedWindowLimiter,
+} from "@/lib/rate-limit/upstash";
 
-type Handler<T = unknown, C = unknown> = (
+type HandlerNoContext = (
+  req: Request
+) => Promise<NextResponseType<unknown>> | NextResponseType<unknown>;
+
+type HandlerWithContext<C = unknown> = (
   req: Request,
-  context?: C
-) => Promise<NextResponseType<T>> | NextResponseType<T>;
+  context: C
+) => Promise<NextResponseType<unknown>> | NextResponseType<unknown>;
+
+type EmptyRouteContext = { params: Promise<Record<string, never>> };
 
 export type RateLimitConfig<C = unknown> = {
   /** Max requests per window. */
@@ -25,11 +35,24 @@ export type RateLimitConfig<C = unknown> = {
   message?: string;
 };
 
+export function withRateLimit(
+  handler: HandlerNoContext,
+  config: RateLimitConfig<EmptyRouteContext>
+): (
+  req: Request,
+  context: EmptyRouteContext
+) => Promise<NextResponseType<unknown>>;
+
 export function withRateLimit<C = unknown>(
-  handler: Handler<unknown, C>,
+  handler: HandlerWithContext<C>,
+  config: RateLimitConfig<C>
+): (req: Request, context: C) => Promise<NextResponseType<unknown>>;
+
+export function withRateLimit<C = unknown>(
+  handler: HandlerNoContext | HandlerWithContext<C>,
   config: RateLimitConfig<C>
 ) {
-  return async (req: Request, context?: C) => {
+  return async (req: Request, context: C) => {
     const nowMs = Date.now();
     const keyFn =
       config.key ??
@@ -41,11 +64,45 @@ export function withRateLimit<C = unknown>(
     const rawKey = await keyFn(req, context);
     const key = `${config.prefix ?? ""}${rawKey}`;
 
-    const rl = checkFixedWindow(key, {
-      limit: config.limit,
-      windowMs: config.windowMs,
-      nowMs,
-    });
+    const rl = await (async () => {
+      if (!hasSharedRateLimitStore()) {
+        return checkFixedWindow(key, {
+          limit: config.limit,
+          windowMs: config.windowMs,
+          nowMs,
+        });
+      }
+
+      const limiter = getFixedWindowLimiter({
+        limit: config.limit,
+        windowMs: config.windowMs,
+      });
+
+      const result = await limiter.limit(key);
+
+      const resetMs = (() => {
+        const reset = (result as unknown as { reset?: unknown }).reset;
+
+        if (reset instanceof Date) return reset.getTime();
+        if (typeof reset === "number") {
+          // Heuristic: treat small numbers as seconds-since-epoch.
+          return reset < 1_000_000_000_000 ? reset * 1000 : reset;
+        }
+        if (typeof reset === "string") {
+          const parsed = Date.parse(reset);
+          if (!Number.isNaN(parsed)) return parsed;
+        }
+
+        return nowMs + config.windowMs;
+      })();
+
+      return {
+        allowed: result.success,
+        limit: result.limit,
+        remaining: Math.max(0, result.remaining),
+        resetMs,
+      };
+    })();
 
     const headers = rateLimitHeaders({
       limit: rl.limit,
@@ -61,7 +118,7 @@ export function withRateLimit<C = unknown>(
       );
     }
 
-    const res = await handler(req, context);
+    const res = await (handler as HandlerWithContext<C>)(req, context);
 
     // Attach rate-limit headers to successful responses too.
     headers.forEach((value, headerName) => {
