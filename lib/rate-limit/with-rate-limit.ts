@@ -7,9 +7,7 @@ import {
   getFixedWindowLimiter,
 } from "@/lib/rate-limit/upstash";
 
-type HandlerNoContext = (
-  req: Request
-) => Promise<Response> | Response;
+type HandlerNoContext = (req: Request) => Promise<Response> | Response;
 
 type HandlerWithContext<C = unknown> = (
   req: Request,
@@ -37,10 +35,7 @@ export type RateLimitConfig<C = unknown> = {
 export function withRateLimit(
   handler: HandlerNoContext,
   config: RateLimitConfig<EmptyRouteContext>
-): (
-  req: Request,
-  context: EmptyRouteContext
-) => Promise<Response>;
+): (req: Request, context: EmptyRouteContext) => Promise<Response>;
 
 export function withRateLimit<C = unknown>(
   handler: HandlerWithContext<C>,
