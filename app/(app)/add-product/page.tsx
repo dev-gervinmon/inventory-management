@@ -8,7 +8,7 @@ export default async function AddProductPage() {
   const categories = await getAllCategories();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <AddProductClient formAction={createProduct} categories={categories} />
     </div>
   );
