@@ -9,6 +9,7 @@ import { useMessage } from "@/lib/hooks/useMessage";
 import { useFormErrors } from "@/lib/hooks/useFormErrors";
 import { ProductFormContext } from "@/lib/contexts/product-form-context";
 import SuccessModal from "@/components/modals/success-modal";
+import MessageBanner from "@/components/common/message-banner";
 import { CategoryWithSubcategories } from "@/lib/types/category";
 import { UI_TIMING, getEditProductPath } from "@/lib/constants/forms";
 
@@ -48,7 +49,7 @@ export default function AddProductClient({
   categories,
 }: AddProductClientProps) {
   const router = useRouter();
-  const { showError } = useMessage({
+  const { message, showError, clearMessage } = useMessage({
     autoClose: true,
     timeout: UI_TIMING.ERROR_MESSAGE_TIMEOUT_MS,
   });
@@ -61,6 +62,7 @@ export default function AddProductClient({
   const successTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleFormSubmit = async (formData: FormData) => {
+    clearMessage();
     clearFormErrors();
     setIsSubmitting(true);
 
@@ -89,6 +91,7 @@ export default function AddProductClient({
   }, [createdProductId, router]);
 
   const triggerSuccessFlow = () => {
+    clearMessage();
     setIsSubmitting(false);
     setIsSuccessModalOpen(true);
     successTimeoutRef.current = setTimeout(() => {
@@ -129,21 +132,20 @@ export default function AddProductClient({
         onClose={handleSuccessModalClose}
       />
 
-      <StickyFormHeader
-        title="Add Product"
-        subtitle="Add a new product to your inventory"
-        backHref="/inventory"
-        backLabel="← Back to Inventory"
-        isLoading={isSubmitting}
-        submitLabel="Create Product"
-        alwaysShowReset
-        onReset={handleReset}
-      />
+      <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-6 md:py-8 space-y-4 sm:space-y-6">
+        <MessageBanner message={message} />
 
-      {/* Add padding for sticky header - responsive */}
-      <div className="pt-6 sm:pt-8 md:pt-20" />
+        <StickyFormHeader
+          title="Add Product"
+          subtitle="Add a new product to your inventory"
+          backHref="/inventory"
+          backLabel="← Back to Inventory"
+          isLoading={isSubmitting}
+          submitLabel="Create Product"
+          alwaysShowReset
+          onReset={handleReset}
+        />
 
-      <div className="px-4 sm:px-6 md:px-8">
         <ProductFormContext.Provider
           value={{ formErrors, isSubmitting, onSubmit: handleFormSubmit }}
         >
