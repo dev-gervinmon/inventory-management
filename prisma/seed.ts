@@ -13,20 +13,29 @@ async function main() {
   const reset =
     process.env.SEED_RESET === "1" || process.env.SEED_RESET === "true";
 
+  // If no user context is provided, only seed global lookup data.
+  // This is useful for first-time production deployments.
   if (!userId) {
-    console.log("\n✖ Missing SEED_USER_ID");
-    console.log(
-      "Run the app, sign in, then open /api/debug/whoami to copy your user id."
-    );
-    console.log(
-      'Then run: $env:SEED_USER_ID="<your-user-id>"; $env:SEED_RESET="1"; npx prisma db seed\n'
-    );
-    process.exit(1);
+    const existingCategories = await prisma.category.count();
+    if (existingCategories > 0 && !reset) {
+      console.log(
+        `\n• Seed skipped: database already has ${existingCategories} categories (set SEED_USER_ID to seed user-scoped demo data).`
+      );
+      return;
+    }
+
+    if (reset) {
+      console.log(
+        "\n• SEED_RESET was provided but SEED_USER_ID is missing; only global seed will run."
+      );
+    }
   }
 
-  const userKey = userId.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8) || "demo";
+  const userKey = userId
+    ? userId.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8) || "demo"
+    : "demo";
 
-  if (reset) {
+  if (reset && userId) {
     console.log("\n• Resetting existing demo data for user...");
     await prisma.stockMovement.deleteMany({ where: { product: { userId } } });
     await prisma.activity.deleteMany({ where: { userId } });
@@ -183,6 +192,13 @@ async function main() {
     });
 
     console.log(`✓ Ensured category: ${categoryData.name}`);
+  }
+
+  if (!userId) {
+    console.log(
+      `\n✓ Global seed complete (${categoriesData.length} categories). No SEED_USER_ID provided, so user-scoped demo data was not created.`
+    );
+    return;
   }
 
   console.log(`\n✓ Seed data created successfully!`);

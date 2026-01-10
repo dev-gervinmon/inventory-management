@@ -160,6 +160,17 @@ In **Project Settings → Build & Development Settings → Build Command**, use:
 npx prisma migrate deploy && npx prisma generate && next build
 ```
 
+Optional: seed on first deploy
+
+- If you want to automatically populate the database the first time (safe global seed: categories/subcategories), you can use:
+
+```bash
+npx prisma migrate deploy && npx prisma generate && npx prisma db seed && next build
+```
+
+- The seed script is designed to **skip** if categories already exist.
+- For user-scoped demo data, set `SEED_USER_ID` (and optionally `SEED_RESET=true`) in Vercel env vars.
+
 ### 5. Deploy
 
 - Trigger a deployment and confirm the build completes.
