@@ -9,8 +9,8 @@ import {
 import { NextResponse } from "next/server";
 
 export const PUT = withApiHandler(
-  async (req: Request, context?: { params: { id: string } }) => {
-    const params = await context!.params;
+  async (req: Request, context: { params: Promise<{ id: string }> }) => {
+    const params = await context.params;
 
     const id = apiRequireId(params);
 
@@ -29,8 +29,8 @@ export const PUT = withApiHandler(
 );
 
 export const DELETE = withApiHandler(
-  async (req: Request, context?: { params: { id: string } }) => {
-    const params = await context!.params;
+  async (req: Request, context: { params: Promise<{ id: string }> }) => {
+    const params = await context.params;
     const id = apiRequireId(params);
 
     await apiRequireSubcategoryExists(id);
