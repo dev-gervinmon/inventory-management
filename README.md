@@ -216,4 +216,7 @@ GitHub: https://github.com/dev-gervinmon
 
 ---
 
+## Live Link
+- https://inventory-management-3lzu9el74.vercel.app/
+
 If you find this project useful, feel free to ⭐ the repo!
