@@ -5,7 +5,7 @@ import { Prisma } from "@/app/generated/prisma/client";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "../auth/auth";
 import { parseSubcategoryData } from "../schemas/subcategories";
-import { actionRequireId } from "../validators/subcategories";
+import { actionRequireId } from "../validators/common";
 import { logActivity } from "./activities";
 import { checkActionRateLimit } from "./rate-limit";
 
