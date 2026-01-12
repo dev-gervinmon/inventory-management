@@ -42,6 +42,7 @@ export const ProductSchema = z.object({
     .min(PRODUCT_LIMITS.LOW_STOCK_MIN, "Low stock level must be non-negative")
     .optional(),
   imageUrl: z.string().optional(),
+  warehouseId: z.string().optional(),
 });
 
 export type Product = z.infer<typeof ProductSchema>;

@@ -6,7 +6,8 @@ export type StockMovementReason =
   | "ADJUSTMENT"
   | "RETURN"
   | "DELIVERY"
-  | "MARKET_SYNC";
+  | "MARKET_SYNC"
+  | "REVERT";
 
 export interface StockMovement {
   productId: string;
@@ -38,7 +39,6 @@ export interface TopMovingProduct {
 export interface NonMovingProduct {
   productId: string;
   name: string;
-  quantity: number;
 }
 
 export interface StockMovementTrendIndicator {

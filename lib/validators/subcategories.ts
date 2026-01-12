@@ -1,14 +1,6 @@
 import { jsonError, notFound } from "../errors/http";
 import prisma from "@/lib/db/prisma";
 
-export function actionRequireId(formData: FormData) {
-  const id = String(formData.get("id") || "").trim();
-  if (!id) {
-    throw new Error("Subcategory ID is required");
-  }
-  return id;
-}
-
 export function apiValidateSubcategoryInput(body: {
   name?: string;
   categoryId?: string;

@@ -10,6 +10,7 @@ export const WarehouseSchema = z.object({
   location: z
     .string()
     .max(WAREHOUSE_LIMITS.LOCATION_MAX, "Location is too long"),
+  isDefault: z.boolean(),
 });
 
 export type Warehouse = z.infer<typeof WarehouseSchema>;

@@ -7,6 +7,7 @@ import { logActivity } from "./activities";
 import { formatPrice } from "../utils/products";
 import { createStockMovement } from "../analytics/stock-movement";
 import { checkActionRateLimit } from "./rate-limit";
+import { actionRequireId } from "../validators/common";
 
 /**
  * Extract IDs from FormData for a given key
@@ -138,15 +139,30 @@ export async function createProduct(formData: FormData) {
     );
   }
 
-  const data = parseProductData(formData);
+  const {
+    quantity,
+    warehouseId: parsedWarehouseId,
+    ...productData
+  } = parseProductData(formData);
+  let warehouseId = parsedWarehouseId;
   const categoryIds = extractIdsFromFormData(formData, "categoryIds");
   const subcategoryIds = extractIdsFromFormData(formData, "subcategoryIds");
+
+  if (!warehouseId) {
+    const defaultWarehouse = await prisma.warehouse.findFirst({
+      where: { userId: user.id, isDefault: true },
+    });
+    if (!defaultWarehouse) {
+      throw new Error("No default warehouse found");
+    }
+    warehouseId = defaultWarehouse.id;
+  }
 
   try {
     return await prisma.$transaction(async (tx) => {
       const createdProduct = await tx.product.create({
         data: {
-          ...data,
+          ...productData,
           userId: user.id,
           categories: {
             connect: categoryIds.map((id) => ({ id })),
@@ -168,9 +184,19 @@ export async function createProduct(formData: FormData) {
         details: {
           sku: createdProduct.sku || "",
           price: createdProduct.price.toNumber(),
-          quantity: createdProduct.quantity,
         },
       });
+
+      if (quantity && quantity > 0) {
+        await createStockMovement(tx, {
+          productId: createdProduct.id,
+          warehouseId,
+          quantity,
+          direction: "IN",
+          reason: "ADJUSTMENT",
+          source: "USER",
+        });
+      }
 
       return { productId: createdProduct.id };
     });
@@ -201,11 +227,7 @@ export async function editProduct(formData: FormData) {
     );
   }
 
-  const id = String(formData.get("id") || "");
-
-  if (!id) {
-    throw new Error("Product ID is required");
-  }
+  const id = actionRequireId(formData);
 
   // Verify product exists and belongs to user and get old data
   const oldProduct = await prisma.product.findUnique({
@@ -215,7 +237,6 @@ export async function editProduct(formData: FormData) {
       name: true,
       price: true,
       unitCost: true,
-      quantity: true,
     },
   });
 
@@ -223,9 +244,24 @@ export async function editProduct(formData: FormData) {
     throw new Error("Product not found or unauthorized");
   }
 
-  const { quantity, ...productData } = parseProductData(formData);
+  const {
+    quantity,
+    warehouseId: parsedWarehouseId,
+    ...productData
+  } = parseProductData(formData);
+  let warehouseId = parsedWarehouseId;
   const categoryIds = extractIdsFromFormData(formData, "categoryIds");
   const subcategoryIds = extractIdsFromFormData(formData, "subcategoryIds");
+
+  if (!warehouseId) {
+    const defaultWarehouse = await prisma.warehouse.findFirst({
+      where: { userId: user.id, isDefault: true },
+    });
+    if (!defaultWarehouse) {
+      throw new Error("No default warehouse found");
+    }
+    warehouseId = defaultWarehouse.id;
+  }
 
   try {
     await prisma.$transaction(async (tx) => {
@@ -242,17 +278,29 @@ export async function editProduct(formData: FormData) {
         },
       });
 
+      const currentStock = await tx.warehouseStock.findUnique({
+        where: {
+          warehouseId_productId: {
+            warehouseId,
+            productId: id,
+          },
+        },
+      });
+
+      const oldQuantity = currentStock ? currentStock.quantity : 0;
+
       const quantityChanged =
-        typeof quantity === "number" && quantity !== oldProduct.quantity;
+        typeof quantity === "number" && quantity !== oldQuantity;
 
       if (quantityChanged) {
-        const diff = quantity - oldProduct.quantity;
+        const diff = quantity - oldQuantity;
         await createStockMovement(tx, {
           productId: id,
           quantity: Math.abs(diff),
           direction: diff > 0 ? "IN" : "OUT",
           reason: "ADJUSTMENT",
           source: "USER",
+          warehouseId: warehouseId,
         });
 
         await logActivity(tx, user.id, {
@@ -262,7 +310,7 @@ export async function editProduct(formData: FormData) {
           entityName: updatedProduct.name,
           message: `Updated stock for "${updatedProduct.name}"`,
           details: {
-            from: oldProduct.quantity,
+            from: oldQuantity,
             to: quantity,
             difference: diff,
           },
@@ -416,7 +464,6 @@ export async function revertActivity(
         userId: true,
         name: true,
         price: true,
-        quantity: true,
       },
     });
 
@@ -468,8 +515,12 @@ export async function revertActivity(
     let hasChanges = false;
 
     // Check for quantity changes
+    let quantityRevert: { old: number; new: number } | null = null;
     if (details.quantity_old !== undefined) {
-      updateData.quantity = Number(details.quantity_old);
+      quantityRevert = {
+        old: Number(details.quantity_old),
+        new: Number(details.quantity_new),
+      };
       hasChanges = true;
     }
 
@@ -492,6 +543,37 @@ export async function revertActivity(
     }
 
     const result = await prisma.$transaction(async (tx) => {
+      if (quantityRevert) {
+        const warehouseId = activity.warehouseId;
+        if (!warehouseId) {
+          throw new Error(
+            "Cannot revert stock change: original warehouse ID is missing."
+          );
+        }
+        const currentStock = await tx.warehouseStock.findUnique({
+          where: {
+            warehouseId_productId: {
+              warehouseId,
+              productId,
+            },
+          },
+        });
+
+        const currentQuantity = currentStock?.quantity ?? 0;
+        const targetQuantity = quantityRevert.old;
+        const diff = targetQuantity - currentQuantity;
+
+        if (diff !== 0) {
+          await createStockMovement(tx, {
+            productId,
+            warehouseId,
+            quantity: Math.abs(diff),
+            direction: diff > 0 ? "IN" : "OUT",
+            reason: "REVERT",
+            source: "USER",
+          });
+        }
+      }
       // Update the product with old values
       const revertedProduct = await tx.product.update({
         where: { id: productId },
@@ -501,9 +583,7 @@ export async function revertActivity(
       // Log the revert as a new activity
       const revertedFields = Object.keys(updateData)
         .map((field) => {
-          if (field === "quantity") {
-            return `quantity: ${product.quantity} → ${details.quantity_old}`;
-          } else if (field === "price") {
+          if (field === "price") {
             return `price: ${formatPrice(
               product.price.toNumber()
             )} → ${formatPrice(Number(details.price_old))}`;

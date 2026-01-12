@@ -3,7 +3,7 @@
 import { PrismaTx } from "@/lib/db/prisma";
 
 export interface ActivityLog {
-  entityType: "PRODUCT" | "CATEGORY" | "SUBCATEGORY";
+  entityType: "PRODUCT" | "CATEGORY" | "SUBCATEGORY" | "WAREHOUSE";
   actionType:
     | "ADDED"
     | "EDITED"
