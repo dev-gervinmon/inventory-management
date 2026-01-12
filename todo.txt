@@ -4,11 +4,13 @@ Implemented -- Update default page @page.tsx
 Implemented -- Modify table to be cards with images instead
 Implemented -- Add categories
 Implemented -- Add subcategories
--- Post successful login/signup
+Implemented -- Post successful login/signup
 -- Find a way to get product info (product api)
 -- Make live market feature (include revenue, modify product stocks, etc.)
 -- Add possibility of having multiple stores (diff store, diff inventory)
 -- Add field validations on forms (saving with existing SKU causes error)
 -- Add more error messages
 -- Cleanup for image upload
--- Deploy
+-- Implement the Action Wrapper through creating lib/actions/action-wrapper.ts
+
+Implemented -- Deploy
