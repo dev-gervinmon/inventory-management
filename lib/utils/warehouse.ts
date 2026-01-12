@@ -1,0 +1,5 @@
+export const WAREHOUSE_LIMITS = {
+  NAME_MIN: 1,
+  NAME_MAX: 100,
+  LOCATION_MAX: 200,
+};
