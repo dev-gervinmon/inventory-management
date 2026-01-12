@@ -1,14 +1,6 @@
 import { jsonError, notFound } from "../errors/http";
 import prisma from "@/lib/db/prisma";
 
-export function actionRequireId(formData: FormData) {
-  const id = String(formData.get("id") || "").trim();
-  if (!id) {
-    throw new Error("Category ID is required");
-  }
-  return id;
-}
-
 export function apiValidateCategoryInput(body: { name?: string }) {
   const { name } = body ?? {};
   if (typeof name !== "string" || !name.trim()) {
