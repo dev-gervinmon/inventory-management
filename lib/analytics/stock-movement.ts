@@ -16,6 +16,7 @@ interface CreateStockMovementInput {
   direction: StockDirection;
   reason: StockMovementReason;
   source?: "USER" | "SYSTEM" | "MARKET";
+  warehouseId: string;
 }
 
 function fillMissingDays(
@@ -211,7 +212,6 @@ export async function getNonMovingProducts(
     select: {
       id: true,
       name: true,
-      quantity: true,
       updatedAt: true,
     },
     orderBy: { updatedAt: "desc" },
@@ -221,7 +221,6 @@ export async function getNonMovingProducts(
   return products.map((p) => ({
     productId: p.id,
     name: p.name,
-    quantity: p.quantity,
   }));
 }
 
@@ -229,7 +228,14 @@ export async function createStockMovement(
   tx: PrismaTx,
   input: CreateStockMovementInput
 ) {
-  const { productId, quantity, direction, reason, source = "SYSTEM" } = input;
+  const {
+    productId,
+    quantity,
+    direction,
+    reason,
+    source = "SYSTEM",
+    warehouseId,
+  } = input;
 
   await tx.stockMovement.create({
     data: {
@@ -238,14 +244,25 @@ export async function createStockMovement(
       direction,
       reason,
       source,
+      warehouseId,
     },
   });
 
   const delta = direction === "IN" ? quantity : -quantity;
 
-  await tx.product.update({
-    where: { id: productId },
-    data: {
+  await tx.warehouseStock.upsert({
+    where: {
+      warehouseId_productId: {
+        warehouseId,
+        productId,
+      },
+    },
+    create: {
+      warehouseId,
+      productId,
+      quantity: direction === "IN" ? quantity : 0,
+    },
+    update: {
       quantity: {
         increment: delta,
       },
