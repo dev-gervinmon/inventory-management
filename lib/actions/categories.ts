@@ -8,12 +8,7 @@ import { handlePrismaActionError } from "../errors/actions";
 import { actionRequireId } from "../validators/categories";
 import { logActivity } from "./activities";
 import { checkActionRateLimit } from "./rate-limit";
-
-type ActionResponse = {
-  success: boolean;
-  error?: string;
-  data?: unknown;
-};
+import { ActionResponse } from "../constants/common";
 
 /**
  * Create a new category
