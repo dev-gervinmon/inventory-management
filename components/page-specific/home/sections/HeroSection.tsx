@@ -4,11 +4,17 @@ import { useTheme } from "@/app/theme-provider";
 import { Button } from "@/components/buttons/button";
 import { Badge } from "@/components/common/badge";
 import { Card } from "@/components/common/card";
+import UserButtonClientOnly from "@/components/layout/top-nav/user-button-client-only";
+import { Skeleton } from "@/components/skeletons/skeleton";
+import { stackClientApp } from "@/stack/client";
 import { useState, useEffect } from "react";
 
 export function HeroSection() {
   const { theme, setTheme } = useTheme();
   const [navSolid, setNavSolid] = useState(false);
+  const [authState, setAuthState] = useState<
+    "unknown" | "signed-in" | "signed-out"
+  >("unknown");
 
   useEffect(() => {
     let rafId: number | null = null;
@@ -31,6 +37,23 @@ export function HeroSection() {
     return () => {
       window.removeEventListener("scroll", onScroll);
       if (rafId != null) window.cancelAnimationFrame(rafId);
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const user = await stackClientApp.getUser();
+        if (!cancelled) setAuthState(user ? "signed-in" : "signed-out");
+      } catch {
+        if (!cancelled) setAuthState("signed-out");
+      }
+    })();
+
+    return () => {
+      cancelled = true;
     };
   }, []);
 
@@ -67,7 +90,7 @@ export function HeroSection() {
             <a href="#preview" className="hover:text-(--brand) transition">
               Preview
             </a>
-            <Link href="/inventory" className="hover:text-(--brand) transition">
+            <Link href="/dashboard" className="hover:text-(--brand) transition">
               Dashboard
             </Link>
           </div>
@@ -86,9 +109,19 @@ export function HeroSection() {
               </span>
             </button>
 
-            <Button asChild href="/sign-in" className="hidden sm:inline-flex">
-              Login
-            </Button>
+            {authState === "signed-in" ? (
+              <div className="hidden sm:inline-flex">
+                <UserButtonClientOnly />
+              </div>
+            ) : authState === "signed-out" ? (
+              <Button asChild href="/sign-in" className="hidden sm:inline-flex">
+                Login
+              </Button>
+            ) : (
+              <div className="hidden sm:inline-flex">
+                <Skeleton className="h-8 w-8 rounded-full" />
+              </div>
+            )}
           </div>
         </div>
       </nav>
